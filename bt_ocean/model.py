@@ -397,14 +397,16 @@ class Solver(ABC):
 
         self.initialize()
 
-        # Cached property initialization
-        self.beta
-        self.nu
-        self.r
-        self.dt
-        self.dealias
-        self.poisson_solver
-        self.modified_helmholtz_solver
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        def flatten(solver):
+            return solver.flatten()
+
+        def unflatten(aux_data, children):
+            return cls.unflatten(aux_data, children)
+
+        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
 
     @cached_property
     def beta(self) -> jax.Array:
@@ -567,7 +569,7 @@ class Solver(ABC):
         return (0.5 * self.grid.L_x * self.grid.L_y
                 * (k ** 2 + l ** 2) * (dst(dst(psi, axis=1), axis=0) ** 2))
 
-    def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, min_n=0, max_it=10000):
+    def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, _min_n=0, max_it=10000):
         r"""Timestep to steady state.
 
         Uses timestepping to define a fixed-point iteration, and applies
@@ -605,10 +607,6 @@ class Solver(ABC):
 
             where :math:`\zeta_n` is the degree-of-freedom vector on timestep
             :math:`n` and :math:`\varepsilon` is the tolerance.
-        min_n : Integral
-            Minimum number of timesteps to be taken by the :class:`.Solver`
-            before beginning the fixed-point iteration. Should be increased for
-            timestepping schemes which have multiple startup steps.
         max_it : Integral
             Maximum number of iterations.
 
@@ -619,99 +617,80 @@ class Solver(ABC):
             The number of iterations.
         """
 
-        model = type(self)(self.parameters)
-
         @jax.jit
         def forward_step(data, m):
-            _, (fields, dealias_fields, n, it) = data
-            model.fields.update(fields)
-            model.dealias_fields.update(dealias_fields)
-            model.n = n
+            _, model, it = data
+            zeta_0 = model.fields["zeta"]
             update(model, *m)
             model.step()
-            return (fields, dealias_fields, n, it), (dict(model.fields), dict(model.dealias_fields), model.n, it + 1)
+            return (zeta_0, model, it + 1)
 
         @jax.custom_vjp
-        def forward(data_0, m):
-            fields_0, dealias_fields_0, n_0 = data_0
-            model.fields.update(fields_0)
-            model.dealias_fields.update(dealias_fields_0)
-            model.n = n_0
-            while model.n < min_n:
-                update(model, *m)
-                model.step()
-            fields_0 = dict(model.fields)
-            dealias_fields_0 = dict(model.dealias_fields)
-            n_0 = model.n
-            update(model, *m)
-            model.step()
+        def forward(model, m):
+            while model.n <= _min_n:
+                zeta_0, model, _ = forward_step((None, model, 0), m)
 
             def non_convergence(data):
-                (fields_0, _, _, _), (fields_1, _, _, it_1) = data
+                zeta_0, model, it = data
+                zeta_1 = model.fields["zeta"]
                 return jnp.logical_and(
-                    it_1 <= max_it,
-                    abs(fields_1["zeta"] - fields_0["zeta"]).max() > tol * abs(fields_1["zeta"]).max())
+                    it <= max_it,
+                    abs(zeta_1 - zeta_0).max() > tol * abs(zeta_1).max())
 
-            _, data_1 = jax.lax.while_loop(
+            _, model, it = jax.lax.while_loop(
                 non_convergence, partial(forward_step, m=m),
-                ((fields_0, dealias_fields_0, n_0, 0), (dict(model.fields), dict(model.dealias_fields), model.n, 1)))
-            return data_1
+                (zeta_0, model, 1))
+            return model, it
 
-        def forward_fwd(data_0, m):
-            data_1 = forward(data_0, m)
-            return data_1, (data_1, m)
+        def forward_fwd(model, m):
+            model, it = forward(model, m)
+            return (model, it), (model, m)
 
         def forward_bwd(res, zeta):
-            data, m = res
+            model, m = res
+            zeta_model, _ = zeta
 
             _, vjp_step = jax.vjp(
-                lambda data: forward_step((None, data), m)[1], data)
+                lambda model: forward_step((None, model, 0), m)[1], model)
 
             @jax.jit
-            def adj_step(adj_data, zeta):
-                _, adj_data_1 = adj_data
-                lam_n, it = adj_data_1[:-1], adj_data_1[-1]
-                lam_np1, = vjp_step(lam_n)
-                return (adj_data_1,
-                        ({key: lam_np1[0][key] + zeta[0][key] for key in lam_np1[0]},
-                         {key: lam_np1[1][key] + zeta[1][key] for key in lam_np1[1]},
-                         jnp.zeros_like(lam_np1[2]),
-                         jnp.zeros_like(lam_np1[3]),
-                         it + 1))
+            def adj_step(data, zeta_model):
+                _, lam_model, lam_it = data
+                lam_zeta_0 = lam_model.fields["zeta"]
+                lam_model, = vjp_step(lam_model)
+                for key, value in lam_model.fields.items():
+                    lam_model.fields[key] = value + zeta_model.fields[key]
+                for key, value in lam_model.dealias_fields.items():
+                    lam_model.dealias_fields[key] = value + zeta_model.dealias_fields[key]
+                return lam_zeta_0, lam_model, lam_it + 1
 
-            def adjoint(zeta):
-                adj_data_0 = tuple(zeta) + (0,)
-                _, adj_data_1 = adj_step((None, adj_data_0), zeta)
+            def adjoint(zeta_model):
+                lam_zeta_0, lam_model, _ = adj_step((None, zeta_model, 0), zeta_model)
 
                 def non_convergence(data):
-                    (lam_fields_0, _, _, _, _), (lam_fields_1, _, _, _, it_1) = data
+                    lam_zeta_0, lam_model, lam_it = data
+                    lam_zeta_1 = lam_model.fields["zeta"]
                     return jnp.logical_and(
-                        it_1 <= max_it,
+                        lam_it <= max_it,
                         # l^1 norm (dual to l^\infty)
-                        abs(lam_fields_1["zeta"] - lam_fields_0["zeta"]).sum() > tol * abs(lam_fields_1["zeta"]).sum())
+                        abs(lam_zeta_1 - lam_zeta_0).sum() > tol * abs(lam_zeta_1).sum())
 
-                _, adj_data = jax.lax.while_loop(
-                    non_convergence, partial(adj_step, zeta=zeta), (adj_data_0, adj_data_1))
-                lam, it = adj_data[:-1], adj_data[-1]
-                if it > max_it:
+                _, lam_model, lam_it = jax.lax.while_loop(
+                    non_convergence, partial(adj_step, zeta_model=zeta_model), (lam_zeta_0, lam_model, 1))
+                if lam_it > max_it:
                     raise SteadyStateMaximumIterationsError("Maximum number of iterations exceeded")
-                return lam
+                return lam_model
 
-            lam = adjoint(zeta)
-            _, vjp = jax.vjp(lambda m: forward_step((None, data), m)[1], m)
-            lam_m, = vjp(lam)
+            lam_model = adjoint(zeta_model)
+            _, vjp = jax.vjp(lambda m: forward_step((None, model, 0), m)[1], m)
+            lam_m, = vjp(lam_model)
 
-            return ({key: jnp.zeros_like(value) for key, value in lam[0].items()},
-                    {key: jnp.zeros_like(value) for key, value in lam[1].items()},
-                    jnp.zeros_like(lam[2])), lam_m
+            return lam_model.new(), lam_m
 
         forward.defvjp(forward_fwd, forward_bwd)
 
-        fields, dealias_fields, n, it = forward(
-            (dict(self.fields), dict(self.dealias_fields), self.n), m)
-        self.fields.update(fields)
-        self.dealias_fields.update(dealias_fields)
-        self.n = n
+        model, it = forward(self, m)
+        self.update(model)
         if it > max_it:
             raise SteadyStateMaximumIterationsError("Maximum number of iterations exceeded")
 
@@ -746,6 +725,62 @@ class Solver(ABC):
 
         return g
 
+    def new(self):
+        """Return a new :class:`.Solver` with the same configuration as this
+        :class:`.Solver.
+
+        Returns
+        -------
+
+        :class:`.Solver`
+            The new :class:`.Solver`.
+        """
+
+        solver = type(self)(self.parameters)
+        solver.poisson_solver = self.poisson_solver
+        return solver
+
+    def update(self, solver):
+        """Update the state of this :class:`.Solver`.
+
+        Parameters
+        ----------
+
+        solver : :class:`.Solver`
+            Defines the new state of this :class:`.Solver`.
+        """
+
+        self.fields.update(solver.fields)
+        self.dealias_fields.update(solver.dealias_fields)
+        self.n = solver.n
+
+    def flatten(self):
+        """Return a JAX flattened representation.
+
+        Returns
+        -------
+
+        Sequence[Sequence[object, ...], Sequence[object, ...]]
+        """
+
+        return ((dict(self.fields), dict(self.dealias_fields), self.n),
+                (type(self), self.parameters, self.poisson_solver))
+
+    @staticmethod
+    def unflatten(aux_data, children):
+        """Unpack a JAX flattened representation.
+        """
+
+        cls, parameters, poisson_solver = aux_data
+        solver = cls(parameters)
+        solver.poisson_solver = poisson_solver
+        fields, dealias_fields, n = children
+        if type(n) is not object:  # Work around internal JAX behavior
+            solver.fields.update(fields)
+            solver.dealias_fields.update(dealias_fields)
+            solver.n = n
+        return solver
+
 
 def read_solver(h, path="solver", *, cls=None):
     """Read solver from a :class:`zarr.hierarchy.Group`.
@@ -776,9 +811,9 @@ def read_solver(h, path="solver", *, cls=None):
     if g.attrs["type"] != cls.__name__:
         raise ValueError("Invalid type")
     solver = cls(read_parameters(g, "parameters"))
-    solver.n = g.attrs["n"]
     solver.fields.update(read_fields(g, "fields", grid=solver.grid))
     solver.dealias_fields.update(read_fields(g, "dealias_fields", grid=solver.dealias_grid))
+    solver.n = g.attrs["n"]
 
     return solver
 
@@ -876,4 +911,19 @@ class CNAB2Solver(Solver):
         return 0.5 * ((u * u + v * v) * self.dealias_grid.W).sum()
 
     def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, max_it=10000):
-        return super().steady_state_solve(m=m, update=update, tol=tol, min_n=1, max_it=max_it)
+        return super().steady_state_solve(m=m, update=update, tol=tol, _min_n=1, max_it=max_it)
+
+    def new(self):
+        solver = super().new()
+        solver.modified_helmholtz_solver = self.modified_helmholtz_solver
+        return solver
+
+    def flatten(self):
+        children, aux_data = super().flatten()
+        return children, aux_data + (self.modified_helmholtz_solver,)
+
+    @staticmethod
+    def unflatten(aux_data, children):
+        solver = Solver.unflatten(aux_data[:-1], children)
+        solver.modified_helmholtz_solver = aux_data[-1]
+        return solver

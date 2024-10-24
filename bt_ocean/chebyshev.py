@@ -36,11 +36,6 @@ class Chebyshev:
         self._idtype = default_idtype() if idtype is None else idtype
         self._fdtype = default_fdtype() if fdtype is None else fdtype
 
-        # Cached property initialization
-        self.x
-        self.w
-        self.D
-
     @property
     def idtype(self) -> type:
         """Integer scalar data type.

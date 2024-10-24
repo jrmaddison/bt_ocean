@@ -223,7 +223,7 @@ class Dynamics(keras.layers.Layer):
 
     def __init__(self, dynamics, Q_0, Q_network, Q_callback, N, *, n_output=1,
                  input_weight=1, output_weight=1):
-        super().__init__()
+        super().__init__(dtype=dynamics.grid.fdtype)
         self.__dynamics = dynamics
         self.__Q_0 = Q_0
         self.__Q_network = Q_network
@@ -238,34 +238,19 @@ class Dynamics(keras.layers.Layer):
 
     def call(self, inputs):
         @jax.checkpoint
-        def step(_, data):
-            fields, dealias_fields, n = data
-            dynamics = type(self.__dynamics)(self.__dynamics.parameters)
-            # Workaround for missing GPU eig
-            dynamics.poisson_solver = self.__dynamics.poisson_solver
-            dynamics.modified_helmholtz_solver = self.__dynamics.modified_helmholtz_solver
-            dynamics.fields.update(fields)
-            dynamics.dealias_fields.update(dealias_fields)
-            dynamics.n = n
-
+        def step(_, dynamics):
             dynamics.fields["Q"] = self.__Q_0 + self.__Q_callback(dynamics, self.__Q_network)
             dynamics.step()
+            return dynamics
 
-            data = (dict(dynamics.fields), dict(dynamics.dealias_fields), dynamics.n)
-            return data
-
-        def compute_step_outputs(data, _):
-            data = jax.lax.fori_loop(0, self.__N, step, data, unroll=32)
-            return data, data[0]["zeta"] * self.__output_weight
+        def compute_step_outputs(dynamics, _):
+            dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=32)
+            return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
         def compute_outputs(zeta):
-            dynamics = type(self.__dynamics)(self.__dynamics.parameters)
-            # Workaround for missing GPU eig
-            dynamics.poisson_solver = self.__dynamics.poisson_solver
-            dynamics.modified_helmholtz_solver = self.__dynamics.modified_helmholtz_solver
+            dynamics = self.__dynamics.new()
             dynamics.initialize(zeta * self.__input_weight)
-            data = (dict(dynamics.fields), dict(dynamics.dealias_fields), dynamics.n)
-            _, outputs = jax.lax.scan(compute_step_outputs, data, None, length=self.__n_output)
+            _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs
 
         outputs = jax.vmap(compute_outputs)(inputs)
