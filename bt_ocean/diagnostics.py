@@ -440,10 +440,10 @@ class JetDiagnostics(Diagnostic):
         - `'uq_flux_n'` : The eastward potential vorticity flux north of
           `'y_1'.`
 
-    Fields are interpolated onto a Chebyshev grid. `'y_0'` and `'y_1'` are then
-    computed via linear interpolation between grid points. `'uq_flux_s'`,
-    `'uq_flux_j'`, and `'uq_flux_n'` are computed using Simpson's rule after
-    further interpolation onto a uniform grid.
+    Fields are interpolated at the given :math:`x`-coordinate. `'y_0'` and
+    `'y_1'` are then computed via linear interpolation between grid points.
+    `'uq_flux_s'`, `'uq_flux_j'`, and `'uq_flux_n'` are computed using
+    Simpson's rule after further interpolation onto a uniform grid.
 
     Parameters
     ----------

@@ -58,17 +58,6 @@ class Grid:
         self._idtype = idtype
         self._fdtype = fdtype
 
-        # Cached property initialization
-        self.x
-        self.y
-        self.X
-        self.Y
-        self.W
-        self.D_x
-        self.D_y
-        self.D_xx
-        self.D_yy
-
     @property
     def L_x(self) -> Real:
         r""" Defines the :math:`x`-dimension extents, :math:`x \in

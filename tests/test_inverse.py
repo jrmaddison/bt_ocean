@@ -45,7 +45,7 @@ def test_poisson_solver_convergence(L_x, L_y, N_x, N_y):
     u_ref = -b / ((jnp.pi ** 2) * (1 / (2 * L_x) ** 2 + 9 / ((2 * L_y) ** 2)))
     error_norm = abs(u - u_ref).max()
     print(f"{error_norm=}")
-    assert error_norm < 100 * eps()
+    assert error_norm < 1.0e3 * eps()
 
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),

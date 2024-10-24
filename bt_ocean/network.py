@@ -8,8 +8,6 @@ import numpy as np
 from itertools import chain
 from operator import itemgetter
 
-from .precision import default_fdtype
-
 __all__ = \
     [
         "Scale",
@@ -54,18 +52,13 @@ class KroneckerProduct(keras.layers.Layer):
         Whether to include a bias term.
     activation
         Defines the activation function.
-    dtype : type
-        Floating point scalar data type.
     kwargs : dict
         Passed to the base class constructor.
     """
 
-    def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True, dtype=None,
+    def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True,
                  **kwargs):
-        if dtype is None:
-            dtype = default_fdtype()
-
-        super().__init__(dtype=dtype, **kwargs)
+        super().__init__(**kwargs)
         self.__shape_a = shape_a = N_i_a, N_j_a = tuple(shape_a)
         self.__shape_b = shape_b = N_i_b, N_j_b = tuple(shape_b)
         self.__A_i = self.add_weight(shape=(N_i_b, N_i_a), dtype=self.dtype)
@@ -223,7 +216,7 @@ class Dynamics(keras.layers.Layer):
 
     def __init__(self, dynamics, Q_0, Q_network, Q_callback, N, *, n_output=1,
                  input_weight=1, output_weight=1):
-        super().__init__()
+        super().__init__(dtype=dynamics.grid.fdtype)
         self.__dynamics = dynamics
         self.__Q_0 = Q_0
         self.__Q_network = Q_network
@@ -238,34 +231,19 @@ class Dynamics(keras.layers.Layer):
 
     def call(self, inputs):
         @jax.checkpoint
-        def step(_, data):
-            fields, dealias_fields, n = data
-            dynamics = type(self.__dynamics)(self.__dynamics.parameters)
-            # Workaround for missing GPU eig
-            dynamics.poisson_solver = self.__dynamics.poisson_solver
-            dynamics.modified_helmholtz_solver = self.__dynamics.modified_helmholtz_solver
-            dynamics.fields.update(fields)
-            dynamics.dealias_fields.update(dealias_fields)
-            dynamics.n = n
-
+        def step(_, dynamics):
             dynamics.fields["Q"] = self.__Q_0 + self.__Q_callback(dynamics, self.__Q_network)
             dynamics.step()
+            return dynamics
 
-            data = (dict(dynamics.fields), dict(dynamics.dealias_fields), dynamics.n)
-            return data
-
-        def compute_step_outputs(data, _):
-            data = jax.lax.fori_loop(0, self.__N, step, data, unroll=32)
-            return data, data[0]["zeta"] * self.__output_weight
+        def compute_step_outputs(dynamics, _):
+            dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=32)
+            return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
         def compute_outputs(zeta):
-            dynamics = type(self.__dynamics)(self.__dynamics.parameters)
-            # Workaround for missing GPU eig
-            dynamics.poisson_solver = self.__dynamics.poisson_solver
-            dynamics.modified_helmholtz_solver = self.__dynamics.modified_helmholtz_solver
+            dynamics = self.__dynamics.new()
             dynamics.initialize(zeta * self.__input_weight)
-            data = (dict(dynamics.fields), dict(dynamics.dealias_fields), dynamics.n)
-            _, outputs = jax.lax.scan(compute_step_outputs, data, None, length=self.__n_output)
+            _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs
 
         outputs = jax.vmap(compute_outputs)(inputs)
