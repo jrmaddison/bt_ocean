@@ -18,8 +18,3 @@ Features
   gyre problems.
 - Uses the JAX library, providing GPU and autodiff support.
 - Integrates with the Keras library for online training of neural networks.
-
-About
------
-
-Author: James R. Maddison

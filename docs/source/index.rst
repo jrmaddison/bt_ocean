@@ -57,11 +57,6 @@ Known limitations
 
 .. [1] Using equation (3.9) of https://doi.org/10.1007/BF01386067.
 
-About
------
-
-Author: James R. Maddison
-
 Indices
 -------
 
