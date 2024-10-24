@@ -312,6 +312,8 @@ class NanEncounteredError(Exception):
 
 
 class Solver(ABC):
+    _registry = {}
+
     r"""Chebyshev pseudospectral solver for the 2D barotropic vorticity
     equation on a beta-plane,
 
@@ -407,6 +409,8 @@ class Solver(ABC):
             return cls.unflatten(aux_data, children)
 
         jax.tree_util.register_pytree_node(cls, flatten, unflatten)
+
+        Solver._registry[cls.__name__] = cls
 
     @cached_property
     def beta(self) -> jax.Array:
@@ -783,7 +787,7 @@ class Solver(ABC):
         return solver
 
 
-def read_solver(h, path="solver", *, cls=None):
+def read_solver(h, path="solver"):
     """Read solver from a :class:`zarr.hierarchy.Group`.
 
     Parameters
@@ -793,8 +797,6 @@ def read_solver(h, path="solver", *, cls=None):
         Parent group.
     path : str
         Group path.
-    cls : type
-        :class:`.Solver` type. Defaults to :class:`.CNAB2Solver`.
 
     Returns
     -------
@@ -803,14 +805,10 @@ def read_solver(h, path="solver", *, cls=None):
         The solver.
     """
 
-    if cls is None:
-        cls = CNAB2Solver
-
     g = h[path]
     del h
 
-    if g.attrs["type"] != cls.__name__:
-        raise ValueError("Invalid type")
+    cls = Solver._registry[g.attrs["type"]]
     solver = cls(read_parameters(g, "parameters"))
     solver.fields.update(read_fields(g, "fields", grid=solver.grid))
     solver.dealias_fields.update(read_fields(g, "dealias_fields", grid=solver.dealias_grid))
