@@ -665,7 +665,8 @@ class Solver(ABC):
                 return lam_zeta_0, lam_model, lam_it + 1
 
             def adjoint(zeta_model):
-                lam_zeta_0, lam_model, _ = adj_step((None, zeta_model, 0), zeta_model)
+                lam_model = zeta_model.new()
+                lam_zeta_0, lam_model, _ = adj_step((None, lam_model, 0), zeta_model)
 
                 def non_convergence(data):
                     lam_zeta_0, lam_model, lam_it = data
