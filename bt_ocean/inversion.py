@@ -28,9 +28,10 @@ class KroneckerProductSolver:
 
     using equation (3.9) of
 
-        - 'Direct solution of partial difference equations by tensor product
-          methods', Robert E. Lynch, John R. Rice and Donald H. Thomas,
-          Numerische Mathematik 6, pp. 185--199, 1964, doi: 10.1007/BF01386067
+        - Robert E. Lynch, John R. Rice and Donald H. Thomas, 'Direct solution
+          of partial difference equations by tensor product methods',
+          Numerische Mathematik 6, pp. 185--199, 1964,
+          https://doi.org/10.1007/BF01386067
 
     Warnings
     --------
@@ -82,10 +83,10 @@ class KroneckerProductSolver:
     @jax.jit
     def _solve(Lam_A, Q, Q_lu, Lam_B, P, P_lu, b):
         # Linear solve using equation (3.9) of
-        #     'Direct solution of partial difference equations by tensor
-        #     product methods', Robert E. Lynch, John R. Rice and Donald H.
-        #     Thomas, Numerische Mathematik 6, pp. 185--199, 1964,
-        #     doi: 10.1007/BF01386067
+        #     Robert E. Lynch, John R. Rice and Donald H. Thomas, 'Direct
+        #     solution of partial difference equations by tensor product
+        #     methods', Numerische Mathematik 6, pp. 185--199, 1964,
+        #     https://doi.org/10.1007/BF01386067
 
         u = lu_solve(Q_lu, -b.T).T
         u = lu_solve(P_lu, u)
@@ -99,16 +100,17 @@ class KroneckerProductSolver:
 
         Computed using equation (3.9) of
 
-            - 'Direct solution of partial difference equations by tensor
-              product methods', Robert E. Lynch, John R. Rice and Donald H.
-              Thomas, Numerische Mathematik 6, pp. 185--199, 1964,
-              doi: 10.1007/BF01386067
+            - Robert E. Lynch, John R. Rice and Donald H. Thomas, 'Direct
+              solution of partial difference equations by tensor product
+              methods', Numerische Mathematik 6, pp. 185--199, 1964,
+              https://doi.org/10.1007/BF01386067
 
         Parameters
         ----------
 
         b : :class:`jax.Array`
-            Defines the right-hand-side :math:`-b`. An ndim 2 array.
+            Defines :math:`b` appearing on the right-hand-side. An ndim 2
+            array.
 
         Returns
         -------

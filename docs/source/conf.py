@@ -3,7 +3,6 @@ project = "bt_ocean"
 extensions = ["autoapi.extension",
               "nbsphinx",
               "numpydoc",
-              "sphinx.ext.intersphinx",
               "sphinx_rtd_theme"]
 
 autoapi_type = "python"
@@ -22,6 +21,3 @@ html_static_path = ["static"]
 templates_path = []
 
 html_css_files = ["custom.css"]
-
-intersphinx_mapping = {"jax": ("https://jax.readthedocs.io/en/latest", None),
-                       "zarr": ("https://zarr.readthedocs.io/en/stable", None)}

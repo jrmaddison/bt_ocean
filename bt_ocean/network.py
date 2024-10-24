@@ -8,8 +8,6 @@ import numpy as np
 from itertools import chain
 from operator import itemgetter
 
-from .precision import default_fdtype
-
 __all__ = \
     [
         "Scale",
@@ -54,18 +52,13 @@ class KroneckerProduct(keras.layers.Layer):
         Whether to include a bias term.
     activation
         Defines the activation function.
-    dtype : type
-        Floating point scalar data type.
     kwargs : dict
         Passed to the base class constructor.
     """
 
-    def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True, dtype=None,
+    def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True,
                  **kwargs):
-        if dtype is None:
-            dtype = default_fdtype()
-
-        super().__init__(dtype=dtype, **kwargs)
+        super().__init__(**kwargs)
         self.__shape_a = shape_a = N_i_a, N_j_a = tuple(shape_a)
         self.__shape_b = shape_b = N_i_b, N_j_b = tuple(shape_b)
         self.__A_i = self.add_weight(shape=(N_i_b, N_i_a), dtype=self.dtype)

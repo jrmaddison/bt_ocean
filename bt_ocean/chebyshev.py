@@ -63,17 +63,17 @@ class Chebyshev:
 
         Computed using equation (6.1) in
 
-            - Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+            - Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
               Industrial and Applied Mathematics, 2000,
-              doi: 10.1137/1.9780898719598
+              https://doi.org/10.1137/1.9780898719598
 
         with an extra negative sign so that the values are in increasing order.
         """
 
         # Equation (6.1) in
-        #     Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+        #     Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
         #     Industrial and Applied Mathematics, 2000,
-        #     doi: 10.1137/1.9780898719598
+        #     https://doi.org/10.1137/1.9780898719598
         # with an extra negative sign
         j = jnp.arange(self.N + 1, dtype=self.idtype)
         return -jnp.array(jnp.cos(j * jnp.pi / self.N), dtype=self.fdtype)
@@ -167,7 +167,7 @@ class Chebyshev:
         Computed by transforming to an expansion in the Chebyshev basis, and
         then using the Clenshaw algorithm, using equations (2) and (3) in
 
-            - A note on the summation of Chebyshev series, C. W. Clenshaw,
+            - C. W. Clenshaw, 'A note on the summation of Chebyshev series',
               Mathematics of Computation 9, 118--120, 1955
 
         Parameters
@@ -208,15 +208,15 @@ class Chebyshev:
             i = N - i
             b0, b1 = data
             # Equation (2) in
-            #     A note on the summation of Chebyshev series, C. W. Clenshaw,
-            #     Mathematics of Computation 9, 118--120, 1955
+            #     C. W. Clenshaw, 'A note on the summation of Chebyshev
+            #     series', Mathematics of Computation 9, 118--120, 1955
             b0, b1 = jnp.tensordot(u_c[..., i], x0, axes=0) + 2 * b0 * x - b1, b0
             return (b0, b1)
 
         b0 = b1 = jnp.zeros_like(u_c, shape=u_c.shape[:-1] + (x.shape[0],))
         b0, b1 = jax.lax.fori_loop(0, N + 1, step, (b0, b1), unroll=32)
         # Equation (3) in
-        #     A note on the summation of Chebyshev series, C. W. Clenshaw,
+        #     C. W. Clenshaw, 'A note on the summation of Chebyshev series',
         #     Mathematics of Computation 9, 118--120, 1955
         v = b0 - b1 * x
 
@@ -230,7 +230,7 @@ class Chebyshev:
 
         Computed using the Clenshaw algorithm, using equations (2) and (3) in
 
-            - A note on the summation of Chebyshev series, C. W. Clenshaw,
+            - C. W. Clenshaw, 'A note on the summation of Chebyshev series',
               Mathematics of Computation 9, 118--120, 1955
 
         Parameters
@@ -263,9 +263,9 @@ class Chebyshev:
     def _D(idtype, fdtype, x):
         N = x.shape[0] - 1
         # Equation (6.5) in
-        #     Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+        #     Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
         #     Industrial and Applied Mathematics, 2000,
-        #     doi: 10.1137/1.9780898719598
+        #     https://doi.org/10.1137/1.9780898719598
         c = jnp.ones_like(x)
         c = c.at[0].set(2)
         c = c.at[-1].set(2)
@@ -276,9 +276,9 @@ class Chebyshev:
         fact = (-1) ** (I + I.T) * C / C.T
         D = jnp.where(I - I.T != 0, fact / jnp.where(I - I.T != 0, X - X.T, fdtype(1)), fdtype(0))
         # Equation (6.6) in
-        #     Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+        #     Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
         #     Industrial and Applied Mathematics, 2000,
-        #     doi: 10.1137/1.9780898719598
+        #     https://doi.org/10.1137/1.9780898719598
         D = D - jnp.diag(D.sum(1))
         return D
 
@@ -288,9 +288,9 @@ class Chebyshev:
 
         Computed using equations (6.5) and (6.6) in
 
-            - Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+            - Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
               Industrial and Applied Mathematics, 2000,
-              doi: 10.1137/1.9780898719598
+              https://doi.org/10.1137/1.9780898719598
         """
 
         return self._D(self.idtype, self.fdtype, self.x)

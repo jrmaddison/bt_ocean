@@ -17,7 +17,7 @@ __all__ = \
 
 @contextmanager
 def x64_enabled():
-    """Context manager for temporarily enabling the 'jax_enable_x64' JAX
+    """Context manager for temporarily enabling the `'jax_enable_x64'` JAX
     configuration option.
     """
 

@@ -60,9 +60,9 @@ def dchebt(u, *, axis=-1):
 
     Computed as described in chapter 8 of
 
-        - Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+        - Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
           Industrial and Applied Mathematics, 2000,
-          doi: 10.1137/1.9780898719598
+          https://doi.org/10.1137/1.9780898719598
 
     Here the grid-to-spectral transform is used without differentiation.
 
@@ -82,9 +82,9 @@ def dchebt(u, *, axis=-1):
     """
 
     # As described in chapter 8 of
-    #     Spectral methods in MATLAB, Lloyd N. Trefethen, Society for
+    #     Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
     #     Industrial and Applied Mathematics, 2000,
-    #     doi: 10.1137/1.9780898719598
+    #     https://doi.org/10.1137/1.9780898719598
     # Here the grid-to-spectral transform is used without differentiation.
 
     if axis == -1:
@@ -114,7 +114,7 @@ def dchebt(u, *, axis=-1):
 
 @partial(jax.jit, static_argnames="axis")
 def idchebt(u_c, *, axis=-1):
-    """Inverse discrete Chebyshev transform.
+    """Inverse discrete Chebyshev transform. Inverse of :func:`.dchebt`.
 
     Parameters
     ----------

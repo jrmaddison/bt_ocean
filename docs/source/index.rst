@@ -45,18 +45,17 @@ bt_ocean makes use of the following numerical methods.
 - No-normal flow and free slip boundary conditions, applied via homogeneous
   Dirichlet boundary conditions for both the stream function and vorticity.
 
-.. [1] Using equation (3.9) of https://doi.org/10.1007/BF01386067.
-
 Known limitations
 -----------------
 
 - bt_ocean uses Kronecker product based direct linear solvers [1]_. However JAX
   is currently unable to differentiate with respect to the solution to the
-  eigenproblem (specifically with respect to the eigenvectors), and is also
-  currently unable to perform the non-symmetric eigendecompositions which
-  appear on GPUs. This means for example that it is not currently possible to
-  differentiate with respect to parameters appearing in these solvers, such as
-  the linear bottom drag and Laplacian viscosity coefficients.
+  eigenproblem (specifically with respect to the eigenvectors). This means for
+  example that it is not currently possible to differentiate with respect to
+  parameters appearing in these solvers, such as the linear bottom drag and
+  Laplacian viscosity coefficients.
+
+.. [1] Using equation (3.9) of https://doi.org/10.1007/BF01386067.
 
 About
 -----
