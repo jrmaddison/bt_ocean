@@ -1,0 +1,41 @@
+name: test-bt_ocean
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KERAS_BACKEND: jax
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+        with:
+          path: bt_ocean
+      - name: Install dependencies
+        run: |
+          python3 -m venv bt_ocean_venv
+          . bt_ocean_venv/bin/activate
+          python3 -m pip install flake8 jax[cpu] keras matplotlib numcodecs pytest pytest-timeout pytest-xdist ruff scipy zarr
+      - name: Lint
+        run: |
+          . bt_ocean_venv/bin/activate
+          cd bt_ocean
+          flake8
+          ruff check
+      - name: Run tests
+        run: |
+          . bt_ocean_venv/bin/activate
+          cd bt_ocean
+          pytest -v -n 2 --timeout=300 --timeout-method=thread
