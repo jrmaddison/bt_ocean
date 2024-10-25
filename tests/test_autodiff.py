@@ -67,7 +67,7 @@ def test_cnab2_autodiff_vjp(N):
     errors = []
     for eps_val in eps:
         J_1 = forward(eps_val * zeta)
-        errors.append(abs(J_1 - J_0 - eps_val * (dJ * zeta).sum()))
+        errors.append(abs(J_1 - J_0 - eps_val * jnp.tensordot(dJ, zeta)))
     errors = jnp.array(errors)
     orders = jnp.log(errors[1:] / errors[:-1]) / jnp.log(eps[1:] / eps[:-1])
     print(f"{orders=}")

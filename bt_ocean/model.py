@@ -363,6 +363,12 @@ class Solver(ABC):
 
     dealias_field_keys : Iterable
         Keys for fields defined on the 'dealias' grid.
+    prescribed_field_keys : Iterable
+        Keys for fields defined on the 'base' grid which are prescribed, and
+        which are not updated within :meth:`.step`. Defaults to `{'Q'}`.
+    prescribed_dealias_field_keys : Iterable
+        Keys for fields defined on the 'dealias' grid which are prescribed, and
+        which are not updated within :meth:`.step`. Defaults to `set()`.
     """
 
     _defaults = {"L_x": required,  # x \in [-L_x, L_x]
@@ -374,7 +380,8 @@ class Solver(ABC):
                  "nu": required,
                  "dt": required}
 
-    def __init__(self, parameters, *, field_keys=None, dealias_field_keys=None):
+    def __init__(self, parameters, *, field_keys=None, dealias_field_keys=None,
+                 prescribed_field_keys=None, prescribed_dealias_field_keys=None):
         self._parameters = parameters = Parameters(parameters, defaults=self._defaults)
         if field_keys is None:
             field_keys = set()
@@ -385,6 +392,10 @@ class Solver(ABC):
         else:
             dealias_field_keys = set(dealias_field_keys)
         field_keys.update({"psi", "zeta", "Q"})
+        if prescribed_field_keys is None:
+            prescribed_field_keys = {"Q"}
+        if prescribed_dealias_field_keys is None:
+            prescribed_dealias_field_keys = set()
 
         self._grid = grid = Grid(
             parameters["L_x"], parameters["L_y"],
@@ -393,10 +404,12 @@ class Solver(ABC):
             parameters["L_x"], parameters["L_y"],
             2 * parameters["N_x"], 2 * parameters["N_y"])
 
-        self._fields = fields = Fields(grid, field_keys)
-        fields.zero("Q")
+        self._fields = Fields(grid, field_keys)
         self._dealias_fields = Fields(dealias_grid, dealias_field_keys)
+        self._prescribed_field_keys = set(prescribed_field_keys)
+        self._prescribed_dealias_field_keys = set(prescribed_dealias_field_keys)
 
+        self.zero_prescribed()
         self.initialize()
 
     def __init_subclass__(cls, **kwargs):
@@ -499,6 +512,13 @@ class Solver(ABC):
 
         return PoissonSolver(self.grid)
 
+    def zero_prescribed(self):
+        """Zero prescribed fields.
+        """
+
+        self.fields.zero(*self._prescribed_field_keys)
+        self.dealias_fields.zero(*self._prescribed_dealias_field_keys)
+
     @abstractmethod
     def initialize(self, zeta=None):
         """Initialize the model.
@@ -511,8 +531,8 @@ class Solver(ABC):
             field.
         """
 
-        self.fields.clear(keep_keys={"Q"})
-        self.dealias_fields.clear()
+        self.fields.clear(keep_keys=self._prescribed_field_keys)
+        self.dealias_fields.clear(keep_keys=self._prescribed_dealias_field_keys)
         self._n = 0
 
     @abstractmethod
@@ -534,7 +554,7 @@ class Solver(ABC):
 
         u = -self.fields["psi"] @ self.grid.D_y.T
         v = self.grid.D_x @ self.fields["psi"]
-        return 0.5 * ((u * u + v * v) * self.grid.W).sum()
+        return 0.5 * jnp.tensordot((u * u + v * v), self.grid.W)
 
     def ke_spectrum(self, N_x, N_y):
         """The current 2D kinetic energy spectrum.
@@ -631,8 +651,9 @@ class Solver(ABC):
 
         @jax.custom_vjp
         def forward(model, m):
-            while model.n <= _min_n:
+            while model.n < _min_n:
                 zeta_0, model, _ = forward_step((None, model, 0), m)
+            zeta_0, model, _ = forward_step((None, model, 0), m)
 
             def non_convergence(data):
                 zeta_0, model, it = data
@@ -661,6 +682,7 @@ class Solver(ABC):
             def adj_step(data, zeta_model):
                 _, lam_model, lam_it = data
                 lam_zeta_0 = lam_model.fields["zeta"]
+                lam_model.zero_prescribed()
                 lam_model, = vjp_step(lam_model)
                 for key, value in lam_model.fields.items():
                     lam_model.fields[key] = value + zeta_model.fields[key]
@@ -669,7 +691,7 @@ class Solver(ABC):
                 return lam_zeta_0, lam_model, lam_it + 1
 
             def adjoint(zeta_model):
-                lam_model = zeta_model.new()
+                lam_model = zeta_model
                 lam_zeta_0, lam_model, _ = adj_step((None, lam_model, 0), zeta_model)
 
                 def non_convergence(data):
@@ -690,7 +712,7 @@ class Solver(ABC):
             _, vjp = jax.vjp(lambda m: forward_step((None, model, 0), m)[1], m)
             lam_m, = vjp(lam_model)
 
-            return lam_model.new(), lam_m
+            return lam_model, lam_m
 
         forward.defvjp(forward_fwd, forward_bwd)
 
@@ -777,13 +799,15 @@ class Solver(ABC):
         """
 
         cls, parameters, poisson_solver = aux_data
+        fields, dealias_fields, n = children
+
         solver = cls(parameters)
         solver.poisson_solver = poisson_solver
-        fields, dealias_fields, n = children
-        if type(n) is not object:  # Work around internal JAX behavior
-            solver.fields.update(fields)
-            solver.dealias_fields.update(dealias_fields)
+        solver.fields.update({key: value for key, value in fields.items() if type(value) is not object})
+        solver.dealias_fields.update({key: value for key, value in dealias_fields.items() if type(value) is not object})
+        if type(n) is not object:
             solver.n = n
+
         return solver
 
 
@@ -840,7 +864,7 @@ class CNAB2Solver(Solver):
         """
 
         return ModifiedHelmholtzSolver(
-            self.grid, alpha=(1 + 0.5 * self.dt * self.r) / (0.5 * self.dt * self.nu))
+            self.grid, alpha=(1 + 0.5 * self.dt * self.r), beta=0.5 * self.dt * self.nu)
 
     def initialize(self, zeta=None):
         super().initialize(zeta=zeta)
@@ -897,8 +921,7 @@ class CNAB2Solver(Solver):
 
         b = jnp.zeros_like(zeta).at[1:-1, 1:-1].set(
             (zeta + self.dt * (F + 0.5 * G_0))[1:-1, 1:-1])
-        zeta = self.modified_helmholtz_solver.solve(
-            -b / (0.5 * self.dt * self.nu))
+        zeta = self.modified_helmholtz_solver.solve(-b)
 
         self._update_fields(zeta)
         self.fields["F_1"] = F_0
@@ -907,7 +930,7 @@ class CNAB2Solver(Solver):
     def ke(self):
         u = self.dealias_fields["u"]
         v = self.dealias_fields["v"]
-        return 0.5 * ((u * u + v * v) * self.dealias_grid.W).sum()
+        return 0.5 * jnp.tensordot((u * u + v * v), self.dealias_grid.W)
 
     def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, max_it=10000):
         return super().steady_state_solve(m=m, update=update, tol=tol, _min_n=1, max_it=max_it)

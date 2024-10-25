@@ -127,7 +127,7 @@ class ModifiedHelmholtzSolver(KroneckerProductSolver):
 
     .. math::
 
-        ( \alpha - \partial_{xx} - \partial_{yy} ) u = -b,
+        ( \alpha - \beta ( \partial_{xx} - \partial_{yy} ) ) u = -b,
 
     subject to homogeneous Dirichlet boundary conditions, using a Chebyshev
     pseudospectral discretization.
@@ -139,11 +139,13 @@ class ModifiedHelmholtzSolver(KroneckerProductSolver):
         The 2D Chebyshev grid.
     alpha : Real
         :math:`\alpha`.
+    beta : Real
+        :math:`\beta`.
     """
 
-    def __init__(self, grid, alpha):
-        A = 0.5 * alpha * jnp.eye(grid.N_y - 1, dtype=grid.fdtype) - grid.D_yy[1:-1, 1:-1]
-        B = 0.5 * alpha * jnp.eye(grid.N_x - 1, dtype=grid.fdtype) - grid.D_xx[1:-1, 1:-1]
+    def __init__(self, grid, alpha, beta=1):
+        A = 0.5 * alpha * jnp.eye(grid.N_y - 1, dtype=grid.fdtype) - beta * grid.D_yy[1:-1, 1:-1]
+        B = 0.5 * alpha * jnp.eye(grid.N_x - 1, dtype=grid.fdtype) - beta * grid.D_xx[1:-1, 1:-1]
 
         super().__init__(A, B)
         self._grid = grid
