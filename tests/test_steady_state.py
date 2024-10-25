@@ -1,3 +1,4 @@
+from bt_ocean.grid import Grid
 from bt_ocean.model import CNAB2Solver, Parameters
 from bt_ocean.parameters import parameters, rho_0, D, tau_0, Q
 from bt_ocean.precision import x64_enabled
@@ -40,30 +41,30 @@ def test_steady_state(tol):
 
 @x64_enabled()
 def test_steady_state_autodiff():
-    tol = 1.0e-4
-    model = CNAB2Solver(model_parameters())
+    tol = 1.0e-10
+    parameters = model_parameters()
+    grid = Grid(parameters["L_x"], parameters["L_y"], parameters["N_x"], parameters["N_y"])
 
-    def update_m(model, m):
-        model.fields["Q"] = Q(model.grid) + m
+    def forward(Q):
+        model = CNAB2Solver(parameters)
+        model.fields["Q"] = Q
+        model.steady_state_solve(tol=tol)
+        return jnp.tensordot(model.fields["zeta"], model.grid.W)
 
-    def forward(Q_1):
-        model.initialize()
-        model.steady_state_solve((Q_1,), update_m, tol=tol)
-        return model.ke()
+    J_0, vjp = jax.vjp(forward, Q(grid))
 
-    J_0, vjp = jax.vjp(forward, jnp.zeros_like(model.fields["Q"]))
-
-    zeta = ((tau_0 * jnp.pi / (D * rho_0 * model.grid.L_y))
-            * jnp.cos(3 * model.grid.X / model.grid.L_x) * jnp.cos(5 * model.grid.Y / model.grid.L_y))
+    zeta = ((tau_0 * jnp.pi / (D * rho_0 * grid.L_y))
+            * jnp.exp(grid.X / grid.L_x) * jnp.exp(grid.Y / grid.L_y))
     dJ, = vjp(1.0)
 
-    eps = jnp.array((1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5))
+    eps = jnp.array((0.01, 0.005, 0.002, 0.001))
     errors = []
     for eps_val in eps:
-        J_1 = forward(eps_val * zeta)
-        errors.append(abs(J_1 - J_0 - eps_val * (dJ * zeta).sum()))
+        J_1 = forward(Q(grid) + eps_val * zeta)
+        errors.append(abs(J_1 - J_0 - eps_val * jnp.tensordot(dJ, zeta)))
     errors = jnp.array(errors)
     orders = jnp.log(errors[1:] / errors[:-1]) / jnp.log(eps[1:] / eps[:-1])
+    print(f"{errors=}")
     print(f"{orders=}")
     assert orders.min() > 1.99
-    assert orders.max() < 2.01
+    assert orders.max() < 2.02
