@@ -29,3 +29,8 @@ def test_0_getting_started(tmp_path):
 def test_1_keras_integration(tmp_path):
     run_example_notebook(pathlib.Path(__file__).parent.parent / "docs" / "source" / "examples" / "1_keras_integration.ipynb",
                          tmp_path)
+
+
+def test_2_steady_state(tmp_path):
+    run_example_notebook(pathlib.Path(__file__).parent.parent / "docs" / "source" / "examples" / "2_steady_state.ipynb",
+                         tmp_path)
