@@ -5,6 +5,7 @@ from contextlib import contextmanager
 
 import jax
 import jax.numpy as jnp
+import keras
 
 __all__ = \
     [
@@ -23,10 +24,13 @@ def x64_enabled():
 
     x64_enabled = jax.config.x64_enabled
     jax.config.update("jax_enable_x64", True)
+    floatx = keras.backend.floatx()
+    keras.backend.set_floatx("float64")
     try:
         yield
     finally:
         jax.config.update("jax_enable_x64", x64_enabled)
+        keras.backend.set_floatx(floatx)
 
 
 def default_idtype():
