@@ -30,6 +30,8 @@ The following Jupyter notebooks introduce bt_ocean.
 - `Keras integration <examples/1_keras_integration.ipynb>`__: Combining
   bt_ocean with Keras. Describes the key building blocks which can be used to
   apply bt_ocean for online learning.
+- `Steady state problems <examples/2_steady_state.ipynb>`__: Implicit
+  differentiation for steady-state problems.
 
 bt_ocean numerics
 -----------------

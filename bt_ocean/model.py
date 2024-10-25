@@ -594,7 +594,7 @@ class Solver(ABC):
                 * (k ** 2 + l ** 2) * (dst(dst(psi, axis=1), axis=0) ** 2))
 
     def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, max_it=10000, _min_n=0):
-        r"""Timestep to steady state.
+        r"""Timestep to steady-state.
 
         Uses timestepping to define a fixed-point iteration, and applies
         reverse mode differentiation using a two-phase approach.
@@ -605,7 +605,7 @@ class Solver(ABC):
               second edition, Society for Industrial and Applied Mathematics,
               2008, ISBN: 978-0-898716-59-7, chapter 15
             - Bruce Christianson, 'Reverse accumulation and attractive fixed
-              points', Optimization Methods and Software, 3(4), pp. 311--326
+              points', Optimization Methods and Software 3(4), pp. 311--326
               1994, doi: https://doi.org/10.1080/10556789408805572
             - Zico Kolter, David Duvenaud, and Matt Johnson, 'Deep implicit
               layers - neural ODEs, deep equilibirum models, and beyond',
