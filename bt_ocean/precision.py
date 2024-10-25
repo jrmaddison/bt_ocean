@@ -19,7 +19,8 @@ __all__ = \
 @contextmanager
 def x64_enabled():
     """Context manager for temporarily enabling the `'jax_enable_x64'` JAX
-    configuration option.
+    configuration option, and for temporarily setting the Keras default float
+    type to double precision.
     """
 
     x64_enabled = jax.config.x64_enabled
