@@ -864,7 +864,7 @@ class CNAB2Solver(Solver):
         """
 
         return ModifiedHelmholtzSolver(
-            self.grid, alpha=(1 + 0.5 * self.dt * self.r) / (0.5 * self.dt * self.nu))
+            self.grid, alpha=(1 + 0.5 * self.dt * self.r), beta=0.5 * self.dt * self.nu)
 
     def initialize(self, zeta=None):
         super().initialize(zeta=zeta)
@@ -921,8 +921,7 @@ class CNAB2Solver(Solver):
 
         b = jnp.zeros_like(zeta).at[1:-1, 1:-1].set(
             (zeta + self.dt * (F + 0.5 * G_0))[1:-1, 1:-1])
-        zeta = self.modified_helmholtz_solver.solve(
-            -b / (0.5 * self.dt * self.nu))
+        zeta = self.modified_helmholtz_solver.solve(-b)
 
         self._update_fields(zeta)
         self.fields["F_1"] = F_0
