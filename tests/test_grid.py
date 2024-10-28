@@ -1,4 +1,4 @@
-from bt_ocean.grid import Grid
+from bt_ocean.grid import Grid, InterpolationMethod
 
 import jax.numpy as jnp
 from numpy import cbrt
@@ -14,7 +14,9 @@ from .test_base import test_precision  # noqa: F401
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
-def test_interpolate_identity(L_x, L_y, N_x, N_y):
+@pytest.mark.parametrize("interpolation_method", [InterpolationMethod.BARYCENTRIC,
+                                                  InterpolationMethod.CLENSHAW])
+def test_interpolate_identity(L_x, L_y, N_x, N_y, interpolation_method):
     grid = Grid(L_x, L_y, N_x, N_y)
 
     def u0(X, Y):
@@ -24,7 +26,7 @@ def test_interpolate_identity(L_x, L_y, N_x, N_y):
     u = u0(grid.X, grid.Y)
     x = grid.x
     y = grid.y
-    v = grid.interpolate(u, x, y)
+    v = grid.interpolate(u, x, y, interpolation_method=interpolation_method)
     assert abs(v - u0(jnp.outer(x, jnp.ones_like(y)), jnp.outer(jnp.ones_like(x), y))).max() < 100 * eps()
 
 
@@ -34,7 +36,9 @@ def test_interpolate_identity(L_x, L_y, N_x, N_y):
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
-def test_interpolate_uniform(L_x, L_y, N_x, N_y):
+@pytest.mark.parametrize("interpolation_method", [InterpolationMethod.BARYCENTRIC,
+                                                  InterpolationMethod.CLENSHAW])
+def test_interpolate_uniform(L_x, L_y, N_x, N_y, interpolation_method):
     grid = Grid(L_x, L_y, N_x, N_y)
 
     def u0(X, Y):
@@ -44,7 +48,7 @@ def test_interpolate_uniform(L_x, L_y, N_x, N_y):
     u = u0(grid.X, grid.Y)
     x = jnp.linspace(-grid.L_x, grid.L_x, 17)
     y = jnp.linspace(-grid.L_y, grid.L_y, 19)
-    v = grid.interpolate(u, x, y)
+    v = grid.interpolate(u, x, y, interpolation_method=interpolation_method)
     assert abs(v - u0(jnp.outer(x, jnp.ones_like(y)), jnp.outer(jnp.ones_like(x), y))).max() < 100 * eps()
 
 
@@ -54,7 +58,9 @@ def test_interpolate_uniform(L_x, L_y, N_x, N_y):
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
-def test_interpolate_non_uniform(L_x, L_y, N_x, N_y):
+@pytest.mark.parametrize("interpolation_method", [InterpolationMethod.BARYCENTRIC,
+                                                  InterpolationMethod.CLENSHAW])
+def test_interpolate_non_uniform(L_x, L_y, N_x, N_y, interpolation_method):
     grid = Grid(L_x, L_y, N_x, N_y)
 
     def u0(X, Y):
@@ -64,5 +70,5 @@ def test_interpolate_non_uniform(L_x, L_y, N_x, N_y):
     u = u0(grid.X, grid.Y)
     x = jnp.logspace(-1, 0, 17) * grid.L_x
     y = jnp.logspace(-2, 0, 19) * grid.L_y
-    v = grid.interpolate(u, x, y)
+    v = grid.interpolate(u, x, y, interpolation_method=interpolation_method)
     assert abs(v - u0(jnp.outer(x, jnp.ones_like(y)), jnp.outer(jnp.ones_like(x), y))).max() < 100 * eps()

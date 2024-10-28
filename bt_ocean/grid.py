@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from functools import cached_property
 from numbers import Real
 
-from .chebyshev import Chebyshev
+from .chebyshev import Chebyshev, InterpolationMethod
 from .precision import default_idtype, default_fdtype
 
 __all__ = \
@@ -146,7 +146,7 @@ class Grid:
         return jnp.outer(
             jnp.ones(self.N_x + 1, dtype=self.fdtype), self.y)
 
-    def interpolate(self, u, x, y, *, extrapolate=False):
+    def interpolate(self, u, x, y, *, interpolation_method=InterpolationMethod.BARYCENTRIC, extrapolate=False):
         """Evaluate on a grid.
 
         Parameters
@@ -158,6 +158,8 @@ class Grid:
             :math:`x`-coordinates.
         y : :class:`jax.Array`
             :math:`y`-coordinates.
+        interpolation_method
+            The interpolation method. See :meth:`.Chebyshev.interpolate`.
         extrapolate : bool
             Whether to allow extrapolation.
 
@@ -168,8 +170,8 @@ class Grid:
             Array of values on the grid.
         """
 
-        v = self.cheb_x.interpolate(u, x / self.L_x, axis=0, extrapolate=extrapolate)
-        v = self.cheb_y.interpolate(v, y / self.L_y, axis=1, extrapolate=extrapolate)
+        v = self.cheb_x.interpolate(u, x / self.L_x, axis=0, interpolation_method=interpolation_method, extrapolate=extrapolate)
+        v = self.cheb_y.interpolate(v, y / self.L_y, axis=1, interpolation_method=interpolation_method, extrapolate=extrapolate)
         return v
 
     @cached_property
