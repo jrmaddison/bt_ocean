@@ -845,6 +845,13 @@ class CNAB2Solver(Solver):
     """Chebyshev pseudospectral solver for the 2D barotropic vorticity
     equation on a beta-plane, using a CNAB2 time discretization.
 
+    CNAB2 reference:
+
+        - Uri M. Ascher, Steven J. Ruuth, and Brian T. R. Wetton,
+        'Implicit-explicit methods for time-dependent partial differential
+        equations', SIAM Journal on Numerical Analysis 32(3), 797--823, 1995,
+        https://doi.org/10.1137/0732037
+
     Parameters
     ----------
 
