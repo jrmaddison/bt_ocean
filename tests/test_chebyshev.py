@@ -59,7 +59,10 @@ def test_chebyshev_differentiation_matrix_monomial(alpha, N):
     for n in range(N + 1):
         v = alpha * x ** n
         D_v = cheb.D @ v
-        D_v_ref = alpha * n * (x ** (n - 1))
+        if n == 0:
+            D_v_ref = jnp.zeros_like(x)
+        else:
+            D_v_ref = alpha * n * (x ** (n - 1))
         assert abs(D_v - D_v_ref).max() < 100 * eps()
 
 

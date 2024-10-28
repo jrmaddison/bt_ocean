@@ -76,7 +76,18 @@ class Chebyshev:
         #     https://doi.org/10.1137/1.9780898719598
         # with an extra negative sign
         j = jnp.arange(self.N + 1, dtype=self.idtype)
-        return -jnp.array(jnp.cos(j * jnp.pi / self.N), dtype=self.fdtype)
+        x = -jnp.array(jnp.cos(j * jnp.pi / self.N), dtype=self.fdtype)
+
+        # Symmetrize
+        x = (x - jnp.flip(x)) / 2
+        x = x.at[:(self.N + 1) // 2].set(-jnp.flip(x[-((self.N + 1) // 2):]))
+        # Exact values for end points and mid-point
+        x = x.at[0].set(-1)
+        if self.N % 2 == 0:
+            x = x.at[self.N // 2].set(0)
+        x = x.at[-1].set(1)
+
+        return x
 
     @staticmethod
     @partial(jax.jit, static_argnums=(0,))
