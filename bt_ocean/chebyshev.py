@@ -207,7 +207,7 @@ class Chebyshev:
         #     Jean-Paul Berrut and Lloyd N. Trefethen, 'Barycentric Lagrange
         #     interpolation', SIAM Review 46(3), pp. 501--517, 2004,
         #     https://doi.org/10.1137/S0036144502417715
-        # When an interpolation point lies exactly on a grid point we
+        # When an interpolation point lies within eps of a grid point we
         # arbitrarily replace the divide-by-zero with divide-by-one. The
         # erroneous result will be discarded below.
         X = jnp.array(jnp.tensordot(x, jnp.ones_like(x, shape=x_c.shape), axes=0), dtype=fdtype)
@@ -215,7 +215,7 @@ class Chebyshev:
         a = w / jnp.where(X_exact == 1, jnp.ones_like(X), X - x_c)
         v = jnp.tensordot(u, a, axes=((-1,), (-1,))) / a.sum(axis=-1)
 
-        # Now handle the case where an interpolation point lies exactly on a
+        # Now handle the case where an interpolation point lies within eps of a
         # grid point
         v = jnp.where(jnp.tensordot(jnp.ones(u.shape, dtype=idtype), X_exact, axes=((-1,), (-1,))) == 1,
                       jnp.tensordot(u, X_exact, axes=((-1,), (-1,))),
@@ -352,7 +352,7 @@ class Chebyshev:
         #     Industrial and Applied Mathematics, 2000,
         #     https://doi.org/10.1137/1.9780898719598
         # Coordinate order reversal does not change the expression for the
-        # differentiation matrix.
+        # differentiation matrix
         c = jnp.ones_like(x)
         c = c.at[0].set(2)
         c = c.at[-1].set(2)
