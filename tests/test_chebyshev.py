@@ -1,4 +1,4 @@
-from bt_ocean.chebyshev import Chebyshev
+from bt_ocean.chebyshev import Chebyshev, InterpolationMethod
 
 import jax.numpy as jnp
 from numpy import exp
@@ -33,7 +33,29 @@ def test_chebyshev_basis(alpha, N):
 
 
 @pytest.mark.parametrize("N", tuple(range(3, 11)) + (128, 129))
-def test_chebyshev_interpolation(N):
+@pytest.mark.parametrize("interpolation_method", [InterpolationMethod.BARYCENTRIC,
+                                                  InterpolationMethod.CLENSHAW])
+def test_chebyshev_interpolation_identity(N, interpolation_method):
+    cheb = Chebyshev(N)
+
+    def u0(x):
+        return jnp.sqrt(2) - jnp.sqrt(3) * x + jnp.sqrt(5) * x ** 2 - jnp.sqrt(7) * x ** 3
+
+    def u1(x):
+        return -jnp.sqrt(11) + jnp.sqrt(13) * x - jnp.sqrt(17) * x ** 2 + jnp.sqrt(19) * x ** 3
+
+    u = jnp.vstack((u0(cheb.x), u1(cheb.x))).T
+    x = cheb.x
+
+    v = cheb.interpolate(u, x, axis=0, interpolation_method=interpolation_method)
+    assert abs(v[:, 0] - u0(x)).max() < 100 * eps()
+    assert abs(v[:, 1] - u1(x)).max() < 100 * eps()
+
+
+@pytest.mark.parametrize("N", tuple(range(3, 11)) + (128, 129))
+@pytest.mark.parametrize("interpolation_method", [InterpolationMethod.BARYCENTRIC,
+                                                  InterpolationMethod.CLENSHAW])
+def test_chebyshev_interpolation(N, interpolation_method):
     cheb = Chebyshev(N)
 
     def u0(x):
@@ -45,7 +67,7 @@ def test_chebyshev_interpolation(N):
     u = jnp.vstack((u0(cheb.x), u1(cheb.x))).T
     x = jnp.array((-1 / jnp.pi, 2 / jnp.pi))
 
-    v = cheb.interpolate(u, x, axis=0)
+    v = cheb.interpolate(u, x, axis=0, interpolation_method=interpolation_method)
     assert abs(v[:, 0] - u0(x)).max() < 100 * eps()
     assert abs(v[:, 1] - u1(x)).max() < 100 * eps()
 

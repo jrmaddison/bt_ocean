@@ -4,6 +4,7 @@
 import jax
 import jax.numpy as jnp
 
+from enum import Enum, auto
 from functools import cached_property, partial
 
 from .fft import dchebt, idchebt
@@ -11,8 +12,17 @@ from .precision import default_idtype, default_fdtype
 
 __all__ = \
     [
+        "InterpolationMethod",
         "Chebyshev"
     ]
+
+
+class InterpolationMethod(Enum):
+    """Method to use for interpolation. See :meth:`.Chebyshev.interpolate`.
+    """
+
+    BARYCENTRIC = auto()
+    CLENSHAW = auto()
 
 
 class Chebyshev:
@@ -171,15 +181,68 @@ class Chebyshev:
             raise ValueError("Invalid shape")
         return idchebt(u_c, axis=axis)
 
-    def interpolate(self, u, x, *, axis=-1, extrapolate=False):
+    @staticmethod
+    @partial(jax.jit, static_argnums=(0, 1), static_argnames="axis")
+    def _interpolate(idtype, fdtype, u, x, x_c, *, axis=-1):
+        if axis == -1:
+            axis = len(u.shape) - 1
+        if axis != len(u.shape) - 1:
+            p = tuple(range(axis)) + tuple(range(axis + 1, len(u.shape))) + (axis,)
+            p_inv = tuple(range(axis)) + (len(u.shape) - 1,) + tuple(range(axis, len(u.shape) - 1))
+            u = jnp.transpose(u, p)
+
+        N = u.shape[-1] - 1
+
+        # Equation (5.4) in
+        #     Jean-Paul Berrut and Lloyd N. Trefethen, 'Barycentric Lagrange
+        #     interpolation', SIAM Review 46(3), pp. 501--517, 2004,
+        #     https://doi.org/10.1137/S0036144502417715
+        # Note that coordinate order reversal might change the sign here, but
+        # this does not change the result due to cancelling factors
+        w = jnp.array((-1) ** jnp.arange(N + 1, dtype=idtype), dtype=fdtype)
+        w = w.at[0].set(0.5 * w[0])
+        w = w.at[-1].set(0.5 * w[-1])
+
+        # Equation (4.2) in
+        #     Jean-Paul Berrut and Lloyd N. Trefethen, 'Barycentric Lagrange
+        #     interpolation', SIAM Review 46(3), pp. 501--517, 2004,
+        #     https://doi.org/10.1137/S0036144502417715
+        # When an interpolation point lies exactly on a grid point we
+        # arbitrarily replace the divide-by-zero with divide-by-one. The
+        # erroneous result will be discarded below.
+        X = jnp.array(jnp.tensordot(x, jnp.ones_like(x, shape=x_c.shape), axes=0), dtype=fdtype)
+        X_exact = jnp.array(abs(X - x_c) < jnp.finfo(fdtype).eps, dtype=idtype)
+        a = w / jnp.where(X_exact == 1, jnp.ones_like(X), X - x_c)
+        v = jnp.tensordot(u, a, axes=((-1,), (-1,))) / a.sum(axis=-1)
+
+        # Now handle the case where an interpolation point lies exactly on a
+        # grid point
+        v = jnp.where(jnp.tensordot(jnp.ones(u.shape, dtype=idtype), X_exact, axes=((-1,), (-1,))) == 1,
+                      jnp.tensordot(u, X_exact, axes=((-1,), (-1,))),
+                      v)
+
+        if axis != len(u.shape) - 1:
+            v = jnp.transpose(v, p_inv)
+        return v
+
+    def interpolate(self, u, x, *, axis=-1, interpolation_method=InterpolationMethod.BARYCENTRIC, extrapolate=False):
         """Evaluate at the given locations, given an array of grid point
         values.
 
-        Computed by transforming to an expansion in the Chebyshev basis, and
-        then using the Clenshaw algorithm, using equations (2) and (3) in
+        The `interpolation_method` argument chooses between two interpolation
+        methods:
 
-            - C. W. Clenshaw, 'A note on the summation of Chebyshev series',
-              Mathematics of Computation 9, 118--120, 1955
+            - `InterpolationMethod.BARYCENTRIC`: Barycentric interpolation as
+              described in Jean-Paul Berrut and Lloyd N. Trefethen,
+              'Barycentric Lagrange interpolation', SIAM Review 46(3),
+              pp. 501--517, 2004, https://doi.org/10.1137/S0036144502417715,
+              in particular using their equations (4.2) and (5.4).
+            - `InterpolationMethod.CLENSHAW`: Interpolation performed by
+              first transforming to an expansion in the Chebyshev basis using
+              :meth:`.to_cheb`, and then using using the Clenshaw algorithm,
+              using equations (2) and (3) in C. W. Clenshaw, 'A note on the
+              summation of Chebyshev series', Mathematics of Computation 9,
+              118--120, 1955.
 
         Parameters
         ----------
@@ -190,6 +253,8 @@ class Chebyshev:
             Array of locations.
         axis : Integral
             Axis over which to perform the evaluation.
+        interpolation_method
+            The interpolation method.
         extrapolate : bool
             Whether to allow extrapolation.
 
@@ -200,7 +265,16 @@ class Chebyshev:
             Array of values at the given locations.
         """
 
-        return self.interpolate_cheb(self.to_cheb(u, axis=axis), x, axis=axis, extrapolate=extrapolate)
+        if u.shape[axis] != self.N + 1:
+            raise ValueError("Invalid shape")
+        if not extrapolate and (abs(x) > 1).any():
+            raise ValueError("Out of bounds")
+        if interpolation_method == InterpolationMethod.BARYCENTRIC:
+            return self._interpolate(self.idtype, self.fdtype, u, x, self.x, axis=axis)
+        elif interpolation_method == InterpolationMethod.CLENSHAW:
+            return self.interpolate_cheb(self.to_cheb(u, axis=axis), x, axis=axis, extrapolate=extrapolate)
+        else:
+            raise ValueError(f"Unrecognized interpolation method: {interpolation_method}")
 
     @staticmethod
     @partial(jax.jit, static_argnames="axis")
@@ -277,6 +351,8 @@ class Chebyshev:
         #     Lloyd N. Trefethen, 'Spectral methods in MATLAB', Society for
         #     Industrial and Applied Mathematics, 2000,
         #     https://doi.org/10.1137/1.9780898719598
+        # Coordinate order reversal does not change the expression for the
+        # differentiation matrix.
         c = jnp.ones_like(x)
         c = c.at[0].set(2)
         c = c.at[-1].set(2)
