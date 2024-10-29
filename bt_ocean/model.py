@@ -4,6 +4,7 @@ beta plane.
 
 import jax
 import jax.numpy as jnp
+import keras
 import numpy as np
 
 from abc import ABC, abstractmethod
@@ -424,6 +425,7 @@ class Solver(ABC):
         jax.tree_util.register_pytree_node(cls, flatten, unflatten)
 
         Solver._registry[cls.__name__] = cls
+        keras.saving.register_keras_serializable(package=f"_bt_ocean__{cls.__name__}")(cls)
 
     @cached_property
     def beta(self) -> jax.Array:
@@ -808,6 +810,23 @@ class Solver(ABC):
         if type(n) is not object:
             solver.n = n
 
+        return solver
+
+    def get_config(self):
+        return {"type": type(self).__name__,
+                "parameters": dict(self.parameters),
+                "fields": dict(self.fields),
+                "dealias_fields": dict(self.dealias_fields),
+                "n": self.n}
+
+    @classmethod
+    def from_config(cls, config):
+        config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.items()}
+        cls = Solver._registry[config["type"]]
+        solver = cls(config["parameters"])
+        solver.fields.update(config["fields"])
+        solver.dealias_fields.update(config["dealias_fields"])
+        solver.n = config["n"]
         return solver
 
 
