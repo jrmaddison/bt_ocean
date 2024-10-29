@@ -253,7 +253,7 @@ class Dynamics(keras.layers.Layer):
             return dynamics
 
         def compute_step_outputs(dynamics, _):
-            dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=32)
+            dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=8)
             return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
         def compute_outputs(zeta):

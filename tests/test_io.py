@@ -65,8 +65,7 @@ def test_fields_roundtrip(tmp_path):
 def test_solver_roundtrip(tmp_path):
     model = CNAB2Solver(model_parameters())
     model.fields["Q"] = Q(model.grid)
-    for _ in range(5):
-        model.step()
+    model.steps(5)
 
     filename = tmp_path / "tmp.zarr"
     with zarr.open(filename, "w") as h:

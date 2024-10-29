@@ -89,8 +89,7 @@ def test_kronecker_product_roundtrip(tmp_path, activation, symmetric, bias):
 def test_dynamics_roundtrip(tmp_path):
     model = CNAB2Solver(model_parameters())
     model.fields["Q"] = Q(model.grid)
-    for _ in range(5):
-        model.step()
+    model.steps(5)
 
     Q_input_layer = keras.layers.Input((model.grid.N_x + 1, model.grid.N_y + 1))
     Q_network = keras.models.Model(inputs=Q_input_layer, outputs=Q_input_layer)

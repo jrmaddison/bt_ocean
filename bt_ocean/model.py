@@ -239,19 +239,6 @@ class Fields(Mapping):
 
         return g
 
-    def update(self, d):
-        """Update field values from the supplied :class:`Mapping`.
-
-        Parameters
-        ----------
-
-        d : Mapping
-            Key-value pairs containing the field values.
-        """
-
-        for key, value in d.items():
-            self[key] = value
-
     @classmethod
     def read(cls, h, path="fields", *, grid=None):
         """Read fields from a :class:`zarr.hierarchy.Group`.
@@ -296,6 +283,19 @@ class Fields(Mapping):
             fields[key] = g[key][...]
 
         return fields
+
+    def update(self, d):
+        """Update field values from the supplied :class:`Mapping`.
+
+        Parameters
+        ----------
+
+        d : Mapping
+            Key-value pairs containing the field values.
+        """
+
+        for key, value in d.items():
+            self[key] = value
 
 
 class SteadyStateMaximumIterationsError(Exception):
@@ -363,10 +363,10 @@ class Solver(ABC):
         Keys for fields defined on the 'dealias' grid.
     prescribed_field_keys : Iterable
         Keys for fields defined on the 'base' grid which are prescribed, and
-        which are not updated within :meth:`.step`. Defaults to `{'Q'}`.
+        which are not updated within a timestep. Defaults to `{'Q'}`.
     prescribed_dealias_field_keys : Iterable
         Keys for fields defined on the 'dealias' grid which are prescribed, and
-        which are not updated within :meth:`.step`. Defaults to `set()`.
+        which are not updated within a timestep. Defaults to `set()`.
     """
 
     _defaults = {"L_x": required,  # x \in [-L_x, L_x]
@@ -419,9 +419,8 @@ class Solver(ABC):
         def unflatten(aux_data, children):
             return cls.unflatten(aux_data, children)
 
-        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
-
         cls._registry[cls.__name__] = cls
+        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
         keras.saving.register_keras_serializable(package=f"_bt_ocean__{cls.__name__}")(cls)
 
     @cached_property
@@ -540,6 +539,27 @@ class Solver(ABC):
         """
 
         self._n += 1
+
+    @staticmethod
+    @jax.jit
+    def _step(_, model):
+        model.step()
+        return model
+
+    def steps(self, n, *, unroll=8):
+        """Take multiple timesteps. Uses :func:`jax.lax.fori_loop`.
+
+        Parameters
+        ----------
+
+        n : Integral
+            The number of timesteps to take.
+        unroll : Integral
+            Passed to :func:`jax.lax.fori_loop`.
+        """
+
+        model = jax.lax.fori_loop(0, n, self._step, self, unroll=unroll)
+        self.update(model)
 
     def ke(self):
         """The current kinetic energy, divided by density.
@@ -887,7 +907,7 @@ class CNAB2Solver(Solver):
         """
 
         return ModifiedHelmholtzSolver(
-            self.grid, alpha=(1 + 0.5 * self.dt * self.r), beta=0.5 * self.dt * self.nu)
+            self.grid, alpha=1 + 0.5 * self.dt * self.r, beta=0.5 * self.dt * self.nu)
 
     def initialize(self, zeta=None):
         super().initialize(zeta=zeta)

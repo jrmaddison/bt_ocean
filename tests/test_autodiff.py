@@ -23,8 +23,7 @@ def test_cnab2_autodiff_jvp(N):
     def forward(Q_1):
         model.initialize()
         model.fields["Q"] = Q(model.grid) + Q_1
-        while model.n < N:
-            model.step()
+        model.steps(N)
         return model.ke()
 
     J_0, jvp = jax.linearize(forward, jnp.zeros_like(model.fields["Q"]))
@@ -53,8 +52,7 @@ def test_cnab2_autodiff_vjp(N):
     def forward(Q_1):
         model.initialize()
         model.fields["Q"] = Q(model.grid) + Q_1
-        while model.n < N:
-            model.step()
+        model.steps(N)
         return model.ke()
 
     J_0, vjp = jax.vjp(forward, jnp.zeros_like(model.fields["Q"]))
