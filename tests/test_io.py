@@ -1,6 +1,5 @@
 from bt_ocean.grid import Grid
-from bt_ocean.model import (
-    CNAB2Solver, Fields, Parameters, read_fields, read_parameters, read_solver)
+from bt_ocean.model import CNAB2Solver, Fields, Parameters, Solver
 from bt_ocean.parameters import parameters
 
 import jax.numpy as jnp
@@ -25,7 +24,7 @@ def test_parameters_roundtrip(tmp_path):
     with zarr.open(filename, "w") as h:
         parameters.write(h)
     with zarr.open(filename, "r") as h:
-        input_parameters = read_parameters(h)
+        input_parameters = Parameters.read(h)
 
     assert set(input_parameters) == set(parameters)
     for key, value in parameters.items():
@@ -47,7 +46,7 @@ def test_fields_roundtrip(tmp_path):
     with zarr.open(filename, "w") as h:
         fields.write(h)
     with zarr.open(filename, "r") as h:
-        input_fields = read_fields(h)
+        input_fields = Fields.read(h)
 
     assert input_fields.grid.L_x == L_x
     assert input_fields.grid.L_y == L_y
@@ -73,7 +72,7 @@ def test_solver_roundtrip(tmp_path):
     with zarr.open(filename, "w") as h:
         solver.write(h)
     with zarr.open(filename, "r") as h:
-        input_solver = read_solver(h)
+        input_solver = Solver.read(h)
 
     assert type(input_solver) is type(solver)
     assert input_solver.n == solver.n

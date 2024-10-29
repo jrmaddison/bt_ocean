@@ -19,16 +19,13 @@ __all__ = \
     [
         "Parameters",
         "required",
-        "read_parameters",
 
         "Fields",
-        "read_fields",
 
         "SteadyStateMaximumIterationsError",
         "NanEncounteredError",
         "Solver",
-        "CNAB2Solver",
-        "read_solver"
+        "CNAB2Solver"
     ]
 
 
@@ -94,26 +91,26 @@ class Parameters(Mapping):
         g.attrs.update(self.items())
         return g
 
+    @classmethod
+    def read(cls, h, path="parameters"):
+        """Read parameters from a :class:`zarr.hierarchy.Group`.
 
-def read_parameters(h, path="parameters"):
-    """Read parameters from a :class:`zarr.hierarchy.Group`.
+        Parameters
+        ----------
 
-    Parameters
-    ----------
+        h : :class:`zarr.hierarchy.Group`
+            Parent group.
+        path : str
+            Group path.
 
-    h : :class:`zarr.hierarchy.Group`
-        Parent group.
-    path : str
-        Group path.
+        Returns
+        -------
 
-    Returns
-    -------
+        :class:`.Parameters`
+            The parameters.
+        """
 
-    :class:`.Parameters`
-        The parameters.
-    """
-
-    return Parameters(h[path].attrs)
+        return cls(h[path].attrs)
 
 
 class Fields(Mapping):
@@ -255,50 +252,50 @@ class Fields(Mapping):
         for key, value in d.items():
             self[key] = value
 
+    @classmethod
+    def read(cls, h, path="fields", *, grid=None):
+        """Read fields from a :class:`zarr.hierarchy.Group`.
 
-def read_fields(h, path="fields", *, grid=None):
-    """Read fields from a :class:`zarr.hierarchy.Group`.
+        Parameters
+        ----------
 
-    Parameters
-    ----------
+        h : :class:`zarr.hierarchy.Group`
+            Parent group.
+        path : str
+            Group path.
+        grid : :class:`.Grid`
+            The 2D Chebyshev grid.
 
-    h : :class:`zarr.hierarchy.Group`
-        Parent group.
-    path : str
-        Group path.
-    grid : :class:`.Grid`
-        The 2D Chebyshev grid.
+        Returns
+        -------
 
-    Returns
-    -------
+        :class:`.Fields`
+            The fields.
+        """
 
-    :class:`.Fields`
-        The fields.
-    """
+        g = h[path]
+        del h
 
-    g = h[path]
-    del h
+        L_x = g.attrs["L_x"]
+        L_y = g.attrs["L_y"]
+        N_x = g.attrs["N_x"]
+        N_y = g.attrs["N_y"]
+        idtype = jnp.dtype(g.attrs["idtype"]).type
+        fdtype = jnp.dtype(g.attrs["fdtype"]).type
+        if grid is None:
+            grid = Grid(L_x, L_y, N_x, N_y, idtype=idtype, fdtype=fdtype)
+        if L_x != grid.L_x or L_y != grid.L_y:
+            raise ValueError("Invalid dimension(s)")
+        if N_x != grid.N_x or N_y != grid.N_y:
+            raise ValueError("Invalid degree(s)")
+        if idtype != grid.idtype or fdtype != grid.fdtype:
+            raise ValueError("Invalid dtype(s)")
 
-    L_x = g.attrs["L_x"]
-    L_y = g.attrs["L_y"]
-    N_x = g.attrs["N_x"]
-    N_y = g.attrs["N_y"]
-    idtype = jnp.dtype(g.attrs["idtype"]).type
-    fdtype = jnp.dtype(g.attrs["fdtype"]).type
-    if grid is None:
-        grid = Grid(L_x, L_y, N_x, N_y, idtype=idtype, fdtype=fdtype)
-    if L_x != grid.L_x or L_y != grid.L_y:
-        raise ValueError("Invalid dimension(s)")
-    if N_x != grid.N_x or N_y != grid.N_y:
-        raise ValueError("Invalid degree(s)")
-    if idtype != grid.idtype or fdtype != grid.fdtype:
-        raise ValueError("Invalid dtype(s)")
+        fields = cls(grid, set(g))
+        for key in g:
+            fields[key] = g[key][...]
 
-    fields = Fields(grid, set(g))
-    for key in g:
-        fields[key] = g[key][...]
-
-    return fields
+        return fields
 
 
 class SteadyStateMaximumIterationsError(Exception):
@@ -754,6 +751,36 @@ class Solver(ABC):
 
         return g
 
+    @classmethod
+    def read(cls, h, path="solver"):
+        """Read solver from a :class:`zarr.hierarchy.Group`.
+
+        Parameters
+        ----------
+
+        h : :class:`zarr.hierarchy.Group`
+            Parent group.
+        path : str
+            Group path.
+
+        Returns
+        -------
+
+        :class:`.Solver`
+            The solver.
+        """
+
+        g = h[path]
+        del h
+
+        cls = cls._registry[g.attrs["type"]]
+        solver = cls(Parameters.read(g, "parameters"))
+        solver.fields.update(Fields.read(g, "fields", grid=solver.grid))
+        solver.dealias_fields.update(Fields.read(g, "dealias_fields", grid=solver.dealias_grid))
+        solver.n = g.attrs["n"]
+
+        return solver
+
     def new(self):
         """Return a new :class:`.Solver` with the same configuration as this
         :class:`.Solver`.
@@ -828,36 +855,6 @@ class Solver(ABC):
         solver.dealias_fields.update(config["dealias_fields"])
         solver.n = config["n"]
         return solver
-
-
-def read_solver(h, path="solver"):
-    """Read solver from a :class:`zarr.hierarchy.Group`.
-
-    Parameters
-    ----------
-
-    h : :class:`zarr.hierarchy.Group`
-        Parent group.
-    path : str
-        Group path.
-
-    Returns
-    -------
-
-    :class:`.Solver`
-        The solver.
-    """
-
-    g = h[path]
-    del h
-
-    cls = Solver._registry[g.attrs["type"]]
-    solver = cls(read_parameters(g, "parameters"))
-    solver.fields.update(read_fields(g, "fields", grid=solver.grid))
-    solver.dealias_fields.update(read_fields(g, "dealias_fields", grid=solver.dealias_grid))
-    solver.n = g.attrs["n"]
-
-    return solver
 
 
 class CNAB2Solver(Solver):
