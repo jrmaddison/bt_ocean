@@ -439,7 +439,7 @@ class Solver(ABC):
             # products of quantities defined on the 'base' grid.
             return 2 * N
         else:
-            raise ValueError(f"Unrecognised dealiasing rule: {parameters['dealiasing_rule']}")
+            raise ValueError(f"Unrecognised dealiasing rule: {dealiasing_rule}")
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
