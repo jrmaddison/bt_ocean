@@ -955,7 +955,7 @@ class CNAB2Solver(Solver):
         v = self.dealias_fields["v"]
         return 0.5 * jnp.tensordot((u * u + v * v), self.dealias_grid.W)
 
-    def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000, _min_n=0):
+    def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000):
         return super().steady_state_solve(*args, update=update, tol=tol, max_it=max_it, _min_n=1)
 
     def new(self):

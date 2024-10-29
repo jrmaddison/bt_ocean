@@ -228,7 +228,7 @@ class Dynamics(keras.layers.Layer):
         ----------
 
         key : str
-            Key to associated with the callable.
+            Key to associated with the `update` callable.
 
         Returns
         -------

@@ -102,12 +102,12 @@ def test_dynamics_roundtrip(tmp_path):
         nonlocal n_calls
         n_calls += 1
 
-    dynamics_layer = Dynamics(model, Q_callback, Q_network, N=1)
+    dynamics_layer = Dynamics(model, Q_callback, Q_network)
     dynamics_input_layer = keras.layers.Input((model.grid.N_x + 1, model.grid.N_y + 1))
     dynamics_network = keras.models.Model(inputs=dynamics_input_layer, outputs=dynamics_layer(dynamics_input_layer))
 
     assert n_calls == 0
-    dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_x + 1)))
+    dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_y + 1)))
     assert n_calls == 1
 
     dynamics_network.save(tmp_path / "tmp.keras")
@@ -144,5 +144,5 @@ def test_dynamics_roundtrip(tmp_path):
     for key, value in model.dealias_fields.items():
         assert (input_model.dealias_fields[key] == value).all()
 
-    dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_x + 1)))
+    dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_y + 1)))
     assert n_calls == 2
