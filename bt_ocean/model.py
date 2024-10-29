@@ -424,7 +424,7 @@ class Solver(ABC):
 
         jax.tree_util.register_pytree_node(cls, flatten, unflatten)
 
-        Solver._registry[cls.__name__] = cls
+        cls._registry[cls.__name__] = cls
         keras.saving.register_keras_serializable(package=f"_bt_ocean__{cls.__name__}")(cls)
 
     @cached_property
@@ -822,7 +822,7 @@ class Solver(ABC):
     @classmethod
     def from_config(cls, config):
         config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.items()}
-        cls = Solver._registry[config["type"]]
+        cls = cls._registry[config["type"]]
         solver = cls(config["parameters"])
         solver.fields.update(config["fields"])
         solver.dealias_fields.update(config["dealias_fields"])
