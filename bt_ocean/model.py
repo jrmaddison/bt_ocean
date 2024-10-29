@@ -239,19 +239,6 @@ class Fields(Mapping):
 
         return g
 
-    def update(self, d):
-        """Update field values from the supplied :class:`Mapping`.
-
-        Parameters
-        ----------
-
-        d : Mapping
-            Key-value pairs containing the field values.
-        """
-
-        for key, value in d.items():
-            self[key] = value
-
     @classmethod
     def read(cls, h, path="fields", *, grid=None):
         """Read fields from a :class:`zarr.hierarchy.Group`.
@@ -296,6 +283,19 @@ class Fields(Mapping):
             fields[key] = g[key][...]
 
         return fields
+
+    def update(self, d):
+        """Update field values from the supplied :class:`Mapping`.
+
+        Parameters
+        ----------
+
+        d : Mapping
+            Key-value pairs containing the field values.
+        """
+
+        for key, value in d.items():
+            self[key] = value
 
 
 class SteadyStateMaximumIterationsError(Exception):
@@ -419,9 +419,8 @@ class Solver(ABC):
         def unflatten(aux_data, children):
             return cls.unflatten(aux_data, children)
 
-        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
-
         cls._registry[cls.__name__] = cls
+        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
         keras.saving.register_keras_serializable(package=f"_bt_ocean__{cls.__name__}")(cls)
 
     @cached_property
@@ -887,7 +886,7 @@ class CNAB2Solver(Solver):
         """
 
         return ModifiedHelmholtzSolver(
-            self.grid, alpha=(1 + 0.5 * self.dt * self.r), beta=0.5 * self.dt * self.nu)
+            self.grid, alpha=1 + 0.5 * self.dt * self.r, beta=0.5 * self.dt * self.nu)
 
     def initialize(self, zeta=None):
         super().initialize(zeta=zeta)
