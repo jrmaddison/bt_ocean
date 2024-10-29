@@ -593,7 +593,7 @@ class Solver(ABC):
         return (0.5 * self.grid.L_x * self.grid.L_y
                 * (k ** 2 + l ** 2) * (dst(dst(psi, axis=1), axis=0) ** 2))
 
-    def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, max_it=10000, _min_n=0):
+    def steady_state_solve(self, update=lambda model, *args: None, *args, tol, max_it=10000, _min_n=0):
         r"""Timestep to steady-state.
 
         Uses timestepping to define a fixed-point iteration, and applies
@@ -615,12 +615,12 @@ class Solver(ABC):
         Parameters
         ----------
 
-        m : Sequence[:class:`jax.Array`, ...]
-            Additional control variables.
         update : callable
             A callable accepting a :class:`.Solver` as the zeroth argument and
             the elements of `m` as remaining positional arguments, and which
             updates the values of control variables.
+        args : tuple
+            Passed to `update`.
         tol : Real
             Tolerance. The system is timestepped until
 
@@ -642,18 +642,18 @@ class Solver(ABC):
         """
 
         @jax.jit
-        def forward_step(data, m):
+        def forward_step(data, args):
             _, model, it = data
             zeta_0 = model.fields["zeta"]
-            update(model, *m)
+            update(model, *args)
             model.step()
             return (zeta_0, model, it + 1)
 
         @jax.custom_vjp
-        def forward(model, m):
+        def forward(model, args):
             while model.n < _min_n:
-                zeta_0, model, _ = forward_step((None, model, 0), m)
-            zeta_0, model, _ = forward_step((None, model, 0), m)
+                zeta_0, model, _ = forward_step((None, model, 0), args)
+            zeta_0, model, _ = forward_step((None, model, 0), args)
 
             def non_convergence(data):
                 zeta_0, model, it = data
@@ -663,20 +663,20 @@ class Solver(ABC):
                     abs(zeta_1 - zeta_0).max() > tol * abs(zeta_1).max())
 
             _, model, it = jax.lax.while_loop(
-                non_convergence, partial(forward_step, m=m),
+                non_convergence, partial(forward_step, args=args),
                 (zeta_0, model, 1))
             return model, it
 
-        def forward_fwd(model, m):
-            model, it = forward(model, m)
-            return (model, it), (model, m)
+        def forward_fwd(model, args):
+            model, it = forward(model, args)
+            return (model, it), (model, args)
 
         def forward_bwd(res, zeta):
-            model, m = res
+            model, args = res
             zeta_model, _ = zeta
 
             _, vjp_step = jax.vjp(
-                lambda model: forward_step((None, model, 0), m)[1], model)
+                lambda model: forward_step((None, model, 0), args)[1], model)
 
             @jax.jit
             def adj_step(data, zeta_model):
@@ -709,14 +709,14 @@ class Solver(ABC):
                 return lam_model
 
             lam_model = adjoint(zeta_model)
-            _, vjp = jax.vjp(lambda m: forward_step((None, model, 0), m)[1], m)
-            lam_m, = vjp(lam_model)
+            _, vjp = jax.vjp(lambda args: forward_step((None, model, 0), args)[1], args)
+            lam_args, = vjp(lam_model)
 
-            return lam_model, lam_m
+            return lam_model, lam_args
 
         forward.defvjp(forward_fwd, forward_bwd)
 
-        model, it = forward(self, m)
+        model, it = forward(self, args)
         self.update(model)
         if it > max_it:
             raise SteadyStateMaximumIterationsError("Maximum number of iterations exceeded")
@@ -939,8 +939,8 @@ class CNAB2Solver(Solver):
         v = self.dealias_fields["v"]
         return 0.5 * jnp.tensordot((u * u + v * v), self.dealias_grid.W)
 
-    def steady_state_solve(self, m=(), update=lambda model, *m: None, *, tol, max_it=10000):
-        return super().steady_state_solve(m=m, update=update, tol=tol, _min_n=1, max_it=max_it)
+    def steady_state_solve(self, m=(), update=lambda model, *args: None, *args, tol, max_it=10000):
+        return super().steady_state_solve(*args, update=update, tol=tol, _min_n=1, max_it=max_it)
 
     def new(self):
         solver = super().new()
