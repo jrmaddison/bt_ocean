@@ -413,8 +413,8 @@ class Solver(ABC):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        def flatten(solver):
-            return solver.flatten()
+        def flatten(model):
+            return model.flatten()
 
         def unflatten(aux_data, children):
             return cls.unflatten(aux_data, children)
@@ -774,12 +774,12 @@ class Solver(ABC):
         del h
 
         cls = cls._registry[g.attrs["type"]]
-        solver = cls(Parameters.read(g, "parameters"))
-        solver.fields.update(Fields.read(g, "fields", grid=solver.grid))
-        solver.dealias_fields.update(Fields.read(g, "dealias_fields", grid=solver.dealias_grid))
-        solver.n = g.attrs["n"]
+        model = cls(Parameters.read(g, "parameters"))
+        model.fields.update(Fields.read(g, "fields", grid=model.grid))
+        model.dealias_fields.update(Fields.read(g, "dealias_fields", grid=model.dealias_grid))
+        model.n = g.attrs["n"]
 
-        return solver
+        return model
 
     def new(self):
         """Return a new :class:`.Solver` with the same configuration as this
@@ -792,23 +792,23 @@ class Solver(ABC):
             The new :class:`.Solver`.
         """
 
-        solver = type(self)(self.parameters)
-        solver.poisson_solver = self.poisson_solver
-        return solver
+        model = type(self)(self.parameters)
+        model.poisson_solver = self.poisson_solver
+        return model
 
-    def update(self, solver):
+    def update(self, model):
         """Update the state of this :class:`.Solver`.
 
         Parameters
         ----------
 
-        solver : :class:`.Solver`
+        model : :class:`.Solver`
             Defines the new state of this :class:`.Solver`.
         """
 
-        self.fields.update(solver.fields)
-        self.dealias_fields.update(solver.dealias_fields)
-        self.n = solver.n
+        self.fields.update(model.fields)
+        self.dealias_fields.update(model.dealias_fields)
+        self.n = model.n
 
     def flatten(self):
         """Return a JAX flattened representation.
@@ -830,14 +830,14 @@ class Solver(ABC):
         parameters, poisson_solver = aux_data
         fields, dealias_fields, n = children
 
-        solver = cls(parameters)
-        solver.poisson_solver = poisson_solver
-        solver.fields.update({key: value for key, value in fields.items() if type(value) is not object})
-        solver.dealias_fields.update({key: value for key, value in dealias_fields.items() if type(value) is not object})
+        model = cls(parameters)
+        model.poisson_solver = poisson_solver
+        model.fields.update({key: value for key, value in fields.items() if type(value) is not object})
+        model.dealias_fields.update({key: value for key, value in dealias_fields.items() if type(value) is not object})
         if type(n) is not object:
-            solver.n = n
+            model.n = n
 
-        return solver
+        return model
 
     def get_config(self):
         return {"type": type(self).__name__,
@@ -850,11 +850,11 @@ class Solver(ABC):
     def from_config(cls, config):
         config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.items()}
         cls = cls._registry[config["type"]]
-        solver = cls(config["parameters"])
-        solver.fields.update(config["fields"])
-        solver.dealias_fields.update(config["dealias_fields"])
-        solver.n = config["n"]
-        return solver
+        model = cls(config["parameters"])
+        model.fields.update(config["fields"])
+        model.dealias_fields.update(config["dealias_fields"])
+        model.n = config["n"]
+        return model
 
 
 class CNAB2Solver(Solver):
@@ -959,9 +959,9 @@ class CNAB2Solver(Solver):
         return super().steady_state_solve(*args, update=update, tol=tol, max_it=max_it, _min_n=1)
 
     def new(self):
-        solver = super().new()
-        solver.modified_helmholtz_solver = self.modified_helmholtz_solver
-        return solver
+        model = super().new()
+        model.modified_helmholtz_solver = self.modified_helmholtz_solver
+        return model
 
     def flatten(self):
         children, aux_data = super().flatten()
@@ -969,6 +969,6 @@ class CNAB2Solver(Solver):
 
     @classmethod
     def unflatten(cls, aux_data, children):
-        solver = super().unflatten(aux_data[:-1], children)
-        solver.modified_helmholtz_solver = aux_data[-1]
-        return solver
+        model = super().unflatten(aux_data[:-1], children)
+        model.modified_helmholtz_solver = aux_data[-1]
+        return model
