@@ -1,7 +1,6 @@
 from bt_ocean.grid import Grid
-from bt_ocean.model import (
-    CNAB2Solver, Fields, Parameters, read_fields, read_parameters, read_solver)
-from bt_ocean.parameters import parameters
+from bt_ocean.model import CNAB2Solver, Fields, Parameters, Solver
+from bt_ocean.parameters import parameters, Q
 
 import jax.numpy as jnp
 import zarr
@@ -25,7 +24,7 @@ def test_parameters_roundtrip(tmp_path):
     with zarr.open(filename, "w") as h:
         parameters.write(h)
     with zarr.open(filename, "r") as h:
-        input_parameters = read_parameters(h)
+        input_parameters = Parameters.read(h)
 
     assert set(input_parameters) == set(parameters)
     for key, value in parameters.items():
@@ -47,7 +46,7 @@ def test_fields_roundtrip(tmp_path):
     with zarr.open(filename, "w") as h:
         fields.write(h)
     with zarr.open(filename, "r") as h:
-        input_fields = read_fields(h)
+        input_fields = Fields.read(h)
 
     assert input_fields.grid.L_x == L_x
     assert input_fields.grid.L_y == L_y
@@ -64,42 +63,42 @@ def test_fields_roundtrip(tmp_path):
 
 
 def test_solver_roundtrip(tmp_path):
-    solver = CNAB2Solver(model_parameters())
-
+    model = CNAB2Solver(model_parameters())
+    model.fields["Q"] = Q(model.grid)
     for _ in range(5):
-        solver.step()
+        model.step()
 
     filename = tmp_path / "tmp.zarr"
     with zarr.open(filename, "w") as h:
-        solver.write(h)
+        model.write(h)
     with zarr.open(filename, "r") as h:
-        input_solver = read_solver(h)
+        input_model = Solver.read(h)
 
-    assert type(input_solver) is type(solver)
-    assert input_solver.n == solver.n
+    assert type(input_model) is type(model)
+    assert input_model.n == model.n
 
-    assert input_solver.grid.L_x == solver.grid.L_x
-    assert input_solver.grid.L_y == solver.grid.L_y
-    assert input_solver.grid.N_x == solver.grid.N_x
-    assert input_solver.grid.N_y == solver.grid.N_y
-    assert input_solver.grid.idtype == solver.grid.idtype
-    assert input_solver.grid.fdtype == solver.grid.fdtype
+    assert input_model.grid.L_x == model.grid.L_x
+    assert input_model.grid.L_y == model.grid.L_y
+    assert input_model.grid.N_x == model.grid.N_x
+    assert input_model.grid.N_y == model.grid.N_y
+    assert input_model.grid.idtype == model.grid.idtype
+    assert input_model.grid.fdtype == model.grid.fdtype
 
-    assert input_solver.dealias_grid.L_x == solver.dealias_grid.L_x
-    assert input_solver.dealias_grid.L_y == solver.dealias_grid.L_y
-    assert input_solver.dealias_grid.N_x == solver.dealias_grid.N_x
-    assert input_solver.dealias_grid.N_y == solver.dealias_grid.N_y
-    assert input_solver.dealias_grid.idtype == solver.dealias_grid.idtype
-    assert input_solver.dealias_grid.fdtype == solver.dealias_grid.fdtype
+    assert input_model.dealias_grid.L_x == model.dealias_grid.L_x
+    assert input_model.dealias_grid.L_y == model.dealias_grid.L_y
+    assert input_model.dealias_grid.N_x == model.dealias_grid.N_x
+    assert input_model.dealias_grid.N_y == model.dealias_grid.N_y
+    assert input_model.dealias_grid.idtype == model.dealias_grid.idtype
+    assert input_model.dealias_grid.fdtype == model.dealias_grid.fdtype
 
-    assert set(input_solver.parameters) == set(solver.parameters)
-    for key, value in solver.parameters.items():
-        assert input_solver.parameters[key] == value
+    assert set(input_model.parameters) == set(model.parameters)
+    for key, value in model.parameters.items():
+        assert input_model.parameters[key] == value
 
-    assert set(input_solver.fields) == set(solver.fields)
-    for key, value in solver.fields.items():
-        assert (input_solver.fields[key] == value).all()
+    assert set(input_model.fields) == set(model.fields)
+    for key, value in model.fields.items():
+        assert (input_model.fields[key] == value).all()
 
-    assert set(input_solver.dealias_fields) == set(solver.dealias_fields)
-    for key, value in solver.dealias_fields.items():
-        assert (input_solver.dealias_fields[key] == value).all()
+    assert set(input_model.dealias_fields) == set(model.dealias_fields)
+    for key, value in model.dealias_fields.items():
+        assert (input_model.dealias_fields[key] == value).all()

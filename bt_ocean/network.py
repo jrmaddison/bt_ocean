@@ -19,7 +19,16 @@ __all__ = \
     ]
 
 
-@keras.saving.register_keras_serializable(package="bt_ocean_scale")
+def update_config(config, d):
+    config = dict(config)
+    for key, value in d.items():
+        if key in config:
+            raise KeyError(f"key '{key}' already defined")
+        config[key] = value
+    return config
+
+
+@keras.saving.register_keras_serializable(package="_bt_ocean__Scale")
 class Scale(keras.layers.Layer):
     """A layer which multiplies by a constant trainable weight.
     """
@@ -35,7 +44,7 @@ class Scale(keras.layers.Layer):
         pass
 
 
-@keras.saving.register_keras_serializable(package="bt_ocean_kronecker_product")
+@keras.saving.register_keras_serializable(package="_bt_ocean__KroneckerProduct")
 class KroneckerProduct(keras.layers.Layer):
     """A layer where the weights matrix has Kronecker product structure.
 
@@ -85,22 +94,6 @@ class KroneckerProduct(keras.layers.Layer):
         if self.__activation is not None:
             outputs = self.__activation(outputs)
         return outputs
-
-    def get_config(self):
-        def update(config, d):
-            config = dict(config)
-            for key, value in d.items():
-                if key in config:
-                    raise KeyError(f"key '{key}' already defined")
-                config[key] = value
-            return config
-
-        return update(super().get_config(),
-                      {"shape_a": self.__shape_a,
-                       "shape_b": self.__shape_b,
-                       "activation": self.__activation_arg,
-                       "symmetric": self.__symmetric,
-                       "bias": self.__bias})
 
     def build(self, input_shape):
         if tuple(input_shape)[-2:] != self.__shape_a:
@@ -186,23 +179,20 @@ def kronecker_product_network(
     return keras.models.Model(inputs=input_layer, outputs=output_layer)
 
 
+@keras.saving.register_keras_serializable(package="_bt_ocean__Dynamics")
 class Dynamics(keras.layers.Layer):
-    """Defines a layer consisting of a dynamical core with a neural network
-    parameterized forcing.
+    """Defines a layer consisting of a dynamical solver.
 
     Parameters
     ----------
 
     dynamics : :class:`.Solver`
-        The dynamical core.
-    Q_0 : :class:`jax.numpy.Array`
-        Wind forcing term in the vorticity equation.
-    Q_network
-        The right-hand-side forcing neural network.
-    Q_callback : callable
-        Passed `dynamics` and `Q_network`, and should return an additional term
-        to be added to the right-hand-side of the vorticity equation. Evaluated
-        before taking each timestep.
+        The dynamical solver.
+    update : callable
+        Passed `dynamics` and any arguments defined by `args`, and should
+        update the state of `dynamics`. Evaluated before taking each timestep.
+    args : tuple
+        Passed as remaining arguments to `update`.
     N : Integral
         The number of timesteps to take using the dynamical solver between each
         output.
@@ -214,17 +204,43 @@ class Dynamics(keras.layers.Layer):
         Weight by which to scale each output.
     """
 
-    def __init__(self, dynamics, Q_0, Q_network, Q_callback, N, *, n_output=1,
-                 input_weight=1, output_weight=1):
-        super().__init__(dtype=dynamics.grid.fdtype)
+    _update_registry = {}
+
+    def __init__(self, dynamics, update, *args, N=1, n_output=1,
+                 input_weight=1, output_weight=1, **kwargs):
+        if "dtype" not in kwargs:
+            kwargs["dtype"] = dynamics.grid.fdtype
+        super().__init__(**kwargs)
         self.__dynamics = dynamics
-        self.__Q_0 = Q_0
-        self.__Q_network = Q_network
-        self.__Q_callback = Q_callback
+        self.__update = update
+        self.__args = args
         self.__N = N
         self.__n_output = n_output
         self.__input_weight = input_weight
         self.__output_weight = output_weight
+
+    @classmethod
+    def register_update(cls, key):
+        """Decorator for registration of an `update` callable. Required for
+        :class:`.Dynamics` serialization.
+
+        Parameters
+        ----------
+
+        key : str
+            Key to associated with the `update` callable.
+
+        Returns
+        -------
+
+        callable
+        """
+
+        def wrapper(fn):
+            fn._bt_ocean__update_key = key
+            cls._update_registry[key] = fn
+            return fn
+        return wrapper
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.__n_output) + input_shape[1:]
@@ -232,7 +248,7 @@ class Dynamics(keras.layers.Layer):
     def call(self, inputs):
         @jax.checkpoint
         def step(_, dynamics):
-            dynamics.fields["Q"] = self.__Q_0 + self.__Q_callback(dynamics, self.__Q_network)
+            self.__update(dynamics, *self.__args)
             dynamics.step()
             return dynamics
 
@@ -248,6 +264,28 @@ class Dynamics(keras.layers.Layer):
 
         outputs = jax.vmap(compute_outputs)(inputs)
         return outputs
+
+    def get_config(self):
+        return update_config(
+            super().get_config(),
+            {"_bt_ocean__Dynamics_config": {"dynamics": self.__dynamics,
+                                            "update_key": self.__update._bt_ocean__update_key,
+                                            "args": self.__args,
+                                            "N": self.__N,
+                                            "n_output": self.__n_output,
+                                            "input_weight": self.__input_weight,
+                                            "output_weight": self.__output_weight}})
+
+    @classmethod
+    def from_config(cls, config):
+        sub_config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.pop("_bt_ocean__Dynamics_config").items()}
+        return cls(sub_config["dynamics"],
+                   cls._update_registry[sub_config["update_key"]],
+                   *sub_config["args"],
+                   N=sub_config["N"],
+                   n_output=sub_config["n_output"],
+                   input_weight=sub_config["input_weight"],
+                   output_weight=sub_config["output_weight"], **config)
 
 
 class OnlineDataset(keras.utils.PyDataset):
