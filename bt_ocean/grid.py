@@ -158,7 +158,7 @@ class Grid:
             :math:`x`-coordinates.
         y : :class:`jax.Array`
             :math:`y`-coordinates.
-        interpolation_method
+        interpolation_method : Integral
             The interpolation method. See :meth:`.Chebyshev.interpolate`.
         extrapolate : bool
             Whether to allow extrapolation.

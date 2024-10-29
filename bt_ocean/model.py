@@ -9,6 +9,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
+from enum import IntEnum
 from functools import cached_property, partial
 
 from .fft import dst
@@ -24,6 +25,7 @@ __all__ = \
 
         "SteadyStateMaximumIterationsError",
         "NanEncounteredError",
+        "DealiasingRule",
         "Solver",
         "CNAB2Solver"
     ]
@@ -309,6 +311,14 @@ class NanEncounteredError(Exception):
     """
 
 
+class DealiasingRule(IntEnum):
+    """Defines the dealias grid.
+    """
+
+    THREE_HALVES = 0
+    FOUR_HALVES = 1
+
+
 class Solver(ABC):
     _registry = {}
 
@@ -376,7 +386,8 @@ class Solver(ABC):
                  "beta": required,
                  "r": required,
                  "nu": required,
-                 "dt": required}
+                 "dt": required,
+                 "dealiasing_rule": DealiasingRule.FOUR_HALVES}
 
     def __init__(self, parameters, *, field_keys=None, dealias_field_keys=None,
                  prescribed_field_keys=None, prescribed_dealias_field_keys=None):
@@ -400,7 +411,8 @@ class Solver(ABC):
             parameters["N_x"], parameters["N_y"])
         self._dealias_grid = dealias_grid = Grid(
             parameters["L_x"], parameters["L_y"],
-            2 * parameters["N_x"], 2 * parameters["N_y"])
+            self._dealias_N(parameters["dealiasing_rule"], grid.N_x),
+            self._dealias_N(parameters["dealiasing_rule"], grid.N_y))
 
         self._fields = Fields(grid, field_keys)
         self._dealias_fields = Fields(dealias_grid, dealias_field_keys)
@@ -409,6 +421,25 @@ class Solver(ABC):
 
         self.zero_prescribed()
         self.initialize()
+
+    @staticmethod
+    def _dealias_N(dealiasing_rule, N):
+        if dealiasing_rule == DealiasingRule.THREE_HALVES:
+            # Avoids aliasing in the advection term. See equation (2.8) in
+            #     Markus Uhlmann, 'The need for de-aliasing in a Chebyshev
+            #     pseudo-spectral method', Technical note no. 60, Potsdam
+            #     Institute for Climate Impact Research, Potsdam, Germany, 2000
+            #     http://www-nfm.ifh.kit.edu/uhlmann/reports/dealias.pdf
+            #     [accessed 2024-10-29]
+            # Here we can reduce the bound by 1/2 since u and v are computed by
+            # differentiation.
+            return 3 * N // 2 + int(N % 2 != 0)
+        elif dealiasing_rule == DealiasingRule.FOUR_HALVES:
+            # Avoids truncation errors when storing, on the 'dealias' grid,
+            # products of quantities defined on the 'base' grid.
+            return 2 * N
+        else:
+            raise ValueError(f"Unrecognised dealiasing rule: {dealiasing_rule}")
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
