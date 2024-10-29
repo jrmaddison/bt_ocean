@@ -411,8 +411,8 @@ class Solver(ABC):
             parameters["N_x"], parameters["N_y"])
         self._dealias_grid = dealias_grid = Grid(
             parameters["L_x"], parameters["L_y"],
-            self._dealias_N(parameters["dealiasing_rule"], parameters["N_x"]),
-            self._dealias_N(parameters["dealiasing_rule"], parameters["N_y"]))
+            self._dealias_N(parameters["dealiasing_rule"], grid.N_x),
+            self._dealias_N(parameters["dealiasing_rule"], grid.N_y))
 
         self._fields = Fields(grid, field_keys)
         self._dealias_fields = Fields(dealias_grid, dealias_field_keys)
