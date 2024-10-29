@@ -427,7 +427,7 @@ class Solver(ABC):
         if dealiasing_rule == DealiasingRule.THREE_HALVES:
             # Avoids aliasing in the advection term. See equation (2.8) in
             #     Markus Uhlmann, 'The need for de-aliasing in a Chebyshev
-            #     pseudo-spectral method', Technical Note No. 60, Potsdam
+            #     pseudo-spectral method', Technical note no. 60, Potsdam
             #     Institute for Climate Impact Research, Potsdam, Germany, 2000
             #     http://www-nfm.ifh.kit.edu/uhlmann/reports/dealias.pdf
             #     [accessed 2024-10-29]
