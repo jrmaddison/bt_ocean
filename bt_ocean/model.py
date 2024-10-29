@@ -433,7 +433,7 @@ class Solver(ABC):
             #     [accessed 2024-10-29]
             # Here we can reduce the bound by 1/2 since u and v are computed by
             # differentiation.
-            return 3 * N // 2 + int(N % 2 == 1)
+            return 3 * N // 2 + int(N % 2 != 0)
         elif dealiasing_rule == DealiasingRule.FOUR_HALVES:
             # Avoids truncation errors when storing, on the 'dealias' grid,
             # products of quantities defined on the 'base' grid.
