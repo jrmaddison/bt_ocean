@@ -9,7 +9,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from enum import Enum
+from enum import IntEnum
 from functools import cached_property, partial
 
 from .fft import dst
@@ -311,7 +311,7 @@ class NanEncounteredError(Exception):
     """
 
 
-class DealiasingRule(Enum):
+class DealiasingRule(IntEnum):
     """Defines the dealias grid.
     """
 
