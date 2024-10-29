@@ -791,14 +791,14 @@ class Solver(ABC):
         """
 
         return ((dict(self.fields), dict(self.dealias_fields), self.n),
-                (type(self), self.parameters, self.poisson_solver))
+                (self.parameters, self.poisson_solver))
 
-    @staticmethod
-    def unflatten(aux_data, children):
+    @classmethod
+    def unflatten(cls, aux_data, children):
         """Unpack a JAX flattened representation.
         """
 
-        cls, parameters, poisson_solver = aux_data
+        parameters, poisson_solver = aux_data
         fields, dealias_fields, n = children
 
         solver = cls(parameters)
@@ -951,8 +951,8 @@ class CNAB2Solver(Solver):
         children, aux_data = super().flatten()
         return children, aux_data + (self.modified_helmholtz_solver,)
 
-    @staticmethod
-    def unflatten(aux_data, children):
-        solver = Solver.unflatten(aux_data[:-1], children)
+    @classmethod
+    def unflatten(cls, aux_data, children):
+        solver = super().unflatten(aux_data[:-1], children)
         solver.modified_helmholtz_solver = aux_data[-1]
         return solver
