@@ -4,7 +4,7 @@
 import jax
 import jax.numpy as jnp
 
-from enum import Enum, auto
+from enum import Enum
 from functools import cached_property, partial
 
 from .fft import dchebt, idchebt
@@ -21,8 +21,8 @@ class InterpolationMethod(Enum):
     """Method to use for interpolation. See :meth:`.Chebyshev.interpolate`.
     """
 
-    BARYCENTRIC = auto()
-    CLENSHAW = auto()
+    BARYCENTRIC = 0
+    CLENSHAW = 1
 
 
 class Chebyshev:
