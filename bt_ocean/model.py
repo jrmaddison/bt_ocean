@@ -546,7 +546,7 @@ class Solver(ABC):
         model.step()
         return model
 
-    def steps(self, n, *, unroll=32):
+    def steps(self, n, *, unroll=8):
         """Take multiple timesteps. Uses :func:`jax.lax.fori_loop`.
 
         Parameters
