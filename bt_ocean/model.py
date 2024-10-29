@@ -595,7 +595,7 @@ class Solver(ABC):
         return (0.5 * self.grid.L_x * self.grid.L_y
                 * (k ** 2 + l ** 2) * (dst(dst(psi, axis=1), axis=0) ** 2))
 
-    def steady_state_solve(self, update=lambda model, *args: None, *args, tol, max_it=10000, _min_n=0):
+    def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000, _min_n=0):
         r"""Timestep to steady-state.
 
         Uses timestepping to define a fixed-point iteration, and applies
@@ -958,8 +958,8 @@ class CNAB2Solver(Solver):
         v = self.dealias_fields["v"]
         return 0.5 * jnp.tensordot((u * u + v * v), self.dealias_grid.W)
 
-    def steady_state_solve(self, m=(), update=lambda model, *args: None, *args, tol, max_it=10000):
-        return super().steady_state_solve(*args, update=update, tol=tol, _min_n=1, max_it=max_it)
+    def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000, _min_n=0):
+        return super().steady_state_solve(*args, update=update, tol=tol, max_it=max_it, _min_n=1)
 
     def new(self):
         solver = super().new()
