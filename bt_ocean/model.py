@@ -874,26 +874,9 @@ class CNAB2Solver(Solver):
         zeta = self.fields["zeta"]
         q = zeta + self.beta * self.grid.Y
 
-        F_0 = jnp.zeros_like(zeta).at[1:-1, 1:-1].set(
-
-            # Equations (36)--(38), (40), and (44) from
-            #     Akio Arakawa, 'Computational design for long-term numerical
-            #     integration of the equations of fluid motion: two-dimensional
-            #     incompressible flow. Part I', Journal of Computational
-            #     Physics 1(1), 119--143, 1966
-            (self.grid.N_x * self.grid.N_y / (48 * self.grid.L_x * self.grid.L_y)) * (
-                + (q[2:, 1:-1] - q[:-2, 1:-1]) * (psi[1:-1, 2:] - psi[1:-1, :-2])
-                - (q[1:-1, 2:] - q[1:-1, :-2]) * (psi[2:, 1:-1] - psi[:-2, 1:-1])
-                + q[2:, 1:-1] * (psi[2:, 2:] - psi[2:, :-2])
-                - q[:-2, 1:-1] * (psi[:-2, 2:] - psi[:-2, :-2])
-                - q[1:-1, 2:] * (psi[2:, 2:] - psi[:-2, 2:])
-                + q[1:-1, :-2] * (psi[2:, :-2] - psi[:-2, :-2])
-                + q[2:, 2:] * (psi[1:-1, 2:] - psi[2:, 1:-1])
-                - q[:-2, :-2] * (psi[:-2, 1:-1] - psi[1:-1, :-2])
-                - q[:-2, 2:] * (psi[1:-1, 2:] - psi[:-2, 1:-1])
-                + q[2:, :-2] * (psi[2:, 1:-1] - psi[1:-1, :-2]))
-
-            + self.fields["Q"][1:-1, 1:-1])
+        F_0 = (
+            self.grid.J(q, psi)
+            + self.fields["Q"])
         G_0 = (
             self.nu * (self.grid.D_xx(zeta) + self.grid.D_yy(zeta))
             - self.r * zeta)

@@ -267,3 +267,39 @@ class Grid:
 
         return jnp.zeros_like(u).at[1:-1, 1:-1].set(
             (u[1:-1, 2:] - 2 * u[1:-1, 1:-1] + u[1:-1, :-2]) * ((self.N_y / (2 * self.L_y)) ** 2))
+
+    @staticmethod
+    @jax.jit
+    def _J(L_x, L_y, q, psi):
+        N_x, N_y = q.shape
+        N_x -=1
+        N_y -=1
+    
+        # Equations (36)--(38), (40), and (44) in
+        #     Akio Arakawa, 'Computational design for long-term numerical
+        #     integration of the equations of fluid motion: two-dimensional
+        #     incompressible flow. Part I', Journal of Computational
+        #     Physics 1(1), 119--143, 1966
+        return jnp.zeros_like(q).at[1:-1, 1:-1].set(
+            (N_x * N_y / (48 * L_x * L_y)) * (
+                + (q[2:, 1:-1] - q[:-2, 1:-1]) * (psi[1:-1, 2:] - psi[1:-1, :-2])
+                - (q[1:-1, 2:] - q[1:-1, :-2]) * (psi[2:, 1:-1] - psi[:-2, 1:-1])
+                + q[2:, 1:-1] * (psi[2:, 2:] - psi[2:, :-2])
+                - q[:-2, 1:-1] * (psi[:-2, 2:] - psi[:-2, :-2])
+                - q[1:-1, 2:] * (psi[2:, 2:] - psi[:-2, 2:])
+                + q[1:-1, :-2] * (psi[2:, :-2] - psi[:-2, :-2])
+                + q[2:, 2:] * (psi[1:-1, 2:] - psi[2:, 1:-1])
+                - q[:-2, :-2] * (psi[:-2, 1:-1] - psi[1:-1, :-2])
+                - q[:-2, 2:] * (psi[1:-1, 2:] - psi[:-2, 1:-1])
+                + q[2:, :-2] * (psi[2:, 1:-1] - psi[1:-1, :-2])))
+
+    def J(self, q, psi):
+        """Arakawa Jacobian, using equations (36)--(38), (40), and (44) in
+
+            - Akio Arakawa, 'Computational design for long-term numerical
+              integration of the equations of fluid motion: two-dimensional
+              incompressible flow. Part I', Journal of Computational Physics
+              1(1), 119--143, 1966
+        """
+
+        return self._J(self.L_x, self.L_y, q, psi)
