@@ -1,4 +1,4 @@
-from bt_ocean.fft import dst
+from bt_ocean.fft import dst, idst
 
 import jax.numpy as jnp
 from numpy import exp
@@ -42,3 +42,13 @@ def test_dst_axis(N, alpha):
         u_s = dst(u, axis=1)
         u_s_ref = jnp.zeros_like(u).at[:, n, :].set(alpha * jnp.arange(1, 4))
         assert abs(u_s - u_s_ref).max() < 1.0e3 * eps()
+
+
+@pytest.mark.parametrize("N", tuple(range(1, 11)) + (128, 129))
+@pytest.mark.parametrize("alpha", (1, exp(0.5), -exp(0.5)))
+def test_idst_mode(N, alpha):
+    x = jnp.linspace(0, 1, N + 1)
+    for n in range(1, N):
+        u = idst(jnp.zeros_like(x).at[n].set(alpha))
+        u_ref = alpha * jnp.sin(n * jnp.pi * x)
+        assert abs(u - u_ref).max() < 1.0e3 * eps()

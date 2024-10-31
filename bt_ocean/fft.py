@@ -9,6 +9,7 @@ from functools import partial
 __all__ = \
     [
         "dst",
+        "idst",
         "dchebt",
         "idchebt"
     ]
@@ -52,6 +53,27 @@ def dst(u, *, axis=-1):
     if axis != len(u.shape) - 1:
         u_s = jnp.transpose(u_s, p_inv)
     return u_s
+
+
+def idst(u_s, *, axis=-1):
+    """Type-I discrete sine transform inverse. Inverse of :func:`.dst`.
+
+    Parameters
+    ----------
+
+    u : :class:`jax.Array`
+        Field to transform.
+    axis : Integral
+        Axis over which to perform the transform.
+
+    Returns
+    -------
+
+    :class:`jax.Array`
+        The result of the transform. Has the same shape as `u`.
+    """
+
+    return dst(0.5 * (u_s.shape[axis] - 1) * u_s, axis=axis)
 
 
 @partial(jax.jit, static_argnames="axis")
