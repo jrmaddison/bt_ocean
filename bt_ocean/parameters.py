@@ -32,8 +32,8 @@ n_year = n_day * 365
 # Model parameters
 parameters = Parameters(
     {
-        "N_x": 1024,
-        "N_y": 1024,
+        "N_x": 2048,
+        "N_y": 2048,
         "nu": 10.0,  # m^2/s
         "dt": 3600 / n_hour,  # s
         # Following from
@@ -71,7 +71,7 @@ def Q(grid):
     ----------
 
     grid : :class:`.Grid`
-        The 2D Chebyshev grid.
+        The 2D grid.
 
     Returns
     -------
