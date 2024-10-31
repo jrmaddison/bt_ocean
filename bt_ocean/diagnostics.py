@@ -408,7 +408,7 @@ class SeparationPoint(Diagnostic):
 
     def values(self, model):
         grid = model.grid
-        v = model.grid.D_x @ model.fields["psi"]
+        v = model.grid.D_x(model.fields["psi"])
 
         v = v[0, :]
         j0 = grid.N_y // 4
@@ -470,7 +470,7 @@ class JetDiagnostics(Diagnostic):
     def values(self, model):
         x = jnp.array((self._x,),
                       dtype=model.grid.fdtype)
-        U = -model.fields["psi"] @ model.grid.D_y.T
+        U = -model.grid.D_y(model.fields["psi"])
         Q = model.fields["zeta"] + model.beta * model.grid.Y
         u = model.grid.interpolate(U, x, model.grid.y)[0, :]
 
