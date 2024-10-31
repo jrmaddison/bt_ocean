@@ -1,24 +1,22 @@
-"""2D Chebyshev grids.
+"""2D grids.
 """
 
 import jax
 import jax.numpy as jnp
 
-from functools import cached_property
+from functools import cached_property, partial
 from numbers import Real
 
-from .chebyshev import Chebyshev, InterpolationMethod
 from .precision import default_idtype, default_fdtype
 
 __all__ = \
     [
-        "Grid",
-        "SpectralGridTransfer"
+        "Grid"
     ]
 
 
 class Grid:
-    r"""2D Chebyshev grid.
+    r"""2D grid.
 
     Parameters
     ----------
@@ -28,9 +26,9 @@ class Grid:
     L_y : Real
         Defines the :math:`y`-dimension extents, :math:`y \in [ -L_y, L_y ]`.
     N_x : Integral
-        :math:`x`-dimension degree.
+        Number of :math:`x`-dimension divisions.
     N_y : Integral
-        :math:`y`-dimension degree.
+        Number of :math:`y`-dimension divisions.
     idtype : type
         Integer scalar data type. Defaults to `jax.numpy.int64` if 64-bit is
         enabled, and `jax.numpy.int32` otherwise.
@@ -45,16 +43,10 @@ class Grid:
         if fdtype is None:
             fdtype = default_fdtype()
 
-        cheb_x = Chebyshev(N_x, idtype=idtype, fdtype=fdtype)
-        if N_y == N_x:
-            cheb_y = cheb_x
-        else:
-            cheb_y = Chebyshev(N_y, idtype=idtype, fdtype=fdtype)
-
         self._L_x = fdtype(L_x)
         self._L_y = fdtype(L_y)
-        self._cheb_x = cheb_x
-        self._cheb_y = cheb_y
+        self._N_x = idtype(N_x)
+        self._N_y = idtype(N_y)
         self._idtype = idtype
         self._fdtype = fdtype
 
@@ -75,20 +67,6 @@ class Grid:
         return self._L_y
 
     @property
-    def cheb_x(self) -> Chebyshev:
-        """Defines the :math:`x`-dimension Chebsyshev grid.
-        """
-
-        return self._cheb_x
-
-    @property
-    def cheb_y(self) -> Chebyshev:
-        """Defines the :math:`y`-dimension Chebsyshev grid.
-        """
-
-        return self._cheb_y
-
-    @property
     def idtype(self) -> type:
         """Integer scalar data type.
         """
@@ -104,31 +82,31 @@ class Grid:
 
     @property
     def N_x(self) -> int:
-        """:math:`x`-dimension Chebsyshev degree.
+        """Number of :math:`x`-dimension divisions.
         """
 
-        return self.cheb_x.N
+        return self._N_x
 
     @property
     def N_y(self) -> int:
-        """:math:`y`-dimension Chebsyshev degree.
+        """Number of :math:`y`-dimension divisions.
         """
 
-        return self.cheb_y.N
+        return self._N_y
 
     @cached_property
     def x(self) -> jax.Array:
         """:math:`x`-coordinates.
         """
 
-        return self.cheb_x.x * self.L_x
+        return jnp.linspace(-self.L_x, self.L_x, self._N_x + 1, dtype=self.fdtype)
 
     @cached_property
     def y(self) -> jax.Array:
         """:math:`y`-coordinates.
         """
 
-        return self.cheb_y.x * self.L_y
+        return jnp.linspace(-self.L_y, self.L_y, self.N_y + 1, dtype=self.fdtype)
 
     @cached_property
     def X(self) -> jax.Array:
@@ -146,8 +124,33 @@ class Grid:
         return jnp.outer(
             jnp.ones(self.N_x + 1, dtype=self.fdtype), self.y)
 
-    def interpolate(self, u, x, y, *, interpolation_method=InterpolationMethod.BARYCENTRIC, extrapolate=False):
-        """Evaluate on a grid.
+    @staticmethod
+    @partial(jax.jit, static_argnums=(0,))
+    def _interpolate(idtype, x_g, y_g, u, x, y):
+        N_x, = x_g.shape
+        N_x -= 1
+        N_y, = y_g.shape
+        N_y -= 1
+        L_x = x_g[-1]
+        L_y = y_g[-1]
+
+        i = jnp.array((x + L_x) * N_x / (2 * L_x), dtype=idtype)
+        i = jnp.maximum(i, idtype(0))
+        i = jnp.minimum(i, idtype(N_x - 1))
+        alpha = (x - x_g[i]) / (x_g[i + 1] - x_g[i])
+
+        j = jnp.array((y + L_y) * N_y / (2 * L_y), dtype=idtype)
+        j = jnp.maximum(j, idtype(0))
+        j = jnp.minimum(j, idtype(N_y - 1))
+        beta = (y - y_g[j]) / (y_g[j + 1] - y_g[j])
+
+        return (jnp.outer(1 - alpha, 1 - beta) * u[i, :][:, j]
+                + jnp.outer(alpha, 1 - beta) * u[i + 1, :][:, j]
+                + jnp.outer(1 - alpha, beta) * u[i, :][:, j + 1]
+                + jnp.outer(alpha, beta) * u[i + 1, :][:, j + 1])
+
+    def interpolate(self, u, x, y, *, extrapolate=False):
+        """Bilinearly interpolate onto a grid.
 
         Parameters
         ----------
@@ -158,8 +161,6 @@ class Grid:
             :math:`x`-coordinates.
         y : :class:`jax.Array`
             :math:`y`-coordinates.
-        interpolation_method : Integral
-            The interpolation method. See :meth:`.Chebyshev.interpolate`.
         extrapolate : bool
             Whether to allow extrapolation.
 
@@ -170,125 +171,99 @@ class Grid:
             Array of values on the grid.
         """
 
-        v = self.cheb_x.interpolate(u, x / self.L_x, axis=0, interpolation_method=interpolation_method, extrapolate=extrapolate)
-        v = self.cheb_y.interpolate(v, y / self.L_y, axis=1, interpolation_method=interpolation_method, extrapolate=extrapolate)
-        return v
+        if not extrapolate and ((x < -self.L_x).any() or (x > self.L_x).any()
+                                or (y < -self.L_y).any() or (y > self.L_y).any()):
+            raise ValueError("Out of bounds")
+
+        return self._interpolate(self.idtype, self.x, self.y, u, x, y)
 
     @cached_property
     def W(self) -> jax.Array:
         """Integration matrix diagonal.
         """
 
-        return jnp.outer(self.cheb_x.w, self.cheb_y.w) * self.L_x * self.L_y
+        w_x = jnp.ones(self.N_x + 1, dtype=self.fdtype) * 2 * self.L_x / self.N_x
+        w_x = w_x.at[0].set(0.5)
+        w_x = w_x.at[-1].set(0.5)
 
-    @cached_property
-    def D_x(self) -> jax.Array:
-        """:math:`x` direction first derivative matrix,
-        """
+        w_y = jnp.ones(self.N_y + 1, dtype=self.fdtype) * 2 * self.L_y / self.N_y
+        w_y = w_y.at[0].set(0.5)
+        w_y = w_y.at[-1].set(0.5)
 
-        return self.cheb_x.D / self.L_x
+        return jnp.outer(w_x, w_y)
 
-    @cached_property
-    def D_y(self) -> jax.Array:
-        """:math:`y` direction first derivative matrix,
-        """
-
-        return self.cheb_y.D / self.L_y
-
-    @cached_property
-    def D_xx(self) -> jax.Array:
-        """:math:`x` direction second derivative matrix,
-        """
-
-        return self.D_x @ self.D_x
-
-    @cached_property
-    def D_yy(self) -> jax.Array:
-        """:math:`y` direction second derivative matrix,
-        """
-
-        return self.D_y @ self.D_y
-
-
-class SpectralGridTransfer:
-    """Grid-to-grid transfer. Down-scaling is performed by Chebyshev spectral
-    truncation.
-
-    Parameters
-    ----------
-
-    grid_a : :class:`.Grid`
-        The lower degree grid.
-    grid_b : :class:`.Grid`
-        The higher degree grid.
-    """
-
-    def __init__(self, grid_a, grid_b):
-        if grid_b.L_x != grid_a.L_x or grid_b.L_y != grid_a.L_y:
-            raise ValueError("Invalid grids")
-        if grid_b.N_x < grid_a.N_x or grid_b.N_y < grid_a.N_y:
-            raise ValueError("Invalid grids")
-        self._grid_a = grid_a
-        self._grid_b = grid_b
-
-    @property
-    def grid_a(self) -> Grid:
-        """The lower degree grid."""
-
-        return self._grid_a
-
-    @property
-    def grid_b(self) -> Grid:
-        """The higher degree grid.
-        """
-
-        return self._grid_b
-
-    def to_higher_degree(self, u):
-        """Transfer grid point values from the lower degree grid to the higher
-        degree grid.
+    def D_x(self, u):
+        """Compute an :math:`x`-direction interior first derivative.
 
         Parameters
         ----------
 
         u : :class:`jax.Array`
-            Array of grid point values on the lower degree grid.
+            Field to differentiate.
 
         Returns
         -------
 
         :class:`jax.Array`
-            Array of grid point values on the higher degree grid.
+            The interior derivative.
         """
 
-        # Move to Chebyshev spectral basis
-        u_c = self.grid_a.cheb_y.to_cheb(self.grid_a.cheb_x.to_cheb(u, axis=0), axis=1)
-        # Extend
-        u_c_e = jnp.zeros_like(u_c, shape=(self.grid_b.N_x + 1, self.grid_b.N_y + 1))
-        u_c_e = u_c_e.at[:self.grid_a.N_x + 1, :self.grid_a.N_y + 1].set(u_c)
-        # Return from Chebyshev spectral basis
-        return self.grid_b.cheb_y.from_cheb(self.grid_b.cheb_x.from_cheb(u_c_e, axis=0), axis=1)
+        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
+            (u[2:, 1:-1] - u[:-2, 1:-1]) * (self.N_x / (4 * self.L_x)))
 
-    def from_higher_degree(self, u):
-        """Transfer grid point values from the higher degree grid to the lower
-        degree grid via Chebyshev spectral truncation.
+    def D_y(self, u):
+        """Compute an :math:`y`-direction interior first derivative.
 
         Parameters
         ----------
 
         u : :class:`jax.Array`
-            Array of grid point values on the higher degree grid.
+            Field to differentiate.
 
         Returns
         -------
 
         :class:`jax.Array`
-            Array of grid point values on the lower degree grid.
+            The interior derivative.
         """
 
-        # Move to Chebyshev spectral basis
-        u_c = self.grid_b.cheb_y.to_cheb(self.grid_b.cheb_x.to_cheb(u, axis=0), axis=1)
-        # Truncate
-        u_c_t = u_c[:self.grid_a.N_x + 1, :self.grid_a.N_y + 1]
-        # Return from Chebyshev spectral basis
-        return self.grid_a.cheb_y.from_cheb(self.grid_a.cheb_x.from_cheb(u_c_t, axis=0), axis=1)
+        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
+            (u[1:-1, 2:] - u[1:-1, :-2]) * (self.N_y / (4 * self.L_y)))
+
+    def D_xx(self, u):
+        """Compute an :math:`x`-direction interior second derivative.
+
+        Parameters
+        ----------
+
+        u : :class:`jax.Array`
+            Field to differentiate.
+
+        Returns
+        -------
+
+        :class:`jax.Array`
+            The interior derivative.
+        """
+
+        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
+            (u[2:, 1:-1] - 2 * u[1:-1, 1:-1] + u[:-2, 1:-1]) * ((self.N_x / (2 * self.L_x)) ** 2))
+
+    def D_yy(self, u):
+        """Compute a :math:`y`-direction interior second derivative.
+
+        Parameters
+        ----------
+
+        u : :class:`jax.Array`
+            Field to differentiate.
+
+        Returns
+        -------
+
+        :class:`jax.Array`
+            The interior derivative.
+        """
+
+        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
+            (u[1:-1, 2:] - 2 * u[1:-1, 1:-1] + u[1:-1, :-2]) * ((self.N_y / (2 * self.L_y)) ** 2))
