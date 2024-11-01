@@ -1,5 +1,4 @@
 from bt_ocean.grid import Grid
-from bt_ocean.precision import default_fdtype
 
 import jax.numpy as jnp
 from numpy import cbrt
@@ -33,16 +32,14 @@ def test_interpolate_identity(L_x, L_y, N_x, N_y):
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
 def test_interpolate_uniform(L_x, L_y):
-    if jnp.finfo(default_fdtype()).bits != 64:
-        pytest.skip()
     error_norms = []
-    for N in [2048, 4096]:
+    for N in [64, 128, 256, 512]:
         N_x = N
         N_y = 3 * N // 2
         grid = Grid(L_x, L_y, N_x, N_y)
 
         def u0(X, Y):
-            return jnp.sin(jnp.pi * X) * jnp.sin(jnp.pi * X * Y)
+            return jnp.sin(jnp.pi * X / grid.L_x) * jnp.sin(jnp.pi * X * Y / (grid.L_x * grid.L_y))
 
         u = u0(grid.X, grid.Y)
         x = jnp.linspace(-grid.L_x, grid.L_x, 17)
@@ -53,8 +50,8 @@ def test_interpolate_uniform(L_x, L_y):
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
     print(f"{orders=}")
-    assert orders.min() > 1.9
-    assert orders.max() < 2.1
+    assert orders.min() > 1.97
+    assert orders.max() < 2.03
 
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
@@ -64,16 +61,14 @@ def test_interpolate_uniform(L_x, L_y):
                                       (20, 10),
                                       (32, 64)])
 def test_interpolate_non_uniform(L_x, L_y, N_x, N_y):
-    if jnp.finfo(default_fdtype()).bits != 64:
-        pytest.skip()
     error_norms = []
-    for N in [2048, 4096]:
+    for N in [256, 512, 1024]:
         N_x = N
         N_y = 3 * N // 2
         grid = Grid(L_x, L_y, N_x, N_y)
 
         def u0(X, Y):
-            return jnp.sin(jnp.pi * X) * jnp.sin(jnp.pi * X * Y)
+            return jnp.sin(jnp.pi * X / grid.L_x) * jnp.sin(jnp.pi * X * Y / (grid.L_x * grid.L_y))
 
         u = u0(grid.X, grid.Y)
         x = jnp.logspace(-1, 0, 17) * grid.L_x
@@ -84,8 +79,8 @@ def test_interpolate_non_uniform(L_x, L_y, N_x, N_y):
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
     print(f"{orders=}")
-    assert orders.min() > 1.9
-    assert orders.max() < 2.1
+    assert orders.min() > 1.97
+    assert orders.max() < 2.03
 
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
