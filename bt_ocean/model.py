@@ -533,7 +533,7 @@ class Solver(ABC):
 
         u = -self.grid.D_y(self.fields["psi"])
         v = self.grid.D_x(self.fields["psi"])
-        return 0.5 * jnp.tensordot((u * u + v * v), self.grid.W)
+        return 0.5 * self.grid.integrate(u * u + v * v)
 
     def ke_spectrum(self):
         """The current 2D kinetic energy spectrum.
@@ -878,7 +878,7 @@ class CNAB2Solver(Solver):
             self.grid.J(q, psi)
             + self.fields["Q"])
         G_0 = (
-            self.nu * (self.grid.D_xx(zeta) + self.grid.D_yy(zeta))
+            self.nu * (self.grid.D_xx(zeta, boundary=False) + self.grid.D_yy(zeta, boundary=False))
             - self.r * zeta)
 
         coeff_0, coeff_1 = jax.lax.select(

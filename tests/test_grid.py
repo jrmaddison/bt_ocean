@@ -11,7 +11,7 @@ from .test_base import test_precision  # noqa: F401
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
-@pytest.mark.parametrize("N_x, N_y", [(3, 5),
+@pytest.mark.parametrize("N_x, N_y", [(4, 5),
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
@@ -56,7 +56,7 @@ def test_interpolate_uniform(L_x, L_y):
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
-@pytest.mark.parametrize("N_x, N_y", [(3, 5),
+@pytest.mark.parametrize("N_x, N_y", [(4, 5),
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
@@ -85,6 +85,58 @@ def test_interpolate_non_uniform(L_x, L_y, N_x, N_y):
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
+@pytest.mark.parametrize("N_x, N_y", [(4, 5),
+                                      (10, 20),
+                                      (20, 10),
+                                      (32, 64)])
+def test_differentiation(L_x, L_y, N_x, N_y):
+    grid = Grid(L_x, L_y, N_x, N_y)
+
+    assert abs(grid.D_x(jnp.ones_like(grid.X))).max() == 0
+    assert abs(grid.D_x(grid.X) - jnp.ones_like(grid.X)).max() < 1.0e3 * eps()
+    assert abs(grid.D_x(grid.X ** 2) - 2 * grid.X).max() < 1.0e3 * eps()
+
+    assert abs(grid.D_xx(jnp.ones_like(grid.X))).max() == 0
+    assert abs(grid.D_xx(grid.X)).max() < 1.0e4 * eps()
+    assert abs(grid.D_xx(grid.X ** 2) - 2 * jnp.ones_like(grid.X)).max() < 1.0e5 * eps()
+    assert abs(grid.D_xx(grid.X ** 3) - 6 * grid.X).max() < 1.0e5 * eps()
+
+    assert abs(grid.D_y(jnp.ones_like(grid.Y))).max() == 0
+    assert abs(grid.D_y(grid.Y) - jnp.ones_like(grid.Y)).max() < 1.0e3 * eps()
+    assert abs(grid.D_y(grid.Y ** 2) - 2 * grid.Y).max() < 1.0e3 * eps()
+
+    assert abs(grid.D_yy(jnp.ones_like(grid.Y))).max() == 0
+    assert abs(grid.D_yy(grid.Y)).max() < 1.0e4 * eps()
+    assert abs(grid.D_yy(grid.Y ** 2) - 2 * jnp.ones_like(grid.Y)).max() < 1.0e5 * eps()
+    assert abs(grid.D_yy(grid.Y ** 3) - 6 * grid.Y).max() < 1.0e5 * eps()
+
+
+@pytest.mark.parametrize("L_x, L_y", [(1, 1),
+                                      (cbrt(3), cbrt(2))])
+def test_integration(L_x, L_y):
+    error_norms = []
+    for N in [16, 32, 64, 128]:
+        N_x = N
+        N_y = 3 * N_x // 2
+        grid = Grid(L_x, L_y, N_x, N_y)
+
+        assert abs(grid.integrate(jnp.ones_like(grid.X)) - 4 * grid.L_x * grid.L_y) < 1.0e5 * eps()
+        assert abs(grid.integrate(grid.X)) < 1.0e2 * eps()
+        assert abs(grid.integrate(grid.Y)) < 1.0e2 * eps()
+
+        error_norms.append(abs(grid.integrate(grid.X ** 2 + jnp.pi * grid.Y ** 2)
+                               - (4 / 3) * (grid.L_x ** 3) * grid.L_y
+                               - jnp.pi * (4 / 3) * grid.L_x * (grid.L_y ** 3)))
+    error_norms = jnp.array(error_norms)
+    orders = jnp.log2(error_norms[:-1] / error_norms[1:])
+    print(f"{error_norms=}")
+    print(f"{orders=}")
+    assert orders.min() > 1.9
+    assert orders.max() < 2.1
+
+
+@pytest.mark.parametrize("L_x, L_y", [(1, 1),
+                                      (cbrt(3), cbrt(2))])
 def test_jacobian(L_x, L_y):
     x = sp.Symbol("x", real=True)
     y = sp.Symbol("y", real=True)
@@ -106,11 +158,11 @@ def test_jacobian(L_x, L_y):
 
         b = grid.J(q, psi)
         assert abs(b + grid.J(psi, q)).max() < 1.0e4 * eps()
-        assert (b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
-        assert (q * b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
-        assert (psi * b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
+        assert grid.integrate(b) / (4 * grid.L_x * grid.L_y) < 1.0e2 * eps()
+        assert grid.integrate(q * b) / (4 * grid.L_x * grid.L_y) < 1.0e2 * eps()
+        assert grid.integrate(psi * b) / (4 * grid.L_x * grid.L_y) < 10 * eps()
 
-        error_norms.append(jnp.sqrt((((b - b_ref(grid.X, grid.Y)) ** 2) * grid.W).sum()))
+        error_norms.append(jnp.sqrt(grid.integrate((b - b_ref(grid.X, grid.Y)) ** 2)))
     error_norms = jnp.array(error_norms)
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
