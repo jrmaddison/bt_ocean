@@ -266,6 +266,9 @@ class Dynamics(keras.layers.Layer):
         return outputs
 
     def get_config(self):
+        """
+        """
+
         return update_config(
             super().get_config(),
             {"_bt_ocean__Dynamics_config": {"dynamics": self.__dynamics,
@@ -278,6 +281,9 @@ class Dynamics(keras.layers.Layer):
 
     @classmethod
     def from_config(cls, config):
+        """
+        """
+
         sub_config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.pop("_bt_ocean__Dynamics_config").items()}
         return cls(sub_config["dynamics"],
                    cls._update_registry[sub_config["update_key"]],

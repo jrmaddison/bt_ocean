@@ -1,5 +1,4 @@
 import pytest
-pytest.importorskip("keras", reason="Keras not available")
 
 import jax.numpy as jnp
 import keras
@@ -124,13 +123,6 @@ def test_dynamics_roundtrip(tmp_path):
     assert input_model.grid.idtype == model.grid.idtype
     assert input_model.grid.fdtype == model.grid.fdtype
 
-    assert input_model.dealias_grid.L_x == model.dealias_grid.L_x
-    assert input_model.dealias_grid.L_y == model.dealias_grid.L_y
-    assert input_model.dealias_grid.N_x == model.dealias_grid.N_x
-    assert input_model.dealias_grid.N_y == model.dealias_grid.N_y
-    assert input_model.dealias_grid.idtype == model.dealias_grid.idtype
-    assert input_model.dealias_grid.fdtype == model.dealias_grid.fdtype
-
     assert set(input_model.parameters) == set(model.parameters)
     for key, value in model.parameters.items():
         assert input_model.parameters[key] == value
@@ -138,10 +130,6 @@ def test_dynamics_roundtrip(tmp_path):
     assert set(input_model.fields) == set(model.fields)
     for key, value in model.fields.items():
         assert (input_model.fields[key] == value).all()
-
-    assert set(input_model.dealias_fields) == set(model.dealias_fields)
-    for key, value in model.dealias_fields.items():
-        assert (input_model.dealias_fields[key] == value).all()
 
     dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_y + 1)))
     assert n_calls == 2

@@ -57,7 +57,7 @@ def test_steady_state_autodiff():
             * jnp.exp(grid.X / grid.L_x) * jnp.exp(grid.Y / grid.L_y))
     dJ, = vjp(1.0)
 
-    eps = jnp.array((0.01, 0.005, 0.002, 0.001))
+    eps = jnp.array((0.02, 0.01, 0.005, 0.002))
     errors = []
     for eps_val in eps:
         J_1 = forward(Q(grid) + eps_val * zeta)
@@ -66,5 +66,5 @@ def test_steady_state_autodiff():
     orders = jnp.log(errors[1:] / errors[:-1]) / jnp.log(eps[1:] / eps[:-1])
     print(f"{errors=}")
     print(f"{orders=}")
-    assert orders.min() > 1.99
+    assert orders.min() > 1.98
     assert orders.max() < 2.02

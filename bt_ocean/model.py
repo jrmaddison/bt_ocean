@@ -1,5 +1,5 @@
-"""Chebyshev pseudospectral solvers for the barotropic vorticity equation on a
-beta plane.
+"""Finite difference solvers for the 2D barotropic vorticity equation on a
+beta-plane.
 """
 
 import jax
@@ -9,11 +9,10 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from enum import IntEnum
 from functools import cached_property, partial
 
 from .fft import dst
-from .grid import Grid, SpectralGridTransfer
+from .grid import Grid
 from .inversion import ModifiedHelmholtzSolver, PoissonSolver
 
 __all__ = \
@@ -25,7 +24,6 @@ __all__ = \
 
         "SteadyStateMaximumIterationsError",
         "NanEncounteredError",
-        "DealiasingRule",
         "Solver",
         "CNAB2Solver"
     ]
@@ -116,7 +114,7 @@ class Parameters(Mapping):
 
 
 class Fields(Mapping):
-    """Fields defined on a 2D Chebyshev grid.
+    """Fields defined on a 2D grid.
 
     Fields values can be set using
 
@@ -130,7 +128,7 @@ class Fields(Mapping):
     ----------
 
     grid : :class:`.Grid`
-        The 2D Chebyshev grid.
+        The 2D grid.
     keys : Iterable
         Field keys.
     """
@@ -168,7 +166,7 @@ class Fields(Mapping):
 
     @property
     def grid(self) -> Grid:
-        """The 2D Chebyshev grid.
+        """The 2D grid.
         """
 
         return self._grid
@@ -253,7 +251,7 @@ class Fields(Mapping):
         path : str
             Group path.
         grid : :class:`.Grid`
-            The 2D Chebyshev grid.
+            The 2D grid.
 
         Returns
         -------
@@ -276,7 +274,7 @@ class Fields(Mapping):
         if L_x != grid.L_x or L_y != grid.L_y:
             raise ValueError("Invalid dimension(s)")
         if N_x != grid.N_x or N_y != grid.N_y:
-            raise ValueError("Invalid degree(s)")
+            raise ValueError("Invalid number(s) of divisions")
         if idtype != grid.idtype or fdtype != grid.fdtype:
             raise ValueError("Invalid dtype(s)")
 
@@ -311,19 +309,9 @@ class NanEncounteredError(Exception):
     """
 
 
-class DealiasingRule(IntEnum):
-    """Defines the dealias grid.
-    """
-
-    THREE_HALVES = 0
-    FOUR_HALVES = 1
-
-
 class Solver(ABC):
-    _registry = {}
-
-    r"""Chebyshev pseudospectral solver for the 2D barotropic vorticity
-    equation on a beta-plane,
+    r"""Finite difference solver for the 2D barotropic vorticity equation on a
+    beta-plane,
 
     .. math::
 
@@ -352,8 +340,8 @@ class Solver(ABC):
               [ -L_x, L_x ]`.
             - `'L_y'` : Defines the :math:`y`-dimension extents, :math:`y \in
               [ -L_y, L_y ]`.
-            - `'N_x'` : :math:`x`-dimension Chebyshev degree.
-            - `'N_y'` : :math:`y`-dimension Chebyshev degree.
+            - `'N_x'` : Number of :math:`x`-dimension divisions.
+            - `'N_y'` : Number of :math:`y`-dimension divisions.
             - `'\beta'` : :math:`y` derivative of the Coriolis parameter,
               :math:`\beta`.
             - `'\nu'` : Laplacian viscosity coefficient, :math:`\nu`.
@@ -361,23 +349,19 @@ class Solver(ABC):
             - `dt` : Time step size.
 
     field_keys : Iterable
-        Keys for fields defined on the 'base' grid. The following keys are
-        added by default
+        Keys for fields. The following keys are added by default
 
             - `'psi'` : The current stream function field.
             - `'zeta'` : The current relative vorticity field.
             - `'Q'` : A field defining an extra term in the vorticity equation,
               :math:`Q`. Defaults to a zero-valued field.
 
-    dealias_field_keys : Iterable
-        Keys for fields defined on the 'dealias' grid.
     prescribed_field_keys : Iterable
-        Keys for fields defined on the 'base' grid which are prescribed, and
-        which are not updated within a timestep. Defaults to `{'Q'}`.
-    prescribed_dealias_field_keys : Iterable
-        Keys for fields defined on the 'dealias' grid which are prescribed, and
-        which are not updated within a timestep. Defaults to `set()`.
+        Keys for fields which are prescribed, and which are not updated within
+        a timestep. Defaults to `{'Q'}`.
     """
+
+    _registry = {}
 
     _defaults = {"L_x": required,  # x \in [-L_x, L_x]
                  "L_y": required,  # y \in [-L_y, L_y]
@@ -386,60 +370,27 @@ class Solver(ABC):
                  "beta": required,
                  "r": required,
                  "nu": required,
-                 "dt": required,
-                 "dealiasing_rule": DealiasingRule.FOUR_HALVES}
+                 "dt": required}
 
-    def __init__(self, parameters, *, field_keys=None, dealias_field_keys=None,
-                 prescribed_field_keys=None, prescribed_dealias_field_keys=None):
+    def __init__(self, parameters, *, field_keys=None, prescribed_field_keys=None):
         self._parameters = parameters = Parameters(parameters, defaults=self._defaults)
         if field_keys is None:
             field_keys = set()
         else:
             field_keys = set(field_keys)
-        if dealias_field_keys is None:
-            dealias_field_keys = set()
-        else:
-            dealias_field_keys = set(dealias_field_keys)
         field_keys.update({"psi", "zeta", "Q"})
         if prescribed_field_keys is None:
             prescribed_field_keys = {"Q"}
-        if prescribed_dealias_field_keys is None:
-            prescribed_dealias_field_keys = set()
 
         self._grid = grid = Grid(
             parameters["L_x"], parameters["L_y"],
             parameters["N_x"], parameters["N_y"])
-        self._dealias_grid = dealias_grid = Grid(
-            parameters["L_x"], parameters["L_y"],
-            self._dealias_N(parameters["dealiasing_rule"], grid.N_x),
-            self._dealias_N(parameters["dealiasing_rule"], grid.N_y))
 
         self._fields = Fields(grid, field_keys)
-        self._dealias_fields = Fields(dealias_grid, dealias_field_keys)
         self._prescribed_field_keys = set(prescribed_field_keys)
-        self._prescribed_dealias_field_keys = set(prescribed_dealias_field_keys)
 
         self.zero_prescribed()
         self.initialize()
-
-    @staticmethod
-    def _dealias_N(dealiasing_rule, N):
-        if dealiasing_rule == DealiasingRule.THREE_HALVES:
-            # Avoids aliasing in the advection term. See equation (2.8) in
-            #     Markus Uhlmann, 'The need for de-aliasing in a Chebyshev
-            #     pseudo-spectral method', Technical note no. 60, Potsdam
-            #     Institute for Climate Impact Research, Potsdam, Germany, 2000
-            #     http://www-nfm.ifh.kit.edu/uhlmann/reports/dealias.pdf
-            #     [accessed 2024-10-29]
-            # Here we can reduce the bound by 1/2 since u and v are computed by
-            # differentiation.
-            return 3 * N // 2 + int(N % 2 != 0)
-        elif dealiasing_rule == DealiasingRule.FOUR_HALVES:
-            # Avoids truncation errors when storing, on the 'dealias' grid,
-            # products of quantities defined on the 'base' grid.
-            return 2 * N
-        else:
-            raise ValueError(f"Unrecognised dealiasing rule: {dealiasing_rule}")
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -477,7 +428,8 @@ class Solver(ABC):
 
     @cached_property
     def dt(self) -> jax.Array:
-        """Time step size."""
+        """Time step size.
+        """
 
         return jnp.array(self.parameters["dt"], dtype=self.grid.fdtype)
 
@@ -494,24 +446,10 @@ class Solver(ABC):
 
     @property
     def grid(self) -> Grid:
-        """Base grid.
+        """2D grid.
         """
 
         return self._grid
-
-    @property
-    def dealias_grid(self) -> Grid:
-        """Dealias grid.
-        """
-
-        return self._dealias_grid
-
-    @cached_property
-    def dealias(self) -> SpectralGridTransfer:
-        """Dealising utility object.
-        """
-
-        return SpectralGridTransfer(self.grid, self.dealias_grid)
 
     @property
     def parameters(self) -> Parameters:
@@ -522,17 +460,10 @@ class Solver(ABC):
 
     @property
     def fields(self) -> Fields:
-        """Fields defined on the base grid.
+        """Fields.
         """
 
         return self._fields
-
-    @property
-    def dealias_fields(self) -> Fields:
-        """Fields defined on the dealias grid.
-        """
-
-        return self._dealias_fields
 
     @cached_property
     def poisson_solver(self) -> PoissonSolver:
@@ -546,7 +477,6 @@ class Solver(ABC):
         """
 
         self.fields.zero(*self._prescribed_field_keys)
-        self.dealias_fields.zero(*self._prescribed_dealias_field_keys)
 
     @abstractmethod
     def initialize(self, zeta=None):
@@ -561,7 +491,6 @@ class Solver(ABC):
         """
 
         self.fields.clear(keep_keys=self._prescribed_field_keys)
-        self.dealias_fields.clear(keep_keys=self._prescribed_dealias_field_keys)
         self._n = 0
 
     @abstractmethod
@@ -602,27 +531,15 @@ class Solver(ABC):
             The current kinetic energy.
         """
 
-        u = -self.fields["psi"] @ self.grid.D_y.T
-        v = self.grid.D_x @ self.fields["psi"]
+        u = -self.grid.D_y(self.fields["psi"])
+        v = self.grid.D_x(self.fields["psi"])
         return 0.5 * jnp.tensordot((u * u + v * v), self.grid.W)
 
-    def ke_spectrum(self, N_x, N_y):
+    def ke_spectrum(self):
         """The current 2D kinetic energy spectrum.
 
-        Computed using a type-I DST of the stream function, after interpolation
-        onto a uniform grid. The spectrum is defined so that the sum of the
-        spectrum equals, up to truncation, the current kinetic energy divided
-        by the density.
-
-        Parameters
-        ----------
-
-        N_x : Integral
-            Number of intervals, in the :math:`x`-dimension, for the uniform
-            grid.
-        N_y : Integral
-            Number of intervals, in the :math:`y`-dimension, for the uniform
-            grid.
+        Computed using a type-I DST. The spectrum is defined so that the sum of
+        the spectrum equals the current kinetic energy divided by the density.
 
         Returns
         -------
@@ -631,17 +548,15 @@ class Solver(ABC):
             The current 2D kinetic energy spectrum.
         """
 
-        x = jnp.linspace(-self.grid.L_x, self.grid.L_x, N_x + 1, dtype=self.grid.fdtype)
-        y = jnp.linspace(-self.grid.L_y, self.grid.L_y, N_y + 1, dtype=self.grid.fdtype)
-        psi = self.grid.interpolate(self.fields["psi"], x, y)
-        I = jnp.outer(jnp.arange(N_x + 1, dtype=self.grid.idtype),
-                      jnp.ones(N_y + 1, dtype=self.grid.idtype))
-        J = jnp.outer(jnp.ones(N_x + 1, dtype=self.grid.idtype),
-                      jnp.arange(N_y + 1, dtype=self.grid.idtype))
+        psi = self.fields["psi"]
+        I = jnp.outer(jnp.arange(self.grid.N_x + 1, dtype=self.grid.idtype),
+                      jnp.ones(self.grid.N_y + 1, dtype=self.grid.idtype))
+        J = jnp.outer(jnp.ones(self.grid.N_x + 1, dtype=self.grid.idtype),
+                      jnp.arange(self.grid.N_y + 1, dtype=self.grid.idtype))
         k = jnp.pi * I / (2 * self.grid.L_x)
         l = jnp.pi * J / (2 * self.grid.L_y)
         return (0.5 * self.grid.L_x * self.grid.L_y
-                * (k ** 2 + l ** 2) * (dst(dst(psi, axis=1), axis=0) ** 2))
+                * (k ** 2 + l ** 2) * (dst(dst(psi, axis=0), axis=1) ** 2))
 
     def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000, _min_n=0):
         r"""Timestep to steady-state.
@@ -736,8 +651,6 @@ class Solver(ABC):
                 lam_model, = vjp_step(lam_model)
                 for key, value in lam_model.fields.items():
                     lam_model.fields[key] = value + zeta_model.fields[key]
-                for key, value in lam_model.dealias_fields.items():
-                    lam_model.dealias_fields[key] = value + zeta_model.dealias_fields[key]
                 return lam_zeta_0, lam_model, lam_it + 1
 
             def adjoint(zeta_model):
@@ -798,7 +711,6 @@ class Solver(ABC):
         g.attrs["n"] = int(self.n)
         self.parameters.write(g, "parameters")
         self.fields.write(g, "fields")
-        self.dealias_fields.write(g, "dealias_fields")
 
         return g
 
@@ -827,7 +739,6 @@ class Solver(ABC):
         cls = cls._registry[g.attrs["type"]]
         model = cls(Parameters.read(g, "parameters"))
         model.fields.update(Fields.read(g, "fields", grid=model.grid))
-        model.dealias_fields.update(Fields.read(g, "dealias_fields", grid=model.dealias_grid))
         model.n = g.attrs["n"]
 
         return model
@@ -858,7 +769,6 @@ class Solver(ABC):
         """
 
         self.fields.update(model.fields)
-        self.dealias_fields.update(model.dealias_fields)
         self.n = model.n
 
     def flatten(self):
@@ -870,7 +780,7 @@ class Solver(ABC):
         Sequence[Sequence[object, ...], Sequence[object, ...]]
         """
 
-        return ((dict(self.fields), dict(self.dealias_fields), self.n),
+        return ((dict(self.fields), self.n),
                 (self.parameters, self.poisson_solver))
 
     @classmethod
@@ -879,12 +789,11 @@ class Solver(ABC):
         """
 
         parameters, poisson_solver = aux_data
-        fields, dealias_fields, n = children
+        fields, n = children
 
         model = cls(parameters)
         model.poisson_solver = poisson_solver
         model.fields.update({key: value for key, value in fields.items() if type(value) is not object})
-        model.dealias_fields.update({key: value for key, value in dealias_fields.items() if type(value) is not object})
         if type(n) is not object:
             model.n = n
 
@@ -894,7 +803,6 @@ class Solver(ABC):
         return {"type": type(self).__name__,
                 "parameters": dict(self.parameters),
                 "fields": dict(self.fields),
-                "dealias_fields": dict(self.dealias_fields),
                 "n": self.n}
 
     @classmethod
@@ -903,21 +811,20 @@ class Solver(ABC):
         cls = cls._registry[config["type"]]
         model = cls(config["parameters"])
         model.fields.update(config["fields"])
-        model.dealias_fields.update(config["dealias_fields"])
         model.n = config["n"]
         return model
 
 
 class CNAB2Solver(Solver):
-    """Chebyshev pseudospectral solver for the 2D barotropic vorticity
-    equation on a beta-plane, using a CNAB2 time discretization.
+    """Finite difference solver for the 2D barotropic vorticity equation on a
+    beta-plane, using a CNAB2 time discretization.
 
     CNAB2 reference:
 
         - Uri M. Ascher, Steven J. Ruuth, and Brian T. R. Wetton,
-        'Implicit-explicit methods for time-dependent partial differential
-        equations', SIAM Journal on Numerical Analysis 32(3), 797--823, 1995,
-        https://doi.org/10.1137/0732037
+          'Implicit-explicit methods for time-dependent partial differential
+          equations', SIAM Journal on Numerical Analysis 32(3), 797--823, 1995,
+          https://doi.org/10.1137/0732037
 
     Parameters
     ----------
@@ -929,8 +836,7 @@ class CNAB2Solver(Solver):
     def __init__(self, parameters):
         super().__init__(
             parameters,
-            field_keys={"F_1"},
-            dealias_field_keys={"zeta", "u", "v"})
+            field_keys={"F_1"})
 
     @cached_property
     def modified_helmholtz_solver(self) -> ModifiedHelmholtzSolver:
@@ -944,7 +850,6 @@ class CNAB2Solver(Solver):
         super().initialize(zeta=zeta)
         if zeta is None:
             self.fields.zero("psi", "zeta")
-            self.dealias_fields.zero("zeta", "u", "v")
         else:
             self._update_fields(zeta)
         self.fields.zero("F_1")
@@ -961,30 +866,19 @@ class CNAB2Solver(Solver):
         if not isinstance(psi, jax._src.core.Tracer) and jnp.isnan(psi).any():
             raise NanEncounteredError("nan encountered")
 
-        u_dg = self.dealias.to_higher_degree(-psi @ self.grid.D_y.T)
-        v_dg = self.dealias.to_higher_degree(self.grid.D_x @ psi)
-        zeta_dg = self.dealias.to_higher_degree(zeta)
-
         self.fields["psi"] = psi
         self.fields["zeta"] = zeta
-        self.dealias_fields["zeta"] = zeta_dg
-        self.dealias_fields["u"] = u_dg
-        self.dealias_fields["v"] = v_dg
 
     def step(self):
         psi = self.fields["psi"]
         zeta = self.fields["zeta"]
-        zeta_dg = self.dealias_fields["zeta"]
-        u_dg = self.dealias_fields["u"]
-        v_dg = self.dealias_fields["v"]
+        q = zeta + self.beta * self.grid.Y
 
         F_0 = (
-            - self.grid.D_x @ self.dealias.from_higher_degree(u_dg * zeta_dg)
-            - self.dealias.from_higher_degree(v_dg * zeta_dg) @ self.grid.D_y.T
-            - self.grid.D_x @ psi * self.beta
+            self.grid.J(q, psi)
             + self.fields["Q"])
         G_0 = (
-            self.nu * (self.grid.D_xx @ zeta + zeta @ self.grid.D_yy.T)
+            self.nu * (self.grid.D_xx(zeta) + self.grid.D_yy(zeta))
             - self.r * zeta)
 
         coeff_0, coeff_1 = jax.lax.select(
@@ -1000,11 +894,6 @@ class CNAB2Solver(Solver):
         self._update_fields(zeta)
         self.fields["F_1"] = F_0
         super().step()
-
-    def ke(self):
-        u = self.dealias_fields["u"]
-        v = self.dealias_fields["v"]
-        return 0.5 * jnp.tensordot((u * u + v * v), self.dealias_grid.W)
 
     def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000):
         return super().steady_state_solve(*args, update=update, tol=tol, max_it=max_it, _min_n=1)

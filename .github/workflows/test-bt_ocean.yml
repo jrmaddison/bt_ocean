@@ -27,7 +27,7 @@ jobs:
         run: |
           python3 -m venv bt_ocean_venv
           . bt_ocean_venv/bin/activate
-          python3 -m pip install flake8 jax[cpu] keras matplotlib pytest pytest-timeout pytest-xdist ruff scipy zarr
+          python3 -m pip install flake8 jax[cpu] keras matplotlib pytest pytest-timeout pytest-xdist ruff scipy sympy zarr
       - name: Lint
         run: |
           . bt_ocean_venv/bin/activate
