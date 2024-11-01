@@ -33,12 +33,13 @@ def test_cnab2_autodiff_jvp(N):
     dJ = jvp(zeta)
 
     eps = jnp.array((1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5))
-    errors = []
+    error_norms = []
     for eps_val in eps:
         J_1 = forward(eps_val * zeta)
-        errors.append(abs(J_1 - J_0 - eps_val * dJ))
-    errors = jnp.array(errors)
-    orders = jnp.log(errors[1:] / errors[:-1]) / jnp.log(eps[1:] / eps[:-1])
+        error_norms.append(abs(J_1 - J_0 - eps_val * dJ))
+    error_norms = jnp.array(error_norms)
+    orders = jnp.log(error_norms[1:] / error_norms[:-1]) / jnp.log(eps[1:] / eps[:-1])
+    print(f"{error_norms=}")
     print(f"{orders=}")
     assert orders.min() > 1.99
     assert orders.max() < 2.01
@@ -62,12 +63,13 @@ def test_cnab2_autodiff_vjp(N):
     dJ, = vjp(1.0)
 
     eps = jnp.array((1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5))
-    errors = []
+    error_norms = []
     for eps_val in eps:
         J_1 = forward(eps_val * zeta)
-        errors.append(abs(J_1 - J_0 - eps_val * jnp.tensordot(dJ, zeta)))
-    errors = jnp.array(errors)
-    orders = jnp.log(errors[1:] / errors[:-1]) / jnp.log(eps[1:] / eps[:-1])
+        error_norms.append(abs(J_1 - J_0 - eps_val * jnp.tensordot(dJ, zeta)))
+    error_norms = jnp.array(error_norms)
+    orders = jnp.log(error_norms[1:] / error_norms[:-1]) / jnp.log(eps[1:] / eps[:-1])
+    print(f"{error_norms=}")
     print(f"{orders=}")
     assert orders.min() > 1.99
     assert orders.max() < 2.01

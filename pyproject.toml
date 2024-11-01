@@ -15,6 +15,7 @@ dependencies = [
     "keras",
     "numpy",
     "scipy",
+    "sympy",
     "zarr"
 ]
 
