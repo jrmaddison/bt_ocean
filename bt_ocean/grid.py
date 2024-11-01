@@ -178,21 +178,35 @@ class Grid:
         return self._interpolate(self.idtype, self.x, self.y, u, x, y)
 
     @cached_property
+    def dx(self) -> Real:
+        """:math:`x`-dimension grid spacing.
+        """
+
+        return 2 * self.L_x / self.N_x
+
+    @cached_property
+    def dy(self) -> Real:
+        """:math:`y`-dimension grid spacing.
+        """
+
+        return 2 * self.L_y / self.N_y
+
+    @cached_property
     def W(self) -> jax.Array:
         """Integration matrix diagonal.
         """
 
-        w_x = jnp.ones(self.N_x + 1, dtype=self.fdtype) * 2 * self.L_x / self.N_x
-        w_x = w_x.at[0].set(0.5)
-        w_x = w_x.at[-1].set(0.5)
+        w_x = jnp.ones(self.N_x + 1, dtype=self.fdtype) * self.dx
+        w_x = w_x.at[0].set(0.5 * self.dx)
+        w_x = w_x.at[-1].set(0.5 * self.dx)
 
-        w_y = jnp.ones(self.N_y + 1, dtype=self.fdtype) * 2 * self.L_y / self.N_y
-        w_y = w_y.at[0].set(0.5)
-        w_y = w_y.at[-1].set(0.5)
+        w_y = jnp.ones(self.N_y + 1, dtype=self.fdtype) * self.dy
+        w_y = w_y.at[0].set(0.5 * self.dy)
+        w_y = w_y.at[-1].set(0.5 * self.dy)
 
         return jnp.outer(w_x, w_y)
 
-    def D_x(self, u):
+    def D_x(self, u, *, boundary=True):
         """Compute an :math:`x`-direction interior first derivative.
 
         Parameters
@@ -200,6 +214,8 @@ class Grid:
 
         u : :class:`jax.Array`
             Field to differentiate.
+        boundary : bool
+            Whether to compute the derivative on the left and right boundaries.
 
         Returns
         -------
@@ -208,10 +224,14 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[1:-1, :].set(
-            (u[2:, :] - u[:-2, :]) * (self.N_x / (4 * self.L_x)))
+        D = jnp.zeros_like(u).at[1:-1, :].set(
+            (u[2:, :] - u[:-2, :]) / (2 * self.dx))
+        if boundary:
+            D = D.at[0, :].set((-2.5 * u[1, :] + 4 * u[2, :] - 1.5 * u[3, :]) / self.dx)
+            D = D.at[-1, :].set(-(-2.5 * u[-2, :] + 4 * u[-3, :] - 1.5 * u[-4, :]) / self.dx)
+        return D
 
-    def D_y(self, u):
+    def D_y(self, u, boundary=True):
         """Compute an :math:`y`-direction interior first derivative.
 
         Parameters
@@ -219,6 +239,8 @@ class Grid:
 
         u : :class:`jax.Array`
             Field to differentiate.
+        boundary : bool
+            Whether to compute the derivative on the top and bottom boundaries.
 
         Returns
         -------
@@ -227,10 +249,14 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[:, 1:-1].set(
-            (u[:, 2:] - u[:, :-2]) * (self.N_y / (4 * self.L_y)))
+        D = jnp.zeros_like(u).at[:, 1:-1].set(
+            (u[:, 2:] - u[:, :-2]) / (2 * self.dy))
+        if boundary:
+            D = D.at[:, 0].set((-2.5 * u[:, 1] + 4 * u[:, 2] - 1.5 * u[:, 3]) / self.dy)
+            D = D.at[:, -1].set(-(-2.5 * u[:, -2] + 4 * u[:, -3] - 1.5 * u[:, -4]) / self.dy)
+        return D
 
-    def D_xx(self, u):
+    def D_xx(self, u, boundary=True):
         """Compute an :math:`x`-direction interior second derivative.
 
         Parameters
@@ -238,6 +264,8 @@ class Grid:
 
         u : :class:`jax.Array`
             Field to differentiate.
+        boundary : bool
+            Whether to compute the derivative on the left and right boundaries.
 
         Returns
         -------
@@ -246,10 +274,14 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
-            (u[2:, 1:-1] - 2 * u[1:-1, 1:-1] + u[:-2, 1:-1]) * ((self.N_x / (2 * self.L_x)) ** 2))
+        D = jnp.zeros_like(u).at[1:-1, :].set(
+            (u[2:, :] - 2 * u[1:-1, :] + u[:-2, :]) / (self.dx ** 2))
+        if boundary:
+            D = D.at[0, :].set((3 * u[1, :] - 8 * u[2, :] + 7 * u[3, :] - 2 * u[4, :]) / (self.dx ** 2))
+            D = D.at[-1, :].set((3 * u[-2, :] - 8 * u[-3, :] + 7 * u[-4, :] - 2 * u[-5, :]) / (self.dx ** 2))
+        return D
 
-    def D_yy(self, u):
+    def D_yy(self, u, boundary=True):
         """Compute a :math:`y`-direction interior second derivative.
 
         Parameters
@@ -257,6 +289,8 @@ class Grid:
 
         u : :class:`jax.Array`
             Field to differentiate.
+        boundary : bool
+            Whether to compute the derivative on the top and bottom boundaries.
 
         Returns
         -------
@@ -265,12 +299,35 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
-            (u[1:-1, 2:] - 2 * u[1:-1, 1:-1] + u[1:-1, :-2]) * ((self.N_y / (2 * self.L_y)) ** 2))
+        D = jnp.zeros_like(u).at[:, 1:-1].set(
+            (u[:, 2:] - 2 * u[:, 1:-1] + u[:, :-2]) / (self.dy ** 2))
+        if boundary:
+            D = D.at[:, 0].set((3 * u[:, 1] - 8 * u[:, 2] + 7 * u[:, 3] - 2 * u[:, 4]) / (self.dy ** 2))
+            D = D.at[:, -1].set((3 * u[:, -2] - 8 * u[:, -3] + 7 * u[:, -4] - 2 * u[:, -5]) / (self.dy ** 2))
+        return D
+
+    def integrate(self, u):
+        """
+        Compute the integral of a field.
+
+        Parameters
+        ----------
+
+        u : :class:`jax.Array`
+            Field to integrate.
+
+        Returns
+        -------
+
+        :class:`jax.Array`
+            The integral.
+        """
+
+        return jnp.tensordot(u, self.W)
 
     @staticmethod
     @jax.jit
-    def _J(L_x, L_y, q, psi):
+    def _J(dx, dy, q, psi):
         N_x, N_y = q.shape
         N_x -= 1
         N_y -= 1
@@ -281,7 +338,7 @@ class Grid:
         #     incompressible flow. Part I', Journal of Computational
         #     Physics 1(1), 119--143, 1966
         return jnp.zeros_like(q).at[1:-1, 1:-1].set(
-            (N_x * N_y / (48 * L_x * L_y)) * (
+            (1 / (12 * dx * dy)) * (
                 + (q[2:, 1:-1] - q[:-2, 1:-1]) * (psi[1:-1, 2:] - psi[1:-1, :-2])
                 - (q[1:-1, 2:] - q[1:-1, :-2]) * (psi[2:, 1:-1] - psi[:-2, 1:-1])
                 + q[2:, 1:-1] * (psi[2:, 2:] - psi[2:, :-2])
@@ -302,4 +359,4 @@ class Grid:
               1(1), 119--143, 1966
         """
 
-        return self._J(self.L_x, self.L_y, q, psi)
+        return self._J(self.dx, self.dy, q, psi)

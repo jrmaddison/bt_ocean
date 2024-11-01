@@ -12,7 +12,7 @@ from .test_base import test_precision  # noqa: F401
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
-@pytest.mark.parametrize("N_x, N_y", [(3, 5),
+@pytest.mark.parametrize("N_x, N_y", [(4, 5),
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
@@ -25,7 +25,7 @@ def test_poisson_solver_residual(L_x, L_y, N_x, N_y):
              * jnp.exp(X / L_x) * jnp.exp(Y / L_y))
     u = solver.solve(b_ref)
 
-    b = (solver.grid.D_xx(u) + solver.grid.D_yy(u))[1:-1, 1:-1]
+    b = (solver.grid.D_xx(u, boundary=False) + solver.grid.D_yy(u, boundary=False))[1:-1, 1:-1]
     error_norm = abs(b - b_ref[1:-1, 1:-1]).max() / abs(b).max()
     print(f"{error_norm=}")
     assert error_norm < 1.0e3 * eps()
@@ -51,7 +51,7 @@ def test_poisson_solver_convergence(L_x, L_y):
 
         X, Y = solver.grid.X, solver.grid.Y
         u = solver.solve(b_ref(X, Y))
-        error_norms.append(jnp.sqrt((((u - u_ref(X, Y)) ** 2) * solver.grid.W).sum()))
+        error_norms.append(jnp.sqrt(solver.grid.integrate((u - u_ref(X, Y)) ** 2)))
     error_norms = jnp.array(error_norms)
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
@@ -62,7 +62,7 @@ def test_poisson_solver_convergence(L_x, L_y):
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),
                                       (cbrt(3), cbrt(2))])
-@pytest.mark.parametrize("N_x, N_y", [(3, 5),
+@pytest.mark.parametrize("N_x, N_y", [(4, 5),
                                       (10, 20),
                                       (20, 10),
                                       (32, 64)])
@@ -77,7 +77,7 @@ def test_modified_helmholtz_solver_residual(L_x, L_y, N_x, N_y, alpha):
              * jnp.exp(X / L_x) * jnp.exp(Y / L_y))
     u = solver.solve(b_ref)
 
-    b = (solver.grid.D_xx(u) + solver.grid.D_yy(u) - alpha * u)[1:-1, 1:-1]
+    b = (solver.grid.D_xx(u, boundary=False) + solver.grid.D_yy(u, boundary=False) - alpha * u)[1:-1, 1:-1]
     error_norm = abs(b - b_ref[1:-1, 1:-1]).max() / abs(b).max()
     print(f"{error_norm=}")
     assert error_norm < 1.0e3 * eps()
@@ -105,7 +105,7 @@ def test_modified_helmholtz_solver_convergence(L_x, L_y):
 
         X, Y = solver.grid.X, solver.grid.Y
         u = solver.solve(b_ref(X, Y))
-        error_norms.append(jnp.sqrt((((u - u_ref(X, Y)) ** 2) * solver.grid.W).sum()))
+        error_norms.append(jnp.sqrt(solver.grid.integrate((u - u_ref(X, Y)) ** 2)))
     error_norms = jnp.array(error_norms)
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")

@@ -49,7 +49,7 @@ def test_steady_state_autodiff():
         model = CNAB2Solver(parameters)
         model.fields["Q"] = Q
         model.steady_state_solve(tol=tol)
-        return jnp.tensordot(model.fields["zeta"], model.grid.W)
+        return model.grid.integrate(model.fields["zeta"])
 
     J_0, vjp = jax.vjp(forward, Q(grid))
 

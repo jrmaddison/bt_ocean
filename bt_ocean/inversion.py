@@ -64,8 +64,8 @@ class ModifiedHelmholtzSolver:
         """
 
         b_tilde = dst(dst(b, axis=0), axis=1)
-        a_k = 2 * (jnp.cos(jnp.arange(1, self.grid.N_x, dtype=self.grid.fdtype) * jnp.pi / self.grid.N_x) - 1) * ((self.grid.N_x / (2 * self.grid.L_x)) ** 2)
-        a_l = 2 * (jnp.cos(jnp.arange(1, self.grid.N_y, dtype=self.grid.fdtype) * jnp.pi / self.grid.N_y) - 1) * ((self.grid.N_y / (2 * self.grid.L_y)) ** 2)
+        a_k = 2 * (jnp.cos(jnp.arange(1, self.grid.N_x, dtype=self.grid.fdtype) * jnp.pi / self.grid.N_x) - 1) / (self.grid.dx ** 2)
+        a_l = 2 * (jnp.cos(jnp.arange(1, self.grid.N_y, dtype=self.grid.fdtype) * jnp.pi / self.grid.N_y) - 1) / (self.grid.dy ** 2)
         u_tilde = jnp.zeros_like(b).at[1:-1, 1:-1].set(
             -b_tilde[1:-1, 1:-1] / (self._alpha - self._beta * (jnp.outer(a_k, jnp.ones_like(a_l)) + jnp.outer(jnp.ones_like(a_k), a_l))))
         u = idst(idst(u_tilde, axis=0), axis=1)
