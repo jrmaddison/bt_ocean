@@ -104,7 +104,7 @@ def test_jacobian(L_x, L_y):
     error_norms = []
     for N in [128, 256, 512, 1024]:
         N_x = N
-        N_y = 3 * N_x // 2        
+        N_y = 3 * N_x // 2
         grid = Grid(L_x, L_y, N_x, N_y)
         q = q_ref(grid.X, grid.Y)
         psi = psi_ref(grid.X, grid.Y)
@@ -114,7 +114,7 @@ def test_jacobian(L_x, L_y):
         assert (b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
         assert (q * b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
         assert (psi * b * grid.W / (grid.L_x * grid.L_y)).sum() < 1.0e2 * eps()
-       
+
         error_norms.append(jnp.sqrt((((b - b_ref(grid.X, grid.Y)) ** 2) * grid.W).sum()))
     error_norms = jnp.array(error_norms)
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])

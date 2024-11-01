@@ -272,9 +272,9 @@ class Grid:
     @jax.jit
     def _J(L_x, L_y, q, psi):
         N_x, N_y = q.shape
-        N_x -=1
-        N_y -=1
-    
+        N_x -= 1
+        N_y -= 1
+
         # Equations (36)--(38), (40), and (44) in
         #     Akio Arakawa, 'Computational design for long-term numerical
         #     integration of the equations of fluid motion: two-dimensional

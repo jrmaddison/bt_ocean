@@ -1,6 +1,5 @@
 from bt_ocean.grid import Grid
 from bt_ocean.inversion import ModifiedHelmholtzSolver, PoissonSolver
-from bt_ocean.precision import default_fdtype
 
 import jax.numpy as jnp
 from numpy import cbrt, exp
