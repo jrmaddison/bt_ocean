@@ -208,8 +208,8 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
-            (u[2:, 1:-1] - u[:-2, 1:-1]) * (self.N_x / (4 * self.L_x)))
+        return jnp.zeros_like(u).at[1:-1, :].set(
+            (u[2:, :] - u[:-2, :]) * (self.N_x / (4 * self.L_x)))
 
     def D_y(self, u):
         """Compute an :math:`y`-direction interior first derivative.
@@ -227,8 +227,8 @@ class Grid:
             The interior derivative.
         """
 
-        return jnp.zeros_like(u).at[1:-1, 1:-1].set(
-            (u[1:-1, 2:] - u[1:-1, :-2]) * (self.N_y / (4 * self.L_y)))
+        return jnp.zeros_like(u).at[:, 1:-1].set(
+            (u[:, 2:] - u[:, :-2]) * (self.N_y / (4 * self.L_y)))
 
     def D_xx(self, u):
         """Compute an :math:`x`-direction interior second derivative.
