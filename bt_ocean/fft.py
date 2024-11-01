@@ -55,6 +55,7 @@ def dst(u, *, axis=-1):
     return u_s
 
 
+@partial(jax.jit, static_argnames="axis")
 def idst(u_s, *, axis=-1):
     """Type-I discrete sine transform inverse. Inverse of :func:`.dst`.
 
