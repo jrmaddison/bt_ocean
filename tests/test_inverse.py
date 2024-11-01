@@ -22,7 +22,7 @@ def test_poisson_solver_residual(L_x, L_y, N_x, N_y):
     X, Y = solver.grid.X, solver.grid.Y
     b_ref = (jnp.sin((jnp.pi * (X + L_x)) / (2 * L_x))
              * jnp.sin((3 * jnp.pi * (Y + L_y)) / (2 * L_y))
-             * jnp.exp(X) * jnp.exp(Y))
+             * jnp.exp(X / L_x) * jnp.exp(Y / L_y))
     u = solver.solve(b_ref)
 
     b = (solver.grid.D_xx(u) + solver.grid.D_yy(u))[1:-1, 1:-1]
@@ -74,7 +74,7 @@ def test_modified_helmholtz_solver_residual(L_x, L_y, N_x, N_y, alpha):
     X, Y = solver.grid.X, solver.grid.Y
     b_ref = (jnp.sin((jnp.pi * (X + L_x)) / (2 * L_x))
              * jnp.sin((3 * jnp.pi * (Y + L_y)) / (2 * L_y))
-             * jnp.exp(X) * jnp.exp(Y))
+             * jnp.exp(X / L_x) * jnp.exp(Y / L_y))
     u = solver.solve(b_ref)
 
     b = (solver.grid.D_xx(u) + solver.grid.D_yy(u) - alpha * u)[1:-1, 1:-1]
