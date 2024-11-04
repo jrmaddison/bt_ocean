@@ -37,8 +37,8 @@ class ModifiedHelmholtzSolver:
 
     def __init__(self, grid, alpha, beta=1):
         self._grid = grid
-        self._alpha = grid.fdtype(alpha)
-        self._beta = grid.fdtype(beta)
+        self._alpha = alpha
+        self._beta = beta
 
     @property
     def grid(self) -> Grid:
