@@ -56,7 +56,7 @@ def test_poisson_solver_convergence(L_x, L_y):
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
     print(f"{orders=}")
-    assert orders.min() > 1.97
+    assert orders.min() > 1.99
     assert orders.max() < 2.03
 
 
@@ -110,5 +110,5 @@ def test_modified_helmholtz_solver_convergence(L_x, L_y):
     orders = jnp.log2(error_norms[:-1] / error_norms[1:])
     print(f"{error_norms=}")
     print(f"{orders=}")
-    assert orders.min() > 1.97
+    assert orders.min() > 1.99
     assert orders.max() < 2.03
