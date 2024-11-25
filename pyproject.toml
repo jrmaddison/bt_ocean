@@ -15,8 +15,16 @@ dependencies = [
     "keras",
     "numpy",
     "scipy",
-    "sympy",
     "zarr"
+]
+optional-dependencies.test = [
+    "matplotlib",
+    "pytest",
+    "sympy"
+]
+optional-dependencies.lint = [
+    "flake8",
+    "ruff"
 ]
 
 [tool.ruff]
