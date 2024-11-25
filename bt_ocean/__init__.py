@@ -1,6 +1,12 @@
 def _init():
+    import keras
+
     import logging
     import sys
+    import warnings
+
+    if keras.backend.backend() != "jax":
+        warnings.warn("bt_ocean requires Keras with the JAX backend", ImportWarning)
 
     logger = logging.getLogger("bt_ocean")
 
