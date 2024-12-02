@@ -349,7 +349,6 @@ class Solver(ABC):
             - `'r'` : Linear drag coefficient, :math:`r`.
             - `dt` : Time step size.
 
-    
     idtype : type
         Integer scalar data type. Defaults to :func:`.default_idtype()`.
     fdtype : type
