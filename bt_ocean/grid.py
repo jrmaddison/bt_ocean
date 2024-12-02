@@ -207,7 +207,7 @@ class Grid:
         return jnp.outer(w_x, w_y)
 
     def D_x(self, u, *, boundary=True):
-        """Compute an :math:`x`-direction interior first derivative.
+        """Compute an :math:`x`-direction first derivative.
 
         Parameters
         ----------
@@ -221,7 +221,7 @@ class Grid:
         -------
 
         :class:`jax.Array`
-            The interior derivative.
+            The derivative.
         """
 
         D = jnp.zeros_like(u).at[1:-1, :].set(
@@ -232,7 +232,7 @@ class Grid:
         return D
 
     def D_y(self, u, boundary=True):
-        """Compute an :math:`y`-direction interior first derivative.
+        """Compute an :math:`y`-direction first derivative.
 
         Parameters
         ----------
@@ -246,7 +246,7 @@ class Grid:
         -------
 
         :class:`jax.Array`
-            The interior derivative.
+            The derivative.
         """
 
         D = jnp.zeros_like(u).at[:, 1:-1].set(
@@ -257,7 +257,7 @@ class Grid:
         return D
 
     def D_xx(self, u, boundary=True):
-        """Compute an :math:`x`-direction interior second derivative.
+        """Compute an :math:`x`-direction second derivative.
 
         Parameters
         ----------
@@ -271,7 +271,7 @@ class Grid:
         -------
 
         :class:`jax.Array`
-            The interior derivative.
+            The derivative.
         """
 
         D = jnp.zeros_like(u).at[1:-1, :].set(
@@ -282,7 +282,7 @@ class Grid:
         return D
 
     def D_yy(self, u, boundary=True):
-        """Compute a :math:`y`-direction interior second derivative.
+        """Compute a :math:`y`-direction second derivative.
 
         Parameters
         ----------
@@ -296,7 +296,7 @@ class Grid:
         -------
 
         :class:`jax.Array`
-            The interior derivative.
+            The derivative.
         """
 
         D = jnp.zeros_like(u).at[:, 1:-1].set(

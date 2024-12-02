@@ -1,9 +1,13 @@
-from bt_ocean.diagnostics import FieldAverage, FieldProductAverage, Average
+from bt_ocean.diagnostics import (
+    FieldAverage, FieldProductAverage, Average, zero_point)
 from bt_ocean.grid import Grid
 from bt_ocean.model import Fields
 
 import jax.numpy as jnp
+from numpy import cbrt, sqrt
+import pytest
 
+from .test_base import eps
 from .test_base import test_precision  # noqa: F401
 
 
@@ -53,3 +57,25 @@ def test_field_product_average():
 
     avg.zero()
     assert avg.w == 0
+
+
+@pytest.mark.parametrize("x_0", (-cbrt(2), 0, sqrt(2)))
+@pytest.mark.parametrize("dx", (1, sqrt(3), -1, -sqrt(3)))
+def test_zero_point(x_0, dx):
+    x = jnp.array([x_0, x_0 + dx])
+
+    y = jnp.array([1.0, -1.0])
+    xz = zero_point(x, y, 0)
+    assert abs(xz - x_0 - 0.5 * dx) < 10 * eps()
+
+    y = jnp.array([-1.0, 1.0])
+    xz = zero_point(x, y, 0)
+    assert abs(xz - x_0 - 0.5 * dx) < 10 * eps()
+
+    y = jnp.array([0.75, -0.25])
+    xz = zero_point(x, y, 0)
+    assert abs(xz - x_0 - 0.75 * dx) < 10 * eps()
+
+    y = jnp.array([-0.75, 0.25])
+    xz = zero_point(x, y, 0)
+    assert abs(xz - x_0 - 0.75 * dx) < 10 * eps()
