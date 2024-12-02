@@ -13,13 +13,14 @@ classifiers = [
 dependencies = [
     "jax",
     "keras",
-    "numpy",
-    "zarr"
+    "numpy"
 ]
 optional-dependencies.test = [
+    "h5py",
     "matplotlib",
     "pytest",
-    "sympy"
+    "sympy",
+    "zarr"
 ]
 optional-dependencies.lint = [
     "flake8",
