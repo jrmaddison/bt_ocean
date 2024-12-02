@@ -320,9 +320,9 @@ def zero_point(x, y, i):
     Parameters
     ----------
 
-    x : :class:`np.ndarray` or :class:`jax.Array`
+    x : :class:`jax.Array`
         `x[i]` and `x[i + 1]` define :math:`x_0` and :math:`x_1` respectively.
-    y : :class:`np.ndarray` or :class:`jax.Array`
+    y : :class:`jax.Array`
         `y[i]` and `y[i + 1]` define :math:`y_0` and :math:`y_1` respectively.
     i : Integral
         Index.
