@@ -14,12 +14,12 @@ dependencies = [
     "jax",
     "keras",
     "numpy",
-    "scipy",
     "zarr"
 ]
 optional-dependencies.test = [
     "matplotlib",
     "pytest",
+    "scipy",
     "sympy"
 ]
 optional-dependencies.lint = [

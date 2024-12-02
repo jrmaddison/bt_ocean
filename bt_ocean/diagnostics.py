@@ -9,7 +9,6 @@ import csv
 import itertools
 from numbers import Real
 import operator
-import scipy
 
 from .grid import Grid
 from .model import Fields
