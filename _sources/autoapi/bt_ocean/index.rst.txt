@@ -1,0 +1,25 @@
+:orphan:
+
+:py:mod:`bt_ocean`
+==================
+
+.. py:module:: bt_ocean
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   diagnostics/index.rst
+   fft/index.rst
+   grid/index.rst
+   inversion/index.rst
+   model/index.rst
+   network/index.rst
+   parameters/index.rst
+   precision/index.rst
+   timing/index.rst
+
+
