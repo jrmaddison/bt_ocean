@@ -14,6 +14,7 @@ from functools import cached_property, partial
 from .fft import dst
 from .grid import Grid
 from .inversion import ModifiedHelmholtzSolver, PoissonSolver
+from .precision import default_idtype, default_fdtype
 
 __all__ = \
     [
@@ -348,6 +349,11 @@ class Solver(ABC):
             - `'r'` : Linear drag coefficient, :math:`r`.
             - `dt` : Time step size.
 
+    
+    idtype : type
+        Integer scalar data type. Defaults to :func:`.default_idtype()`.
+    fdtype : type
+        Floating point scalar data type. Defaults to :func:`.default_fdtype()`.
     field_keys : Iterable
         Keys for fields. The following keys are added by default
 
@@ -372,8 +378,13 @@ class Solver(ABC):
                  "nu": required,
                  "dt": required}
 
-    def __init__(self, parameters, *, field_keys=None, prescribed_field_keys=None):
+    def __init__(self, parameters, *, idtype=None, fdtype=None,
+                 field_keys=None, prescribed_field_keys=None):
         self._parameters = parameters = Parameters(parameters, defaults=self._defaults)
+        if idtype is None:
+            idtype = default_idtype()
+        if fdtype is None:
+            fdtype = default_fdtype()
         if field_keys is None:
             field_keys = set()
         else:
@@ -384,7 +395,8 @@ class Solver(ABC):
 
         self._grid = grid = Grid(
             parameters["L_x"], parameters["L_y"],
-            parameters["N_x"], parameters["N_y"])
+            parameters["N_x"], parameters["N_y"],
+            idtype=idtype, fdtype=fdtype)
 
         self._fields = Fields(grid, field_keys)
         self._prescribed_field_keys = set(prescribed_field_keys)
@@ -737,7 +749,9 @@ class Solver(ABC):
         del h
 
         cls = cls._registry[g.attrs["type"]]
-        model = cls(Parameters.read(g, "parameters"))
+        idtype = jnp.dtype(g["fields"].attrs["idtype"]).type
+        fdtype = jnp.dtype(g["fields"].attrs["fdtype"]).type
+        model = cls(Parameters.read(g, "parameters"), idtype=idtype, fdtype=fdtype)
         model.fields.update(Fields.read(g, "fields", grid=model.grid))
         model.n = g.attrs["n"]
 
@@ -829,13 +843,12 @@ class CNAB2Solver(Solver):
     Parameters
     ----------
 
-    parameters : :class:`.Parameters`
-        Model parameters. See :class:`.Solver`.
+    See :class:`.Solver`.
     """
 
-    def __init__(self, parameters):
+    def __init__(self, parameters, *, idtype=None, fdtype=None):
         super().__init__(
-            parameters,
+            parameters, idtype=idtype, fdtype=fdtype,
             field_keys={"F_1"})
 
     @cached_property

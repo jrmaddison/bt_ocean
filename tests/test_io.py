@@ -1,8 +1,10 @@
 from bt_ocean.grid import Grid
 from bt_ocean.model import CNAB2Solver, Fields, Parameters, Solver
 from bt_ocean.parameters import parameters, Q
+from bt_ocean.precision import default_fdtype, x64_disabled
 
 import jax.numpy as jnp
+import pytest
 import zarr
 
 from .test_base import test_precision  # noqa: F401
@@ -70,6 +72,40 @@ def test_solver_roundtrip(tmp_path):
     filename = tmp_path / "tmp.zarr"
     with zarr.open(filename, "w") as h:
         model.write(h)
+    with zarr.open(filename, "r") as h:
+        input_model = Solver.read(h)
+
+    assert type(input_model) is type(model)
+    assert input_model.n == model.n
+
+    assert input_model.grid.L_x == model.grid.L_x
+    assert input_model.grid.L_y == model.grid.L_y
+    assert input_model.grid.N_x == model.grid.N_x
+    assert input_model.grid.N_y == model.grid.N_y
+    assert input_model.grid.idtype == model.grid.idtype
+    assert input_model.grid.fdtype == model.grid.fdtype
+
+    assert set(input_model.parameters) == set(model.parameters)
+    for key, value in model.parameters.items():
+        assert input_model.parameters[key] == value
+
+    assert set(input_model.fields) == set(model.fields)
+    for key, value in model.fields.items():
+        assert (input_model.fields[key] == value).all()
+
+
+def test_solver_roundtrip_precision_change(tmp_path):
+    if default_fdtype() != jnp.float64:
+        pytest.skip("Double precision only")
+
+    with x64_disabled():
+        model = CNAB2Solver(model_parameters())
+        model.fields["Q"] = Q(model.grid)
+        model.steps(5)
+
+        filename = tmp_path / "tmp.zarr"
+        with zarr.open(filename, "w") as h:
+            model.write(h)
     with zarr.open(filename, "r") as h:
         input_model = Solver.read(h)
 
