@@ -9,7 +9,6 @@ import csv
 import itertools
 from numbers import Real
 import operator
-import scipy
 
 from .grid import Grid
 from .model import Fields
@@ -28,7 +27,6 @@ __all__ = \
         "Time",
         "KineticEnergy",
         "SeparationPoint",
-        "JetDiagnostics",
         "DiagnosticsCsv"
     ]
 
@@ -322,9 +320,9 @@ def zero_point(x, y, i):
     Parameters
     ----------
 
-    x : :class:`np.ndarray` or :class:`jax.Array`
+    x : :class:`jax.Array`
         `x[i]` and `x[i + 1]` define :math:`x_0` and :math:`x_1` respectively.
-    y : :class:`np.ndarray` or :class:`jax.Array`
+    y : :class:`jax.Array`
         `y[i]` and `y[i + 1]` define :math:`y_0` and :math:`y_1` respectively.
     i : Integral
         Index.
@@ -450,102 +448,6 @@ class SeparationPoint(Diagnostic):
         assert v[j0] * v[j1] < 0
 
         return (zero_point(grid.y, v, j0),)
-
-
-class JetDiagnostics(Diagnostic):
-    """Computes the following diagnostics:
-
-        - `'u_max'` : The jet maximum speed, computed as the maximum eastward
-          velocity component.
-        - `'y_0'` : The :math:`y`-coordinate of the southern edge of the jet,
-          computed as the first zero crossing south of the jet maximum.
-        - `'y_c'` : The :math:`y`-coordinate of the jet maximum.
-        - `'y_1'` : The :math:`y`-coordinate of the northern edge of the jet,
-          computed as the first zero crossing north of the jet maximum.
-        - `'uq_flux_s'` : The eastward potential vorticity flux south of
-          `'y_0'`.
-        - `'uq_flux_j'` : The eastward potential vorticity flux between `'y_0'`
-          and `'y_1'`.
-        - `'uq_flux_n'` : The eastward potential vorticity flux north of
-          `'y_1'.`
-
-    Fields are interpolated at the given :math:`x`-coordinate. `'y_0'` and
-    `'y_1'` are then computed via linear interpolation between grid points.
-    `'uq_flux_s'`, `'uq_flux_j'`, and `'uq_flux_n'` are computed using
-    Simpson's rule after further interpolation onto a uniform grid.
-
-    Parameters
-    ----------
-
-    x : Real
-        :math:`x`-coordinate at which to evaluate the diagnostics.
-    suffix : str
-        A suffix to apply to diagnostic names.
-    N : Integral
-        The number of points used for Simpson's rule.
-    """
-
-    def __init__(self, x, suffix="", N=2049):
-        super().__init__()
-        self._x = x
-        self._suffix = suffix
-        self._N = N
-
-    @property
-    def names(self):
-        return tuple(map(lambda name: f"{name}{self._suffix}",
-                     ("u_max", "y_0", "y_c", "y_1", "uq_flux_s", "uq_flux_j", "uq_flux_n")))
-
-    def values(self, model):
-        x = jnp.array((self._x,), dtype=model.grid.fdtype)
-        U = -model.grid.D_y(model.fields["psi"])
-        Q = model.fields["zeta"] + model.beta * model.grid.Y
-        u = model.grid.interpolate(U, x, model.grid.y)[0, :]
-
-        y = np.array(model.grid.y, dtype=model.grid.fdtype)
-        u = np.array(u, dtype=model.grid.fdtype)
-
-        u_max = u.max()
-        jc = u.argmax()
-        yc = y[jc]
-
-        j0 = jc
-        while u[j0] > 0:
-            j0 -= 1
-            if j0 < 0:
-                raise ValueError("Out of bounds")
-        y0 = zero_point(y, u, j0)
-
-        j1 = jc
-        if j1 >= len(u) - 1:
-            raise ValueError("Out of bounds")
-        while u[j1 + 1] > 0:
-            j1 += 1
-            if j1 >= len(u) - 1:
-                raise ValueError("Out of bounds")
-        y1 = zero_point(y, u, j1)
-
-        del y, u
-
-        y = jnp.linspace(-model.grid.L_y, y0, self._N,
-                         dtype=model.grid.fdtype)
-        u = model.grid.interpolate(U, x, y)[0, :]
-        q = model.grid.interpolate(Q, x, y)[0, :]
-        uq_flux_s = scipy.integrate.simpson(u * q, x=y)
-
-        y = jnp.linspace(y0, y1, self._N,
-                         dtype=model.grid.fdtype)
-        u = model.grid.interpolate(U, x, y)[0, :]
-        q = model.grid.interpolate(Q, x, y)[0, :]
-        uq_flux_j = scipy.integrate.simpson(u * q, x=y)
-
-        y = jnp.linspace(y1, model.grid.L_y, self._N,
-                         dtype=model.grid.fdtype)
-        u = model.grid.interpolate(U, x, y)[0, :]
-        q = model.grid.interpolate(Q, x, y)[0, :]
-        uq_flux_n = scipy.integrate.simpson(u * q, x=y)
-
-        return u_max, y0, yc, y1, uq_flux_s, uq_flux_j, uq_flux_n
 
 
 class DiagnosticsCsv:

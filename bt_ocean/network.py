@@ -13,7 +13,6 @@ __all__ = \
         "Scale",
 
         "KroneckerProduct",
-        "kronecker_product_network",
 
         "Dynamics"
     ]
@@ -98,85 +97,6 @@ class KroneckerProduct(keras.layers.Layer):
     def build(self, input_shape):
         if tuple(input_shape)[-2:] != self.__shape_a:
             raise ValueError("Invalid shape")
-
-
-def kronecker_product_network(
-        N_i, N_j, *, factor=2, min_size=4, activation="elu",
-        final_activation=None, layers_per_level=0, skip=False, dtype=None):
-    """A U-shaped network constructed using :class:`.KroneckerProduct` layers,
-    down-scaling the number of rows and columns by a given factor between each
-    level.
-
-    Parameters
-    ----------
-
-    N_i : Integral
-        The number of rows.
-    N_j : Integral
-        The number of columns.
-    factor : Real
-        Downscaling factor.
-    min_size : Integral
-        The minimum number of rows or columns for the deepest level.
-    activation
-        Defines the activation functions applied in each
-        :class:`.KroneckerProduct`.
-    final_activation
-        Defines the activation function for the final layer of the network.
-    layers_per_level : Integral
-        The number of :class:`.KroneckerProduct` layers within each level.
-    skip : bool
-        Whether to enable additive skip connections.
-    dtype : type
-        Floating point scalar data type.
-
-    Returns
-    -------
-
-    object
-        The network.
-    """
-
-    shapes = [(N_i, N_j)]
-    p = factor
-    while min(N_i, N_j) // p >= min_size:
-        shapes.append((N_i // p, N_j // p))
-        p *= factor
-    if len(shapes) < 2:
-        raise ValueError("Size too small")
-
-    input_layer = keras.layers.Input((N_i, N_j))
-    output_layer = input_layer
-
-    down_layers = []
-    for i in range(len(shapes) - 1):
-        for _ in range(layers_per_level):
-            output_layer = KroneckerProduct(
-                shapes[i], shapes[i], dtype=dtype,
-                activation=activation)(output_layer)
-        down_layers.append(output_layer)
-        output_layer = KroneckerProduct(
-            shapes[i], shapes[i + 1], dtype=dtype,
-            activation=activation)(output_layer)
-    down_layers.append(output_layer)
-
-    for _ in range(layers_per_level):
-        output_layer = KroneckerProduct(
-            shapes[-1], shapes[-1], dtype=dtype,
-            activation=activation)(output_layer)
-
-    for i in range(len(shapes) - 2, -1, -1):
-        output_layer = KroneckerProduct(
-            shapes[i + 1], shapes[i], dtype=dtype,
-            activation=activation if i != 0 or layers_per_level > 0 else final_activation)(output_layer)
-        if skip:
-            output_layer = keras.layers.Add()((output_layer, down_layers[i]))
-        for j in range(layers_per_level):
-            output_layer = KroneckerProduct(
-                shapes[i], shapes[i], dtype=dtype,
-                activation=activation if i != 0 or j < layers_per_level - 1 else final_activation)(output_layer)
-
-    return keras.models.Model(inputs=input_layer, outputs=output_layer)
 
 
 @keras.saving.register_keras_serializable(package="_bt_ocean__Dynamics")
