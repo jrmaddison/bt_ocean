@@ -30,11 +30,9 @@ class Grid:
     N_y : Integral
         Number of :math:`y`-dimension divisions.
     idtype : type
-        Integer scalar data type. Defaults to `jax.numpy.int64` if 64-bit is
-        enabled, and `jax.numpy.int32` otherwise.
+        Integer scalar data type. Defaults to :func:`.default_idtype()`.
     fdtype : type
-        Floating point scalar data type. Defaults to `jax.numpy.float64` if
-        64-bit is enabled, and `jax.numpy.float32` otherwise.
+        Floating point scalar data type. Defaults to :func:`.default_fdtype()`.
     """
 
     def __init__(self, L_x, L_y, N_x, N_y, *, idtype=None, fdtype=None):
