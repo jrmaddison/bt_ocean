@@ -25,10 +25,10 @@ def x64_disabled():
     """
 
     x64_enabled = jax.config.x64_enabled
-    jax.config.update("jax_enable_x64", False)
     floatx = keras.backend.floatx()
-    keras.backend.set_floatx("float32")
     try:
+        jax.config.update("jax_enable_x64", False)
+        keras.backend.set_floatx("float32")
         yield
     finally:
         jax.config.update("jax_enable_x64", x64_enabled)
@@ -43,10 +43,10 @@ def x64_enabled():
     """
 
     x64_enabled = jax.config.x64_enabled
-    jax.config.update("jax_enable_x64", True)
     floatx = keras.backend.floatx()
-    keras.backend.set_floatx("float64")
     try:
+        jax.config.update("jax_enable_x64", True)
+        keras.backend.set_floatx("float64")
         yield
     finally:
         jax.config.update("jax_enable_x64", x64_enabled)
