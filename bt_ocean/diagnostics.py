@@ -417,11 +417,11 @@ class SeparationPoint(Diagnostic):
         v = v[0, :]
         j0 = grid.N_y // 4
         j1 = grid.N_y - j0
-        if ((v[j0 + 1:j1] * v[j0:j1 - 1]) <= 0).sum() != 1:
+        if ((v[j0 + 1:j1] * v[j0:j1 - 1]) < 0).sum() != 1:
             return (jnp.nan,)
         j0 = j0 + jnp.argmin(v[j0 + 1:j1] * v[j0:j1 - 1])
         j1 = j0 + 1
-        assert v[j0] * v[j1] <= 0
+        assert v[j0] * v[j1] < 0
 
         return (zero_point(grid.y, v, j0),)
 
