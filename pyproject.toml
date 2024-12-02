@@ -19,7 +19,6 @@ dependencies = [
 optional-dependencies.test = [
     "matplotlib",
     "pytest",
-    "scipy",
     "sympy"
 ]
 optional-dependencies.lint = [
