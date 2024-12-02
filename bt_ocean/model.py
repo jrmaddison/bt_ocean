@@ -71,12 +71,12 @@ class Parameters(Mapping):
         return len(self._parameters)
 
     def write(self, h, path="parameters"):
-        """Write parameters to a :class:`zarr.hierarchy.Group`.
+        """Write parameters.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.
@@ -84,7 +84,7 @@ class Parameters(Mapping):
         Returns
         -------
 
-        :class:`zarr.hierarchy.Group`
+        :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Group storing the parameters.
         """
 
@@ -94,12 +94,12 @@ class Parameters(Mapping):
 
     @classmethod
     def read(cls, h, path="parameters"):
-        """Read parameters from a :class:`zarr.hierarchy.Group`.
+        """Read parameters.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.
@@ -207,12 +207,12 @@ class Fields(Mapping):
         self.update(fields)
 
     def write(self, h, path="fields"):
-        """Write fields to a :class:`zarr.hierarchy.Group`.
+        """Write fields.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.
@@ -220,7 +220,7 @@ class Fields(Mapping):
         Returns
         -------
 
-        :class:`zarr.hierarchy.Group`
+        :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Group storing the fields.
         """
 
@@ -242,12 +242,12 @@ class Fields(Mapping):
 
     @classmethod
     def read(cls, h, path="fields", *, grid=None):
-        """Read fields from a :class:`zarr.hierarchy.Group`.
+        """Read fields.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.
@@ -698,12 +698,12 @@ class Solver(ABC):
         return it
 
     def write(self, h, path="solver"):
-        """Write solver to a :class:`zarr.hierarchy.Group`.
+        """Write solver.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.
@@ -711,7 +711,7 @@ class Solver(ABC):
         Returns
         -------
 
-        :class:`zarr.hierarchy.Group`
+        :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Group storing the solver.
         """
 
@@ -727,12 +727,12 @@ class Solver(ABC):
 
     @classmethod
     def read(cls, h, path="solver"):
-        """Read solver from a :class:`zarr.hierarchy.Group`.
+        """Read solver.
 
         Parameters
         ----------
 
-        h : :class:`zarr.hierarchy.Group`
+        h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
             Parent group.
         path : str
             Group path.

@@ -227,7 +227,7 @@ class OnlineDataset(keras.utils.PyDataset):
     Parameters
     ----------
 
-    h : :class:`zarr.hierarchy.Group`
+    h : :class:`h5py.Group` or :class:`zarr.hierarchy.Group`
         Parent group.
     input_path : str
         Input data group path.
