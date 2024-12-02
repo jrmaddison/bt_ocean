@@ -310,10 +310,36 @@ class Average:
 
 
 def zero_point(x, y, i):
-    if y[i] * y[i + 1] > 0:
-        raise ValueError("Sign definite")
+    """Defining :math:`y(x)` via linear interpolation
+
+    .. math::
+
+        (y(x) - y_0) (x_1 - x_0) = (y_1 - y_0) (x - x_0),
+
+    return the value of :math:`x` for which :math:`y(x) = 0`. Requires
+    :math:`y_0` and :math:`y_1` to be non-equal and of differing sign.
+
+    Parameters
+    ----------
+
+    x : :class:`np.ndarray` or :class:`jax.Array`
+        `x[i]` and `x[i + 1]` define :math:`x_0` and :math:`x_1` respectively.
+    y : :class:`np.ndarray` or :class:`jax.Array`
+        `y[i]` and `y[i + 1]` define :math:`y_0` and :math:`y_1` respectively.
+    i : Integral
+        Index.
+
+    Returns
+    -------
+
+    Real
+        The value of :math:`x` for which :math:`y(x) = 0`.
+    """
+
     if y[i + 1] == y[i]:
         raise ValueError("Divide by zero")
+    if y[i] * y[i + 1] > 0:
+        raise ValueError("Sign definite")
     xz = x[i] - y[i] * (x[i + 1] - x[i]) / (y[i + 1] - y[i])
     if xz < min(x[i], x[i + 1]):
         raise ValueError("Out of bounds")
