@@ -310,11 +310,15 @@ class Average:
 
 
 def zero_point(x, y, i):
-    assert y[i] * y[i + 1] <= 0
-    assert y[i + 1] != y[i]
+    if y[i] * y[i + 1] > 0:
+        raise ValueError("Sign definite")
+    if y[i + 1] == y[i]:
+        raise ValueError("Divide by zero")
     xz = x[i] - y[i] * (x[i + 1] - x[i]) / (y[i + 1] - y[i])
-    assert xz >= min(x[i], x[i + 1])
-    assert xz <= max(x[i], x[i + 1])
+    if xz < min(x[i], x[i + 1]):
+        raise ValueError("Out of bounds")
+    if xz > max(x[i], x[i + 1]):
+        raise ValueError("Out of bounds")
     return xz
 
 
@@ -417,8 +421,7 @@ class SeparationPoint(Diagnostic):
             return (jnp.nan,)
         j0 = j0 + jnp.argmin(v[j0 + 1:j1] * v[j0:j1 - 1])
         j1 = j0 + 1
-        if v[j0] * v[j1] > 0:
-            return (jnp.nan,)
+        assert v[j0] * v[j1] <= 0
 
         return (zero_point(grid.y, v, j0),)
 
@@ -468,14 +471,13 @@ class JetDiagnostics(Diagnostic):
                      ("u_max", "y_0", "y_c", "y_1", "uq_flux_s", "uq_flux_j", "uq_flux_n")))
 
     def values(self, model):
-        x = jnp.array((self._x,),
-                      dtype=model.grid.fdtype)
+        x = jnp.array((self._x,), dtype=model.grid.fdtype)
         U = -model.grid.D_y(model.fields["psi"])
         Q = model.fields["zeta"] + model.beta * model.grid.Y
         u = model.grid.interpolate(U, x, model.grid.y)[0, :]
 
-        y = np.array(model.grid.y)
-        u = np.array(u)
+        y = np.array(model.grid.y, dtype=model.grid.fdtype)
+        u = np.array(u, dtype=model.grid.fdtype)
 
         u_max = u.max()
         jc = u.argmax()
@@ -484,14 +486,17 @@ class JetDiagnostics(Diagnostic):
         j0 = jc
         while u[j0] > 0:
             j0 -= 1
-            assert j0 >= 0
+            if j0 < 0:
+                raise ValueError("Out of bounds")
         y0 = zero_point(y, u, j0)
 
         j1 = jc
-        assert j1 < len(u) - 1
+        if j1 >= len(u) - 1:
+            raise ValueError("Out of bounds")
         while u[j1 + 1] > 0:
             j1 += 1
-            assert j1 < len(u) - 1
+            if j1 >= len(u) - 1:
+                raise ValueError("Out of bounds")
         y1 = zero_point(y, u, j1)
 
         del y, u
