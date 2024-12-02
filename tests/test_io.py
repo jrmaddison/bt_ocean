@@ -3,9 +3,18 @@ from bt_ocean.model import CNAB2Solver, Fields, Parameters, Solver
 from bt_ocean.parameters import parameters, Q
 from bt_ocean.precision import default_fdtype, x64_disabled
 
+try:
+    import h5py
+except ModuleNotFoundError:
+    h5py = None
 import jax.numpy as jnp
 import pytest
-import zarr
+try:
+    import zarr
+except ModuleNotFoundError:
+    zarr = None
+
+from contextlib import contextmanager
 
 from .test_base import test_precision  # noqa: F401
 
@@ -19,13 +28,30 @@ def model_parameters():
     return Parameters(model_parameters)
 
 
-def test_parameters_roundtrip(tmp_path):
+@contextmanager
+def h5py_File(filename, mode):
+    if h5py is None:
+        pytest.skip("h5py not available")
+    with h5py.File(filename, mode) as h:
+        yield h
+
+
+@contextmanager
+def zarr_File(filename, mode):
+    if zarr is None:
+        pytest.skip("zarr not available")
+    with zarr.open(filename, mode) as h:
+        yield h
+
+
+@pytest.mark.parametrize("File", [h5py_File, zarr_File])
+def test_parameters_roundtrip(tmp_path, File):
     parameters = model_parameters()
 
     filename = tmp_path / "tmp.zarr"
-    with zarr.open(filename, "w") as h:
+    with File(filename, "w") as h:
         parameters.write(h)
-    with zarr.open(filename, "r") as h:
+    with File(filename, "r") as h:
         input_parameters = Parameters.read(h)
 
     assert set(input_parameters) == set(parameters)
@@ -33,7 +59,8 @@ def test_parameters_roundtrip(tmp_path):
         assert input_parameters[key] == value
 
 
-def test_fields_roundtrip(tmp_path):
+@pytest.mark.parametrize("File", [h5py_File, zarr_File])
+def test_fields_roundtrip(tmp_path, File):
     L_x, L_y = 2.0, 3.0
     N_x, N_y = 5, 10
     grid = Grid(L_x, L_y, N_x, N_y)
@@ -45,9 +72,9 @@ def test_fields_roundtrip(tmp_path):
                                 jnp.arange(N_y + 1, dtype=grid.fdtype))
 
     filename = tmp_path / "tmp.zarr"
-    with zarr.open(filename, "w") as h:
+    with File(filename, "w") as h:
         fields.write(h)
-    with zarr.open(filename, "r") as h:
+    with File(filename, "r") as h:
         input_fields = Fields.read(h)
 
     assert input_fields.grid.L_x == L_x
@@ -64,15 +91,16 @@ def test_fields_roundtrip(tmp_path):
     assert (fields["b"] == b).all()
 
 
-def test_solver_roundtrip(tmp_path):
+@pytest.mark.parametrize("File", [h5py_File, zarr_File])
+def test_solver_roundtrip(tmp_path, File):
     model = CNAB2Solver(model_parameters())
     model.fields["Q"] = Q(model.grid)
     model.steps(5)
 
     filename = tmp_path / "tmp.zarr"
-    with zarr.open(filename, "w") as h:
+    with File(filename, "w") as h:
         model.write(h)
-    with zarr.open(filename, "r") as h:
+    with File(filename, "r") as h:
         input_model = Solver.read(h)
 
     assert type(input_model) is type(model)
@@ -94,7 +122,8 @@ def test_solver_roundtrip(tmp_path):
         assert (input_model.fields[key] == value).all()
 
 
-def test_solver_roundtrip_precision_change(tmp_path):
+@pytest.mark.parametrize("File", [h5py_File, zarr_File])
+def test_solver_roundtrip_precision_change(tmp_path, File):
     if default_fdtype() != jnp.float64:
         pytest.skip("Double precision only")
 
@@ -104,9 +133,9 @@ def test_solver_roundtrip_precision_change(tmp_path):
         model.steps(5)
 
         filename = tmp_path / "tmp.zarr"
-        with zarr.open(filename, "w") as h:
+        with File(filename, "w") as h:
             model.write(h)
-    with zarr.open(filename, "r") as h:
+    with File(filename, "r") as h:
         input_model = Solver.read(h)
 
     assert type(input_model) is type(model)
