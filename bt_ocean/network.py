@@ -111,6 +111,7 @@ class Dynamics(keras.layers.Layer):
     update : callable
         Passed `dynamics` and any arguments defined by `args`, and should
         update the state of `dynamics`. Evaluated before taking each timestep.
+        Must not modify elements of `args` and must have no side effects.
     args : tuple
         Passed as remaining arguments to `update`.
     N : Integral
@@ -122,6 +123,13 @@ class Dynamics(keras.layers.Layer):
         Weight by which to scale each input.
     output_weight : Real or :class:`jax.Array`
         Weight by which to scale each output.
+
+    Warnings
+    --------
+
+    The `update` callable can modify the `dynamics` argument, but must not
+    change any elements of `args`, and must have no side effects. This e.g.
+    means that batch normalization cannot be used in a nested neural network.
     """
 
     _update_registry = {}
