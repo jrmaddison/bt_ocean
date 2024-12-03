@@ -824,8 +824,16 @@ class Solver(ABC):
     def from_config(cls, config):
         config = {key: keras.saving.deserialize_keras_object(value) for key, value in config.items()}
         cls = cls._registry[config["type"]]
-        idtype = jnp.dtype(config["idtype"]).type if "idtype" in config else None
-        fdtype = jnp.dtype(config["fdtype"]).type if "fdtype" in config else None
+        if "fdtype" in config:
+            fdtype = jnp.dtype(config["fdtype"]).type
+        else:
+            # Backwards compatibility
+            fdtype = config["fields"]["Q"].dtype.type
+        if "idtype" in config:
+            idtype = jnp.dtype(config["idtype"]).type
+        else:
+            # Backwards compatibility
+            idtype = jnp.dtype({"float32": jnp.int32, "float64": jnp.int64}[jnp.dtype(fdtype).name]).type
         model = cls(config["parameters"], idtype=idtype, fdtype=fdtype)
         model.fields.update(config["fields"])
         model.n = config["n"]
