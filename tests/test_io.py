@@ -48,7 +48,7 @@ def zarr_File(filename, mode):
 def test_parameters_roundtrip(tmp_path, File):
     parameters = model_parameters()
 
-    filename = tmp_path / "tmp.zarr"
+    filename = tmp_path / "tmp"
     with File(filename, "w") as h:
         parameters.write(h)
     with File(filename, "r") as h:
@@ -71,7 +71,7 @@ def test_fields_roundtrip(tmp_path, File):
     fields["b"] = b = jnp.outer(jnp.arange(N_x, -1, -1, dtype=grid.fdtype),
                                 jnp.arange(N_y + 1, dtype=grid.fdtype))
 
-    filename = tmp_path / "tmp.zarr"
+    filename = tmp_path / "tmp"
     with File(filename, "w") as h:
         fields.write(h)
     with File(filename, "r") as h:
@@ -97,7 +97,7 @@ def test_solver_roundtrip(tmp_path, File):
     model.fields["Q"] = Q(model.grid)
     model.steps(5)
 
-    filename = tmp_path / "tmp.zarr"
+    filename = tmp_path / "tmp"
     with File(filename, "w") as h:
         model.write(h)
     with File(filename, "r") as h:
@@ -132,7 +132,7 @@ def test_solver_roundtrip_precision_change(tmp_path, File):
         model.fields["Q"] = Q(model.grid)
         model.steps(5)
 
-        filename = tmp_path / "tmp.zarr"
+        filename = tmp_path / "tmp"
         with File(filename, "w") as h:
             model.write(h)
     with File(filename, "r") as h:
