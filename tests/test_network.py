@@ -94,7 +94,8 @@ def test_dynamics_roundtrip(tmp_path):
     Q_network = keras.models.Model(inputs=Q_input_layer, outputs=Q_input_layer)
 
     # Used to test that Q_callback is being called, although technically
-    # Q_callback is not allowed to have any side effects
+    # Q_callback is not allowed to have any side effects other than to modify
+    # the dynamics argument
     n_calls = 0
 
     @Dynamics.register_update("test_dynamics_roundtrip_Q_callback")

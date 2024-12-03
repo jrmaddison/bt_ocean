@@ -111,7 +111,7 @@ class Dynamics(keras.layers.Layer):
     update : callable
         Passed `dynamics` and any arguments defined by `args`, and should
         update the state of `dynamics`. Evaluated before taking each timestep.
-        Must not modify elements of `args` and must have no side effects.
+        Must have no side effects other than to modify `dynamics`.
     args : tuple
         Passed as remaining arguments to `update`.
     N : Integral
@@ -128,8 +128,9 @@ class Dynamics(keras.layers.Layer):
     --------
 
     The `update` callable can modify the `dynamics` argument, but must not
-    change any elements of `args`, and must have no side effects. This e.g.
-    means that batch normalization cannot be used in a nested neural network.
+    change any elements of `args`, and must have no other side effects. This
+    e.g. means that batch normalization cannot be used in a nested neural
+    network.
     """
 
     _update_registry = {}
