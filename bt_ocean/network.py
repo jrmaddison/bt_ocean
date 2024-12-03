@@ -131,7 +131,7 @@ class Dynamics(keras.layers.Layer):
         if "dtype" not in kwargs:
             kwargs["dtype"] = dynamics.grid.fdtype
         super().__init__(**kwargs)
-        self.__dynamics = dynamics
+        self.__dynamics = dynamics.new(copy_prescribed=True)
         self.__update = update
         self.__args = args
         self.__N = N

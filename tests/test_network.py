@@ -114,7 +114,7 @@ def test_dynamics_roundtrip(tmp_path):
     input_model = dynamics_network.layers[1]._Dynamics__dynamics
 
     assert type(input_model) is type(model)
-    assert input_model.n == model.n
+    assert input_model.n == 0
 
     assert input_model.grid.L_x == model.grid.L_x
     assert input_model.grid.L_y == model.grid.L_y
@@ -128,8 +128,8 @@ def test_dynamics_roundtrip(tmp_path):
         assert input_model.parameters[key] == value
 
     assert set(input_model.fields) == set(model.fields)
-    for key, value in model.fields.items():
-        assert (input_model.fields[key] == value).all()
+    for key in model.prescribed_field_keys:
+        assert (input_model.fields[key] == model.fields[key]).all()
 
     dynamics_network(jnp.zeros((1, model.grid.N_x + 1, model.grid.N_y + 1)))
     assert n_calls == 2
