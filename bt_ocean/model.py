@@ -398,7 +398,7 @@ class Solver(ABC):
             idtype=idtype, fdtype=fdtype)
 
         self._fields = Fields(grid, field_keys)
-        self._prescribed_field_keys = set(prescribed_field_keys)
+        self._prescribed_field_keys = tuple(sorted(prescribed_field_keys))
 
         self.zero_prescribed()
         self.initialize()
@@ -476,6 +476,13 @@ class Solver(ABC):
 
         return self._fields
 
+    @property
+    def prescribed_field_keys(self) -> tuple:
+        """Keys of prescribed fields.
+        """
+
+        return self._prescribed_field_keys
+
     @cached_property
     def poisson_solver(self) -> PoissonSolver:
         """Solver for the Poisson equation.
@@ -487,7 +494,7 @@ class Solver(ABC):
         """Zero prescribed fields.
         """
 
-        self.fields.zero(*self._prescribed_field_keys)
+        self.fields.zero(*self.prescribed_field_keys)
 
     @abstractmethod
     def initialize(self, zeta=None):
@@ -501,7 +508,7 @@ class Solver(ABC):
             field.
         """
 
-        self.fields.clear(keep_keys=self._prescribed_field_keys)
+        self.fields.clear(keep_keys=self.prescribed_field_keys)
         self._n = 0
 
     @abstractmethod
@@ -756,9 +763,16 @@ class Solver(ABC):
 
         return model
 
-    def new(self):
+    def new(self, *, copy_prescribed=False):
         """Return a new :class:`.Solver` with the same configuration as this
         :class:`.Solver`.
+
+        Parameters
+        ----------
+
+        copy_prescribed : bool
+            Whether to copy values of prescribed fields to the new
+            :class:`.Solver`.
 
         Returns
         -------
@@ -768,6 +782,9 @@ class Solver(ABC):
         """
 
         model = type(self)(self.parameters, idtype=self.grid.idtype, fdtype=self.grid.fdtype)
+        if copy_prescribed:
+            for key in self.prescribed_field_keys:
+                model.fields[key] = self.fields[key]
         model.poisson_solver = self.poisson_solver
         return model
 
@@ -922,8 +939,8 @@ class CNAB2Solver(Solver):
     def steady_state_solve(self, *args, update=lambda model, *args: None, tol, max_it=10000):
         return super().steady_state_solve(*args, update=update, tol=tol, max_it=max_it, _min_n=1)
 
-    def new(self):
-        model = super().new()
+    def new(self, copy_prescribed=False):
+        model = super().new(copy_prescribed=copy_prescribed)
         model.modified_helmholtz_solver = self.modified_helmholtz_solver
         return model
 

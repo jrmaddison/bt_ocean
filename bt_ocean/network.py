@@ -177,7 +177,7 @@ class Dynamics(keras.layers.Layer):
             return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
         def compute_outputs(zeta):
-            dynamics = self.__dynamics.new()
+            dynamics = self.__dynamics.new(copy_prescribed=True)
             dynamics.initialize(zeta * self.__input_weight)
             _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs
