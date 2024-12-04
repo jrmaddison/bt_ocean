@@ -1,5 +1,5 @@
 """A set of base model parameters. Physical parameters (excluding the viscous
-parameter and density) are from
+parameter, bottom drag, and density) are from
 
     - David P. Marshall and Alistair J. Adcroft, 'Parameterization of ocean
       eddies: Potential vorticity mixing, energetics and Arnold's first
