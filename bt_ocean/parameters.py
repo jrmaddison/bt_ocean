@@ -1,5 +1,5 @@
 """A set of base model parameters. Physical parameters (excluding the viscous
-parameter and density) are from
+parameter, bottom drag, and density) are from
 
     - David P. Marshall and Alistair J. Adcroft, 'Parameterization of ocean
       eddies: Potential vorticity mixing, energetics and Arnold's first
@@ -36,6 +36,7 @@ parameters = Parameters(
         "N_y": 2048,
         "nu": 10.0,  # m^2/s
         "dt": 3600 / n_hour,  # s
+        "r": 1.0e-7,  # /s
         # Following from
         #     David P. Marshall and Alistair J. Adcroft, 'Parameterization of
         #     ocean eddies: Potential vorticity mixing, energetics and Arnold's
@@ -43,8 +44,7 @@ parameters = Parameters(
         #     2010, https://doi.org/10.1016/j.ocemod.2010.02.001
         "L_x": 4000.0e3 / 2,  # m
         "L_y": 4000.0e3 / 2,  # m
-        "beta": 2.0e-11,  # /m/s
-        "r": 1.0e-7  # /s
+        "beta": 2.0e-11  # /m/s
     })
 
 # Wind forcing parameters
