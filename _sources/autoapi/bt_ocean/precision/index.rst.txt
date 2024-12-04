@@ -1,0 +1,120 @@
+:py:mod:`bt_ocean.precision`
+============================
+
+.. py:module:: bt_ocean.precision
+
+.. autoapi-nested-parse::
+
+   Precision utilities.
+
+   ..
+       !! processed by numpydoc !!
+
+
+Module Contents
+---------------
+
+.. py:function:: x64_disabled()
+
+   
+   Context manager for temporarily disabling the `'jax_enable_x64'` JAX
+   configuration option, and for temporarily setting the Keras default float
+   type to single precision.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: x64_enabled()
+
+   
+   Context manager for temporarily enabling the `'jax_enable_x64'` JAX
+   configuration option, and for temporarily setting the Keras default float
+   type to double precision.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: default_idtype()
+
+   
+   Return the current default integer scalar data type.
+
+
+
+
+
+   :Returns:
+
+       type
+           The current default integer scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: default_fdtype()
+
+   
+   Return the current default floating point scalar data type.
+
+
+
+
+
+   :Returns:
+
+       type
+           The current default floating point scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
