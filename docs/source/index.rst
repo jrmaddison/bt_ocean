@@ -33,6 +33,12 @@ The following Jupyter notebooks introduce bt_ocean.
 - `Steady state problems <examples/2_steady_state.ipynb>`__: Implicit
   differentiation for steady-state problems.
 
+Source
+------
+
+The source code is available from the
+`bt_ocean GitHub repository <https://github.com/jrmaddison/bt_ocean>`_.
+
 Indices
 -------
 
