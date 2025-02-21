@@ -292,11 +292,11 @@ class Average:
         del h
 
         if "w" not in g:
-            g.create_dataset(
+            g.create_array(
                 "w", shape=(1, 0), dtype=self.w.dtype)
         for key in self.keys():
             if key not in g:
-                g.create_dataset(
+                g.create_array(
                     key, shape=(self.grid.N_x + 1, self.grid.N_y + 1, 0),
                     dtype=self.grid.fdtype, chunks=(-1, -1, 1))
 

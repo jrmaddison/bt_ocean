@@ -2,10 +2,18 @@
 beta-plane.
 """
 
+try:
+    import h5py
+except ModuleNotFoundError:
+    h5py = None
 import jax
 import jax.numpy as jnp
 import keras
 import numpy as np
+try:
+    import zarr
+except ModuleNotFoundError:
+    zarr = None
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
@@ -35,6 +43,37 @@ class Required:
 
 
 required = Required()
+
+
+class IOInterface:
+    def __init__(self, h):
+        self._h = h
+
+    @property
+    def h(self):
+        return self._h
+
+    @property
+    def attrs(self):
+        return self.h.attrs
+
+    def create_group(self, name):
+        return IOInterface(self.h.create_group(name))
+
+    def create_dataset(self, name, shape=None, dtype=None, data=None):
+        if shape is None and data is not None:
+            shape = data.shape
+        if dtype is None and data is not None:
+            dtype = data.dtype
+
+        if h5py is not None and isinstance(self.h, (h5py.File, h5py.Group)):
+            self.h.create_dataset(name, shape=shape, dtype=dtype, data=data)
+        elif zarr is not None and isinstance(self.h, zarr.Group):
+            a = self.h.create_array(name, shape=shape, dtype=dtype)
+            if data is not None:
+                a[:] = data
+        else:
+            raise TypeError(f"Unexpected type: '{type(self.h)}'")
 
 
 class Parameters(Mapping):
@@ -88,9 +127,10 @@ class Parameters(Mapping):
             Group storing the parameters.
         """
 
+        h = IOInterface(h)
         g = h.create_group(path)
         g.attrs.update(self.items())
-        return g
+        return g.h
 
     @classmethod
     def read(cls, h, path="parameters"):
@@ -224,6 +264,7 @@ class Fields(Mapping):
             Group storing the fields.
         """
 
+        h = IOInterface(h)
         g = h.create_group(path)
         del h
 
@@ -234,11 +275,11 @@ class Fields(Mapping):
         g.attrs["idtype"] = jnp.dtype(self.grid.idtype).name
         g.attrs["fdtype"] = jnp.dtype(self.grid.fdtype).name
 
-        for key in self:
+        for key, value in self.items():
             g.create_dataset(
-                name=key, data=np.array(self[key], dtype=self.grid.fdtype))
+                name=key, data=np.array(value, dtype=self.grid.fdtype))
 
-        return g
+        return g.h
 
     @classmethod
     def read(cls, h, path="fields", *, grid=None):
@@ -722,15 +763,16 @@ class Solver(ABC):
             Group storing the solver.
         """
 
+        h = IOInterface(h)
         g = h.create_group(path)
         del h
 
         g.attrs["type"] = type(self).__name__
         g.attrs["n"] = int(self.n)
-        self.parameters.write(g, "parameters")
-        self.fields.write(g, "fields")
+        self.parameters.write(g.h, "parameters")
+        self.fields.write(g.h, "fields")
 
-        return g
+        return g.h
 
     @classmethod
     def read(cls, h, path="solver"):
