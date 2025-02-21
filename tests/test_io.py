@@ -40,8 +40,7 @@ def h5py_File(filename, mode):
 def zarr_File(filename, mode):
     if zarr is None:
         pytest.skip("zarr not available")
-    with zarr.open(filename, mode) as h:
-        yield h
+    yield zarr.open(filename, mode=mode)
 
 
 @pytest.mark.parametrize("File", [h5py_File, zarr_File])
