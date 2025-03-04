@@ -297,8 +297,8 @@ class Average:
         for key in self.keys():
             if key not in g:
                 g.create_array(
-                    key, shape=(self.grid.N_x + 1, self.grid.N_y + 1, 0),
-                    dtype=self.grid.fdtype, chunks=(-1, -1, 1))
+                    key, shape=tuple(map(int, (self.grid.N_x + 1, self.grid.N_y + 1, 0))),
+                    dtype=self.grid.fdtype, chunks=tuple(map(int, (self.grid.N_x + 1, self.grid.N_y + 1, 1))))
 
         zarr_append(g["w"], (self.w,))
         for key, value in self.averaged_fields().items():
