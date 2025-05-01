@@ -32,12 +32,7 @@ def dst(u, *, axis=-1):
         The result of the transform. Has the same shape as `u`.
     """
 
-    if axis == -1:
-        axis = len(u.shape) - 1
-    if axis != len(u.shape) - 1:
-        p = tuple(range(axis)) + tuple(range(axis + 1, len(u.shape))) + (axis,)
-        p_inv = tuple(range(axis)) + (len(u.shape) - 1,) + tuple(range(axis, len(u.shape) - 1))
-        u = jnp.transpose(u, p)
+    u = jnp.moveaxis(u, axis, -1)
 
     N = u.shape[-1] - 1
     u_e = jnp.zeros_like(u, shape=u.shape[:-1] + (2 * N,))
@@ -48,8 +43,7 @@ def dst(u, *, axis=-1):
     u_s = u_s.at[..., -1].set(0)
     u_s = u_s / N
 
-    if axis != len(u.shape) - 1:
-        u_s = jnp.transpose(u_s, p_inv)
+    u_s = jnp.moveaxis(u_s, -1, axis)
     return u_s
 
 
