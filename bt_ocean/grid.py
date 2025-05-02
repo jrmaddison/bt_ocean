@@ -225,12 +225,12 @@ class Grid:
         D = jnp.zeros_like(u).at[1:-1, :].set(
             (u[2:, :] - u[:-2, :]) / (2 * self.dx))
         if boundary:
-            D = D.at[0, :].set((-2.5 * u[1, :] + 4 * u[2, :] - 1.5 * u[3, :]) / self.dx)
-            D = D.at[-1, :].set(-(-2.5 * u[-2, :] + 4 * u[-3, :] - 1.5 * u[-4, :]) / self.dx)
+            D = D.at[0, :].set((-1.5 * u[0, :] + 2 * u[1, :] - 0.5 * u[2, :]) / self.dx)
+            D = D.at[-1, :].set(-(-1.5 * u[-1, :] + 2 * u[-2, :] - 0.5 * u[-3, :]) / self.dx)
         return D
 
     def D_y(self, u, boundary=True):
-        """Compute an :math:`y`-direction first derivative.
+        """Compute a :math:`y`-direction first derivative.
 
         Parameters
         ----------
@@ -250,8 +250,8 @@ class Grid:
         D = jnp.zeros_like(u).at[:, 1:-1].set(
             (u[:, 2:] - u[:, :-2]) / (2 * self.dy))
         if boundary:
-            D = D.at[:, 0].set((-2.5 * u[:, 1] + 4 * u[:, 2] - 1.5 * u[:, 3]) / self.dy)
-            D = D.at[:, -1].set(-(-2.5 * u[:, -2] + 4 * u[:, -3] - 1.5 * u[:, -4]) / self.dy)
+            D = D.at[:, 0].set((-1.5 * u[:, 0] + 2 * u[:, 1] - 0.5 * u[:, 2]) / self.dy)
+            D = D.at[:, -1].set(-(-1.5 * u[:, -1] + 2 * u[:, -2] - 0.5 * u[:, -3]) / self.dy)
         return D
 
     def D_xx(self, u, boundary=True):
@@ -275,8 +275,8 @@ class Grid:
         D = jnp.zeros_like(u).at[1:-1, :].set(
             (u[2:, :] - 2 * u[1:-1, :] + u[:-2, :]) / (self.dx ** 2))
         if boundary:
-            D = D.at[0, :].set((3 * u[1, :] - 8 * u[2, :] + 7 * u[3, :] - 2 * u[4, :]) / (self.dx ** 2))
-            D = D.at[-1, :].set((3 * u[-2, :] - 8 * u[-3, :] + 7 * u[-4, :] - 2 * u[-5, :]) / (self.dx ** 2))
+            D = D.at[0, :].set((2 * u[0, :] - 5 * u[1, :] + 4 * u[2, :] - u[3, :]) / (self.dx ** 2))
+            D = D.at[-1, :].set((2 * u[-1, :] - 5 * u[-2, :] + 4 * u[-3, :] - u[-4, :]) / (self.dx ** 2))
         return D
 
     def D_yy(self, u, boundary=True):
@@ -300,8 +300,8 @@ class Grid:
         D = jnp.zeros_like(u).at[:, 1:-1].set(
             (u[:, 2:] - 2 * u[:, 1:-1] + u[:, :-2]) / (self.dy ** 2))
         if boundary:
-            D = D.at[:, 0].set((3 * u[:, 1] - 8 * u[:, 2] + 7 * u[:, 3] - 2 * u[:, 4]) / (self.dy ** 2))
-            D = D.at[:, -1].set((3 * u[:, -2] - 8 * u[:, -3] + 7 * u[:, -4] - 2 * u[:, -5]) / (self.dy ** 2))
+            D = D.at[:, 0].set((2 * u[:, 0] - 5 * u[:, 1] + 4 * u[:, 2] - u[:, 3]) / (self.dy ** 2))
+            D = D.at[:, -1].set((2 * u[:, -1] - 5 * u[:, -2] + 4 * u[:, -3] - u[:, -4]) / (self.dy ** 2))
         return D
 
     def integrate(self, u):
