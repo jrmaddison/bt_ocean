@@ -40,6 +40,8 @@ class Grid:
             idtype = default_idtype()
         if fdtype is None:
             fdtype = default_fdtype()
+        idtype = jnp.dtype(idtype).type
+        fdtype = jnp.dtype(fdtype).type
 
         self._L_x = fdtype(L_x)
         self._L_y = fdtype(L_y)
