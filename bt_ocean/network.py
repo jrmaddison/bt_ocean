@@ -33,6 +33,7 @@ class Scale(keras.layers.Layer):
     """
 
     def __init__(self, **kwargs):
+        kwargs.setdefault("dtype", keras.backend.floatx())
         super().__init__(**kwargs)
         self.__alpha = self.add_weight(shape=(1,), dtype=self.dtype)
 
@@ -66,6 +67,7 @@ class KroneckerProduct(keras.layers.Layer):
 
     def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True,
                  **kwargs):
+        kwargs.setdefault("dtype", keras.backend.floatx())
         super().__init__(**kwargs)
         self.__shape_a = shape_a = N_i_a, N_j_a = tuple(shape_a)
         self.__shape_b = shape_b = N_i_b, N_j_b = tuple(shape_b)
@@ -137,8 +139,7 @@ class Dynamics(keras.layers.Layer):
 
     def __init__(self, dynamics, update, *args, N=1, n_output=1,
                  input_weight=1, output_weight=1, **kwargs):
-        if "dtype" not in kwargs:
-            kwargs["dtype"] = dynamics.grid.fdtype
+        kwargs.setdefault("dtype", dynamics.grid.fdtype)
         super().__init__(**kwargs)
         self.__dynamics = dynamics.new(copy_prescribed=True)
         self.__update = update

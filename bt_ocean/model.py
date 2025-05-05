@@ -425,6 +425,8 @@ class Solver(ABC):
             idtype = default_idtype()
         if fdtype is None:
             fdtype = default_fdtype()
+        idtype = jnp.dtype(idtype).type
+        fdtype = jnp.dtype(fdtype).type
         if field_keys is None:
             field_keys = set()
         else:

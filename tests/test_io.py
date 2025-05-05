@@ -8,6 +8,7 @@ try:
 except ModuleNotFoundError:
     h5py = None
 import jax.numpy as jnp
+import numpy as np
 import pytest
 try:
     import zarr
@@ -123,7 +124,7 @@ def test_solver_roundtrip(tmp_path, File):
 
 @pytest.mark.parametrize("File", [h5py_File, zarr_File])
 def test_solver_roundtrip_precision_change(tmp_path, File):
-    if default_fdtype() != jnp.float64:
+    if default_fdtype() != np.float64:
         pytest.skip("Double precision only")
 
     with x64_disabled():
