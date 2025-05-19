@@ -12,7 +12,6 @@ import operator
 
 from .grid import Grid
 from .model import Fields
-from .precision import x64_enabled
 
 __all__ = \
     [
@@ -45,12 +44,6 @@ class AverageDefinition:
         A callable accepting zero or more :class:`jnp.Array` positional
         arguments and returning a :class:`jnp.Array` defining the quantity to
         be averaged.
-
-    Notes
-    -----
-
-    `op` arguments are defined by `(fields[key] for key in field_keys)`. The
-    arrays passed to `op`, and the result, are cast to double precision.
     """
 
     def __init__(self, key, field_keys, op):
@@ -65,7 +58,6 @@ class AverageDefinition:
 
         return self._key
 
-    @x64_enabled()
     def evaluate(self, fields):
         """Compute a value of the quantity to be averaged.
 
@@ -82,9 +74,8 @@ class AverageDefinition:
             The value of the quantity to be averaged.
         """
 
-        args = tuple(jnp.array(fields[key], dtype=jnp.float64)
-                     for key in self._field_keys)
-        return jnp.array(self._op(*args), dtype=jnp.float64)
+        args = tuple(fields[key] for key in self._field_keys)
+        return self._op(*args)
 
 
 class FieldAverage(AverageDefinition):
@@ -161,28 +152,17 @@ class Average:
     ----------
 
     grid : :class:`.Grid`
-        Defines the grid on which to store averaged fields. Note that a new
-        grid with double precision floating point scalar data type is used
-        internally.
+        Defines the grid on which to store averaged fields.
     definitions : Sequence[:class:`.AverageDefinition`, ...]
         Defines the quantities to be averaged.
-
-    Notes
-    -----
-
-    All averaging calculations are performed in double precision.
     """
 
     _reserved_keys = {"w"}
 
-    @x64_enabled()
     def __init__(self, grid, definitions):
         if len(set(definition.key for definition in definitions).intersection(
                 self._reserved_keys)) > 0:
             raise ValueError("Reserved key(s)")
-
-        grid = Grid(grid.L_x, grid.L_y, grid.N_x, grid.N_y,
-                    idtype=jnp.int64, fdtype=jnp.float64)
 
         self._definitions = tuple(definitions)
         self._fields = Fields(
@@ -216,15 +196,13 @@ class Average:
 
         return self._w
 
-    @x64_enabled()
     def zero(self):
         """Reset and zero all fields.
         """
 
         self._fields.zero(*self._fields)
-        self._w = jnp.float64(0)
+        self._w = self.grid.fdtype(0)
 
-    @x64_enabled()
     def add(self, fields, *, weight=1):
         """Add to averaged fields.
 
@@ -237,12 +215,11 @@ class Average:
             Multiplication weight.
         """
 
-        weight = jnp.float64(weight)
+        weight = self.grid.fdtype(weight)
         for definition in self._definitions:
             self._fields[definition.key] = self._fields[definition.key] + weight * definition.evaluate(fields)
         self._w += weight
 
-    @x64_enabled()
     def averaged_fields(self):
         """Return averaged fields.
 
@@ -267,7 +244,6 @@ class Average:
             fields[key] = field / self.w
         return fields
 
-    @x64_enabled()
     def append_averaged_fields(self, h, path=""):
         """Append averaged field data to a :class:`zarr.hierarchy.Group`.
 

@@ -1,9 +1,10 @@
 from bt_ocean.model import CNAB2Solver, Parameters
 from bt_ocean.parameters import parameters, rho_0, D, tau_0, Q
-from bt_ocean.precision import x64_enabled
+from bt_ocean.precision import default_fdtype
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 
@@ -16,8 +17,10 @@ def model_parameters():
 
 
 @pytest.mark.parametrize("N", tuple(range(1, 5)))
-@x64_enabled()
 def test_cnab2_autodiff_jvp(N):
+    if default_fdtype() != np.float64 or not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     model = CNAB2Solver(model_parameters())
 
     def forward(Q_1):
@@ -46,8 +49,10 @@ def test_cnab2_autodiff_jvp(N):
 
 
 @pytest.mark.parametrize("N", tuple(range(1, 5)))
-@x64_enabled()
 def test_cnab2_autodiff_vjp(N):
+    if default_fdtype() != np.float64 or not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     model = CNAB2Solver(model_parameters())
 
     def forward(Q_1):

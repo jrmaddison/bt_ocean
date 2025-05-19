@@ -1,5 +1,8 @@
+import jax
 import json
+import keras
 import pathlib
+import pytest
 import runpy
 
 
@@ -23,15 +26,27 @@ def run_example_notebook(filename, tmp_path):
 
 
 def test_0_getting_started(tmp_path):
+    if not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     run_example_notebook(pathlib.Path(__file__).parent.parent / "docs" / "source" / "examples" / "0_getting_started.ipynb",
                          tmp_path)
 
 
+@pytest.mark.skipif(
+    keras.backend.backend() != "jax",
+    reason="Require Keras with the JAX backend")
 def test_1_keras_integration(tmp_path):
+    if not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     run_example_notebook(pathlib.Path(__file__).parent.parent / "docs" / "source" / "examples" / "1_keras_integration.ipynb",
                          tmp_path)
 
 
 def test_2_steady_state(tmp_path):
+    if not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     run_example_notebook(pathlib.Path(__file__).parent.parent / "docs" / "source" / "examples" / "2_steady_state.ipynb",
                          tmp_path)
