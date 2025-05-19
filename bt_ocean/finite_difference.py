@@ -10,7 +10,8 @@ import sympy as sp
 
 __all__ = \
     [
-        "diff"
+        "diff_bounded",
+        "diff_periodic"
     ]
 
 
@@ -51,11 +52,11 @@ def difference_coefficients(beta, order):
 
 
 @partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion"})
-def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None):
+def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None):
     """Compute a centred finite difference approximation to a derivative for
-    data stored on a uniform grid. Transitions to one-sided differencing as the
-    end-points are approached. Selects an additional right-sided point if
-    `N` is even.
+    data stored on a uniform grid. Result is defined on the same grid as the
+    input (i.e. without staggering). Transitions to one-sided differencing as
+    the end-points are approached.
 
     Parameters
     ----------
@@ -67,7 +68,8 @@ def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None)
     order : Integral
         Derivative order.
     N : Integral
-        Number of grid points in the difference approximation.
+        Number of grid points in the difference approximation. Centered
+        differencing uses an additional right-sided point if `N` is even.
     axis : Integral
         Axis.
     i0 : Integral
@@ -115,7 +117,7 @@ def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None)
     i1 = i0 + N
     parity = (-1) ** order
 
-    for i in range(max(-i0, i1 - 1)):
+    for i in range(max(0, min(i0_b, u.shape[-1] - i1_b)), max(-i0, i1 - 1)):
         beta = tuple(range(-i, -i + N + int(bool(boundary_expansion))))
         alpha = tuple(map(dtype, difference_coefficients(beta, order)))
         if i < -i0 and i >= i0_b:
@@ -130,7 +132,7 @@ def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None)
                 v = v.at[..., u.shape[-1] - 1 - i].add(
                     parity * alpha_j * u[..., u.shape[-1] - 1 - i - beta_j])
 
-    # Center
+    # Center points
     beta = tuple(range(i0, i1))
     alpha = tuple(map(dtype, difference_coefficients(beta, order)))
     i0_c = max(-i0, i0_b)
@@ -142,3 +144,35 @@ def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None)
 
     v = jnp.moveaxis(v, -1, axis)
     return v / (dx ** order)
+
+
+@partial(jax.jit, static_argnames={"order", "N", "axis"})
+def diff_periodic(u, dx, order, N, *, axis=-1):
+    """Compute a centred finite difference approximation to a derivative for
+    data stored on a uniform grid. Result is defined on the same grid as the
+    input (i.e. without staggering). Applies periodic boundary conditions.
+
+    Arguments and return value are as for :func:`.diff_bounded`.
+    """
+
+    if axis < 0:
+        axis = len(u.shape) + axis
+    if axis < 0 or axis >= len(u.shape):
+        raise ValueError("Invalid axis")
+    if u.shape[axis] < N:
+        raise ValueError("Insufficient points")
+
+    u = jnp.moveaxis(u, axis, -1)
+    i0 = -(N // 2)
+    i1 = i0 + N
+
+    # Periodic extension
+    u_e = jnp.zeros_like(u, shape=u.shape[:-1] + (u.shape[-1] + N,))
+    u_e = u_e.at[..., -i0:-i1].set(u)
+    u_e = u_e.at[..., :-i0].set(u[..., i0:])
+    u_e = u_e.at[..., -i1:].set(u[..., :i1])
+
+    v = diff_bounded(u_e, dx, order, N, axis=-1, i0=-i0, i1=-i1)[..., -i0:-i1]
+
+    v = jnp.moveaxis(v, -1, axis)
+    return v

@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from functools import cached_property, partial
 from numbers import Real
 
-from .finite_difference import diff
+from .finite_difference import diff_bounded as diff
 from .precision import default_idtype, default_fdtype
 
 __all__ = \
