@@ -7,6 +7,7 @@ import jax.numpy as jnp
 from functools import cached_property, partial
 from numbers import Real
 
+from .finite_difference import diff
 from .precision import default_idtype, default_fdtype
 
 __all__ = \
@@ -226,12 +227,8 @@ class Grid:
             The derivative.
         """
 
-        D = jnp.zeros_like(u).at[1:-1, :].set(
-            (u[2:, :] - u[:-2, :]) / (2 * self.dx))
-        if boundary:
-            D = D.at[0, :].set((-1.5 * u[0, :] + 2 * u[1, :] - 0.5 * u[2, :]) / self.dx)
-            D = D.at[-1, :].set(-(-1.5 * u[-1, :] + 2 * u[-2, :] - 0.5 * u[-3, :]) / self.dx)
-        return D
+        return diff(u, dx=self.dx, order=1, N=3, axis=0,
+                    i0=None if boundary else 1, i1=None if boundary else -1)
 
     def D_y(self, u, boundary=True):
         """Compute a :math:`y`-direction first derivative.
@@ -251,12 +248,8 @@ class Grid:
             The derivative.
         """
 
-        D = jnp.zeros_like(u).at[:, 1:-1].set(
-            (u[:, 2:] - u[:, :-2]) / (2 * self.dy))
-        if boundary:
-            D = D.at[:, 0].set((-1.5 * u[:, 0] + 2 * u[:, 1] - 0.5 * u[:, 2]) / self.dy)
-            D = D.at[:, -1].set(-(-1.5 * u[:, -1] + 2 * u[:, -2] - 0.5 * u[:, -3]) / self.dy)
-        return D
+        return diff(u, dx=self.dy, order=1, N=3, axis=1,
+                    i0=None if boundary else 1, i1=None if boundary else -1)
 
     def D_xx(self, u, boundary=True):
         """Compute an :math:`x`-direction second derivative.
@@ -276,12 +269,8 @@ class Grid:
             The derivative.
         """
 
-        D = jnp.zeros_like(u).at[1:-1, :].set(
-            (u[2:, :] - 2 * u[1:-1, :] + u[:-2, :]) / (self.dx ** 2))
-        if boundary:
-            D = D.at[0, :].set((2 * u[0, :] - 5 * u[1, :] + 4 * u[2, :] - u[3, :]) / (self.dx ** 2))
-            D = D.at[-1, :].set((2 * u[-1, :] - 5 * u[-2, :] + 4 * u[-3, :] - u[-4, :]) / (self.dx ** 2))
-        return D
+        return diff(u, dx=self.dx, order=2, N=3, axis=0,
+                    i0=None if boundary else 1, i1=None if boundary else -1)
 
     def D_yy(self, u, boundary=True):
         """Compute a :math:`y`-direction second derivative.
@@ -301,12 +290,8 @@ class Grid:
             The derivative.
         """
 
-        D = jnp.zeros_like(u).at[:, 1:-1].set(
-            (u[:, 2:] - 2 * u[:, 1:-1] + u[:, :-2]) / (self.dy ** 2))
-        if boundary:
-            D = D.at[:, 0].set((2 * u[:, 0] - 5 * u[:, 1] + 4 * u[:, 2] - u[:, 3]) / (self.dy ** 2))
-            D = D.at[:, -1].set((2 * u[:, -1] - 5 * u[:, -2] + 4 * u[:, -3] - u[:, -4]) / (self.dy ** 2))
-        return D
+        return diff(u, dx=self.dy, order=2, N=3, axis=1,
+                    i0=None if boundary else 1, i1=None if boundary else -1)
 
     def integrate(self, u):
         """
