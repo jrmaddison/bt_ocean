@@ -8,7 +8,6 @@ from numpy import cbrt, sqrt
 import pytest
 
 from .test_base import eps
-from .test_base import test_precision  # noqa: F401
 
 
 def test_field_average():

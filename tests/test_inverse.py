@@ -7,7 +7,6 @@ import pytest
 import sympy as sp
 
 from .test_base import eps
-from .test_base import test_precision  # noqa: F401
 
 
 @pytest.mark.parametrize("L_x, L_y", [(1, 1),

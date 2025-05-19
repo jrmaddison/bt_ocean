@@ -1,14 +1,29 @@
-import pytest
-
 import jax.numpy as jnp
 import keras
+import numpy as np
 from numpy import sqrt
+import pytest
 
 from bt_ocean.model import CNAB2Solver, Parameters
 from bt_ocean.network import Dynamics, KroneckerProduct, Scale
 from bt_ocean.parameters import parameters, Q
+from bt_ocean.precision import default_fdtype
 
-from .test_base import test_precision  # noqa: F401
+
+pytestmark = pytest.mark.skipif(
+    keras.backend.backend() != "jax",
+    reason="Require Keras with the JAX backend")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_floatx():
+    floatx = keras.backend.floatx()
+    try:
+        keras.backend.set_floatx(
+            {np.float32: "float32", np.float64: "float64"}[default_fdtype()])
+        yield
+    finally:
+        keras.backend.set_floatx(floatx)
 
 
 def model_parameters():

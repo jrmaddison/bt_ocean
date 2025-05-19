@@ -5,7 +5,6 @@ from numpy import exp
 import pytest
 
 from .test_base import eps
-from .test_base import test_precision  # noqa: F401
 
 
 @pytest.mark.parametrize("N", tuple(range(1, 11)) + (128, 129))

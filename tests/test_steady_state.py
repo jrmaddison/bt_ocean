@@ -1,10 +1,11 @@
 from bt_ocean.grid import Grid
 from bt_ocean.model import CNAB2Solver, Parameters
 from bt_ocean.parameters import parameters, rho_0, D, tau_0, Q
-from bt_ocean.precision import x64_enabled
+from bt_ocean.precision import default_fdtype
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 
@@ -19,8 +20,10 @@ def model_parameters():
 
 
 @pytest.mark.parametrize("tol", [1.0e-2, 1.0e-3, 1.0e-4])
-@x64_enabled()
 def test_steady_state(tol):
+    if default_fdtype() != np.float64 or not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     model = CNAB2Solver(model_parameters())
     model.fields["Q"] = Q(model.grid)
 
@@ -39,8 +42,10 @@ def test_steady_state(tol):
     assert abs(zeta_np1 - zeta_n).max() <= tol * abs(zeta_np1).max()
 
 
-@x64_enabled()
 def test_steady_state_autodiff():
+    if default_fdtype() != np.float64 or not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
+
     tol = 1.0e-10
     parameters = model_parameters()
     grid = Grid(parameters["L_x"], parameters["L_y"], parameters["N_x"], parameters["N_y"])

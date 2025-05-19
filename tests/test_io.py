@@ -1,12 +1,13 @@
 from bt_ocean.grid import Grid
 from bt_ocean.model import CNAB2Solver, Fields, Parameters, Solver
 from bt_ocean.parameters import parameters, Q
-from bt_ocean.precision import default_fdtype, x64_disabled
+from bt_ocean.precision import default_fdtype
 
 try:
     import h5py
 except ModuleNotFoundError:
     h5py = None
+import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -16,8 +17,6 @@ except ModuleNotFoundError:
     zarr = None
 
 from contextlib import contextmanager
-
-from .test_base import test_precision  # noqa: F401
 
 
 def model_parameters():
@@ -124,17 +123,16 @@ def test_solver_roundtrip(tmp_path, File):
 
 @pytest.mark.parametrize("File", [h5py_File, zarr_File])
 def test_solver_roundtrip_precision_change(tmp_path, File):
-    if default_fdtype() != np.float64:
-        pytest.skip("Double precision only")
+    if default_fdtype() != np.float64 or not jax.config.x64_enabled:
+        pytest.skip("float64 not available")
 
-    with x64_disabled():
-        model = CNAB2Solver(model_parameters())
-        model.fields["Q"] = Q(model.grid)
-        model.steps(5)
+    model = CNAB2Solver(model_parameters(), idtype=np.int32, fdtype=np.float32)
+    model.fields["Q"] = Q(model.grid)
+    model.steps(5)
 
-        filename = tmp_path / "tmp"
-        with File(filename, "w") as h:
-            model.write(h)
+    filename = tmp_path / "tmp"
+    with File(filename, "w") as h:
+        model.write(h)
     with File(filename, "r") as h:
         input_model = Solver.read(h)
 

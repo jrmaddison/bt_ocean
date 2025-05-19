@@ -8,6 +8,8 @@ import numpy as np
 from itertools import chain
 from operator import itemgetter
 
+from .precision import default_fdtype
+
 __all__ = \
     [
         "Scale",
@@ -33,7 +35,7 @@ class Scale(keras.layers.Layer):
     """
 
     def __init__(self, **kwargs):
-        kwargs.setdefault("dtype", keras.backend.floatx())
+        kwargs.setdefault("dtype", default_fdtype())
         super().__init__(**kwargs)
         self.__alpha = self.add_weight(shape=(1,), dtype=self.dtype)
 
@@ -67,7 +69,7 @@ class KroneckerProduct(keras.layers.Layer):
 
     def __init__(self, shape_a, shape_b, activation, *, symmetric=False, bias=True,
                  **kwargs):
-        kwargs.setdefault("dtype", keras.backend.floatx())
+        kwargs.setdefault("dtype", default_fdtype())
         super().__init__(**kwargs)
         self.__shape_a = shape_a = N_i_a, N_j_a = tuple(shape_a)
         self.__shape_b = shape_b = N_i_b, N_j_b = tuple(shape_b)

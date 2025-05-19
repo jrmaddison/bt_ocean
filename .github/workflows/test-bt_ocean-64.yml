@@ -1,4 +1,4 @@
-name: test-bt_ocean
+name: test-bt_ocean-64
 
 on:
   push:
@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
+      JAX_ENABLE_X64: True
       KERAS_BACKEND: jax
     steps:
       - name: Checkout
@@ -34,7 +35,7 @@ jobs:
           cd bt_ocean
           flake8
           ruff check
-      - name: Run tests
+      - name: Run tests (64 bit)
         run: |
           . bt_ocean_venv/bin/activate
           cd bt_ocean
