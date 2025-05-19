@@ -28,7 +28,7 @@ def difference_coefficients(beta, order):
     Returns
     -------
 
-    Sequence[:class:`sympy.Rational`, ...]
+    tuple[:class:`sympy.Rational`, ...]
         Finite difference coefficients.
     """
 
@@ -39,7 +39,7 @@ def difference_coefficients(beta, order):
     if order >= N:
         raise ValueError("Invalid order")
 
-    a = tuple(sp.Symbol("{a_" + f"{i}" + "}", real=True)
+    a = tuple(sp.Symbol("a_{" + f"{i}" + "}", real=True)
               for i in range(N))
     eqs = [sum((a[i] * sp.Rational(beta[i] ** j, sp.factorial(j))
                 for i in range(N)), start=sp.Integer(0))
@@ -109,7 +109,6 @@ def diff(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None)
         i1_b = u.shape[axis] + i1_b
 
     u = jnp.moveaxis(u, axis, -1)
-
     v = jnp.zeros_like(u)
     dtype = u.dtype.type
     i0 = -(N // 2)

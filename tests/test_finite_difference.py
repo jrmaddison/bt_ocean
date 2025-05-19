@@ -38,7 +38,7 @@ def test_centered_difference_monomials():
     if default_fdtype() != np.float64 or not jax.config.x64_enabled:
         pytest.skip("float64 not available")
 
-    x = jnp.linspace(-1, 1, 9)
+    x = jnp.linspace(-1, 1, 9, dtype=float)
     dx = x[1] - x[0]
 
     for p in range(17):
@@ -64,7 +64,7 @@ def test_centered_difference_convergence():
     error_norms_1 = jnp.zeros_like(P, dtype=float)
     error_norms_2 = jnp.zeros_like(P, dtype=float)
     for i, p in enumerate(P):
-        x = jnp.linspace(0, 1, 2 ** p + 1)
+        x = jnp.linspace(0, 1, 2 ** p + 1, dtype=float)
         dx = x[1] - x[0]
         W = jnp.full_like(x, dx)
         W = W.at[0].set(0.5 * dx)
