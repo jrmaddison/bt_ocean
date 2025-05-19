@@ -5,6 +5,7 @@ from bt_ocean.precision import default_fdtype
 import jax
 import jax.numpy as jnp
 import numpy as np
+from numpy import exp
 import pytest
 import sympy as sp
 
@@ -34,7 +35,8 @@ def test_difference_coefficients():
     verify((-1, -2, -3, -4), 2, (3, -8, 7, -2))
 
 
-def test_centered_difference_monomials():
+@pytest.mark.parametrize("alpha", (1, exp(0.5), -exp(0.5)))
+def test_centered_difference_monomials(alpha):
     if default_fdtype() != np.float64 or not jax.config.x64_enabled:
         pytest.skip("float64 not available")
 
@@ -42,18 +44,22 @@ def test_centered_difference_monomials():
     dx = x[1] - x[0]
 
     for p in range(17):
-        u = x ** p
+        u = alpha * x ** p
         for order in range(7):
             if order > p:
-                diff_exact = jnp.zeros_like(x)
+                diff_exact = alpha * jnp.zeros_like(x)
             else:
-                diff_exact = x ** (p - order)
+                diff_exact = alpha * x ** (p - order)
                 for i in range(order):
                     diff_exact *= p - i
             for N in range(max(p + 1, order + 1), x.shape[0]):
                 diff = centered_difference_bounded(u, dx, order=order, N=N)
                 error_norm = abs(diff - diff_exact).max()
-                assert error_norm < 1e-11
+                diff_exact_norm = abs(diff_exact).max()
+                if diff_exact_norm > 0:
+                    assert error_norm < 1e-13 * diff_exact_norm
+                else:
+                    assert error_norm < 1e-10
 
 
 def test_centered_difference_convergence():
