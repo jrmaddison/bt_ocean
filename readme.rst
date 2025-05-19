@@ -1,10 +1,14 @@
 bt_ocean
 ========
-|doi| |license|
+|tests_32| |tests_64| |license|
 
-.. |doi| image:: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean.yml/badge.svg?branch=main&event=push
-    :alt: doi
-    :target: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean.yml
+.. |tests_32| image:: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean-32.yml/badge.svg?branch=main&event=push
+    :alt: 32-bit tests
+    :target: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean-32.yml
+
+.. |tests_64| image:: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean-64.yml/badge.svg?branch=main&event=push
+    :alt: 64-bit tests
+    :target: https://github.com/jrmaddison/bt_ocean/actions/workflows/test-bt_ocean-64.yml
 
 .. |license| image:: https://img.shields.io/badge/license-MIT-green?style=flat-square
    :alt: license
