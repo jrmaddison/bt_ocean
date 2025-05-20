@@ -11,6 +11,7 @@ import sympy as sp
 __all__ = \
     [
         "difference_coefficients",
+        "order_reversed",
         "diff_bounded",
         "diff_periodic"
     ]
@@ -65,8 +66,33 @@ def _difference_coefficients(beta, order):
     return soln
 
 
-@partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion"})
-def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None):
+def order_reversed(alpha, beta):
+    """Defines a reversed grid point ordering. Can be used as the
+    `interior_order` or `boundary_order` argument for :func:`.diff_bounded`.
+
+    Parameters
+    ----------
+
+    alpha : Sequence
+        Coefficients.
+    beta : Sequence
+        Displacements
+
+    Returns
+    -------
+
+    Sequence
+        Reordered coefficients.
+    Sequence
+        Reordered displacements.
+    """
+
+    return tuple(reversed(alpha)), tuple(reversed(beta))
+
+
+@partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion", "interior_order", "boundary_order"})
+def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None,
+                 interior_order=None, boundary_order=None):
     """Compute a centred finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Transitions to one-sided differencing as
@@ -96,6 +122,14 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
         Whether to use one additional grid point for one-sided differencing
         near the boundary. Defaults to `True` if `order` is even and `False`
         otherwise.
+    interior_order : callable
+        Used to define an ordering for interior grid points. See
+        :func:`.ordering_reversed` for an example. Note that a positive
+        displacement corresponds to increasing index.
+    boundary_order : callable
+        Used to define an ordering for boundary grid points. See
+        :func:`.ordering_reversed` for an example. Note that a positive
+        displacement corresponds to a domain inward direction.
 
     Returns
     -------
@@ -132,6 +166,8 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     for i in range(max(0, min(i0_b, u.shape[-1] - i1_b)), max(-i0, i1 - 1)):
         beta = tuple(range(-i, -i + N + int(bool(boundary_expansion))))
         alpha = tuple(map(dtype, difference_coefficients(beta, order)))
+        if boundary_order is not None:
+            alpha, beta = boundary_order(alpha, beta)
         if i < -i0 and i >= i0_b:
             # Left end points
             assert len(alpha) == len(beta)
@@ -147,6 +183,8 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     # Center points
     beta = tuple(range(i0, i1))
     alpha = tuple(map(dtype, difference_coefficients(beta, order)))
+    if interior_order is not None:
+        alpha, beta = interior_order(alpha, beta)
     i0_c = max(-i0, i0_b)
     i1_c = min(u.shape[-1] - i1 + 1, i1_b)
     assert len(alpha) == len(beta)
@@ -158,8 +196,8 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     return v / (dx ** order)
 
 
-@partial(jax.jit, static_argnames={"order", "N", "axis"})
-def diff_periodic(u, dx, order, N, *, axis=-1):
+@partial(jax.jit, static_argnames={"order", "N", "axis", "interior_order"})
+def diff_periodic(u, dx, order, N, *, axis=-1, interior_order=None):
     """Compute a centred finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Applies periodic boundary conditions.
@@ -182,7 +220,7 @@ def diff_periodic(u, dx, order, N, *, axis=-1):
     u_e = u_e.at[..., :-i0].set(u[..., i0:])
     u_e = u_e.at[..., -i1:].set(u[..., :i1])
 
-    v = diff_bounded(u_e, dx, order, N, axis=-1, i0=-i0, i1=-i1)[..., -i0:-i1]
+    v = diff_bounded(u_e, dx, order, N, axis=-1, i0=-i0, i1=-i1, interior_order=interior_order)[..., -i0:-i1]
 
     v = jnp.moveaxis(v, -1, axis)
     return v

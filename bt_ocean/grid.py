@@ -7,13 +7,16 @@ import jax.numpy as jnp
 from functools import cached_property, partial
 from numbers import Real
 
-from .finite_difference import diff_bounded as diff
+from .finite_difference import diff_bounded, order_reversed
 from .precision import default_idtype, default_fdtype
 
 __all__ = \
     [
         "Grid"
     ]
+
+
+diff = partial(diff_bounded, interior_order=order_reversed)
 
 
 class Grid:
