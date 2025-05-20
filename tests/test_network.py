@@ -106,7 +106,7 @@ def test_dynamics_roundtrip(tmp_path):
     model.steps(5)
 
     Q_input_layer = keras.layers.Input((model.grid.N_x + 1, model.grid.N_y + 1))
-    Q_network = keras.models.Model(inputs=Q_input_layer, outputs=Q_input_layer)
+    Q_network = keras.models.Model(inputs=Q_input_layer, outputs=keras.layers.Add()((Q_input_layer,)))
 
     # Used to test that Q_callback is being called, although technically
     # Q_callback is not allowed to have any side effects other than to modify
