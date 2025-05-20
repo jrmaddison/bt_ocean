@@ -7,7 +7,7 @@ Finite difference coefficients are found as in equation (1.19) in
       2007
 """
 
-from functools import lru_cache, partial
+from functools import partial
 from numbers import Rational, Real
 
 import jax
@@ -43,7 +43,7 @@ def difference_coefficients(beta, order):
     Returns
     -------
 
-    tuple[:class:`sympy.core.expr.Expr`, ...]
+    tuple
         Finite difference coefficients.
     """
 
@@ -53,11 +53,7 @@ def difference_coefficients(beta, order):
         else:
             return v
 
-    return _difference_coefficients(tuple(map(displacement_cast, beta)), order)
-
-
-@lru_cache(maxsize=32)
-def _difference_coefficients(beta, order):
+    beta = tuple(map(displacement_cast, beta))
     N = len(beta)
     if order < 0 or order >= N:
         raise ValueError("Invalid order")
@@ -73,7 +69,8 @@ def _difference_coefficients(beta, order):
     assumptions = {}
     if all(map(bool, map(is_real, beta))):
         assumptions["real"] = True
-    a = tuple(sp.Symbol("_bt_ocean__finite_difference_{" + f"{i}" + "}", **assumptions)
+    a = tuple(sp.Symbol("_bt_ocean__finite_difference_{" + f"{i}" + "}",
+                        **assumptions)
               for i in range(N))
 
     # Equation (1.19) in
@@ -81,9 +78,9 @@ def _difference_coefficients(beta, order):
     #     partial differential equations', Society for Industrial and Applied
     #     Mathematics, 2007
     eqs = [sum((a[i] * ((beta[i] ** j) / sp.factorial(j))
-                for i in range(N)), start=sp.Integer(0))
+                for i in range(N)), start=sp.S.Zero)
            for j in range(N)]
-    eqs[order] -= sp.Integer(1)
+    eqs[order] -= sp.S.One
 
     soln, = sp.linsolve(eqs, a)
     return soln
@@ -116,7 +113,7 @@ def order_reversed(alpha, beta):
 @partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion", "interior_order", "boundary_order"})
 def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None,
                  interior_order=None, boundary_order=None):
-    """Compute a centred finite difference approximation for a derivative for
+    """Compute a centered finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Transitions to one-sided differencing as
     the end-points are approached.
@@ -148,7 +145,7 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     interior_order : callable
         Used to define an ordering for interior grid points. See
         :func:`.ordering_reversed` for an example. Note that a positive
-        displacement corresponds to increasing index.
+        displacement corresponds to an increasing index.
     boundary_order : callable
         Used to define an ordering for boundary grid points. See
         :func:`.ordering_reversed` for an example. Note that a positive
@@ -165,6 +162,8 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
 
     if boundary_expansion is None:
         boundary_expansion = (order % 2) == 0
+    if N < 0:
+        raise ValueError("Invalid number of points")
     if u.shape[-1] < N + int(bool(boundary_expansion)):
         raise ValueError("Insufficient points")
 
@@ -187,6 +186,7 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     parity = (-1) ** order
 
     for i in range(max(0, min(i0_b, u.shape[-1] - i1_b)), max(-i0, i1 - 1)):
+        # Use grid points up to and including the boundary
         beta = tuple(range(-i, -i + N + int(bool(boundary_expansion))))
         alpha = tuple(map(dtype, difference_coefficients(beta, order)))
         if boundary_order is not None:
@@ -221,7 +221,7 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
 
 @partial(jax.jit, static_argnames={"order", "N", "axis", "interior_order"})
 def diff_periodic(u, dx, order, N, *, axis=-1, interior_order=None):
-    """Compute a centred finite difference approximation for a derivative for
+    """Compute a centered finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Applies periodic boundary conditions.
 
@@ -230,6 +230,8 @@ def diff_periodic(u, dx, order, N, *, axis=-1, interior_order=None):
 
     u = jnp.moveaxis(u, axis, -1)
 
+    if N < 0:
+        raise ValueError("Invalid number of points")
     if u.shape[-1] < N:
         raise ValueError("Insufficient points")
 
@@ -243,7 +245,8 @@ def diff_periodic(u, dx, order, N, *, axis=-1, interior_order=None):
     u_e = u_e.at[..., :-i0].set(u[..., i0:])
     u_e = u_e.at[..., -i1:].set(u[..., :i1])
 
-    v = diff_bounded(u_e, dx, order, N, axis=-1, i0=-i0, i1=-i1, interior_order=interior_order)[..., -i0:-i1]
+    v = diff_bounded(u_e, dx, order, N, axis=-1, i0=-i0, i1=-i1, interior_order=interior_order)
+    v = v[..., -i0:-i1]
 
     v = jnp.moveaxis(v, -1, axis)
     return v
