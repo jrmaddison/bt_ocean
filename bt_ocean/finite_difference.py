@@ -37,9 +37,9 @@ def difference_coefficients(beta, order):
         if isinstance(v, Rational):
             return sp.Rational(v)
         elif isinstance(v, sp.core.expr.Expr):
-            return sp.Expr(v)
-        else:
             return v
+        else:
+            return sp.Expr(v)
 
     return _difference_coefficients(tuple(map(displacement_cast, beta)), order)
 
