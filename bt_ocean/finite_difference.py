@@ -1,6 +1,6 @@
 """Finite difference utilities.
 
-Finite difference coefficients are found as in equation (1.19) of
+Finite difference coefficients are found as in equation (1.19) in
 
     - Randall J. LeVeque, 'Finite difference methods for ordinary and partial
       differential equations', Society for Industrial and Applied Mathematics,
@@ -26,7 +26,7 @@ __all__ = \
 def difference_coefficients(beta, order):
     """Compute 1D finite difference coefficients of maximal order of accuracy.
 
-     Finite difference coefficients are found as in equation (1.19) of
+     Finite difference coefficients are found as in equation (1.19) in
 
         - Randall J. LeVeque, 'Finite difference methods for ordinary and
           partial differential equations', Society for Industrial and Applied
@@ -77,6 +77,11 @@ def _difference_coefficients(beta, order):
         assumptions["real"] = True
     a = tuple(sp.Symbol("_bt_ocean__finite_difference_{" + f"{i}" + "}", **assumptions)
               for i in range(N))
+
+    # Equation (1.19) in
+    #     Randall J. LeVeque, 'Finite difference methods for ordinary and
+    #     partial differential equations', Society for Industrial and Applied
+    #     Mathematics, 2007
     eqs = [sum((a[i] * ((beta[i] ** j) / sp.factorial(j))
                 for i in range(N)), start=sp.Integer(0))
            for j in range(N)]
