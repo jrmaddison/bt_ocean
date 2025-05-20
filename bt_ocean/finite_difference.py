@@ -8,7 +8,7 @@ Finite difference coefficients are found as in equation (1.19) of
 """
 
 from functools import lru_cache, partial
-from numbers import Rational
+from numbers import Complex, Rational, Real
 
 import jax
 import jax.numpy as jnp
@@ -50,10 +50,8 @@ def difference_coefficients(beta, order):
     def displacement_cast(v):
         if isinstance(v, Rational):
             return sp.Rational(v)
-        elif isinstance(v, sp.core.expr.Expr):
-            return v
         else:
-            return sp.Expr(v)
+            return v
 
     return _difference_coefficients(tuple(map(displacement_cast, beta)), order)
 
@@ -64,8 +62,18 @@ def _difference_coefficients(beta, order):
     if order < 0 or order >= N:
         raise ValueError("Invalid order")
 
+    def is_real(v):
+        if isinstance(v, Real):
+            return True
+        elif isinstance(v, Complex):
+            return False
+        elif isinstance(v, sp.core.expr.Expr):
+            return v.is_real
+        else:
+            return None
+
     assumptions = {}
-    if all(map(bool, (beta_i.is_real for beta_i in beta))):
+    if all(map(bool, map(is_real, beta))):
         assumptions["real"] = True
     a = tuple(sp.Symbol("_bt_ocean__finite_difference_{" + f"{i}" + "}", **assumptions)
               for i in range(N))
