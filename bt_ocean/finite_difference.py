@@ -8,7 +8,7 @@ Finite difference coefficients are found as in equation (1.19) in
 """
 
 from functools import lru_cache, partial
-from numbers import Complex, Rational, Real
+from numbers import Rational, Real
 
 import jax
 import jax.numpy as jnp
@@ -65,8 +65,6 @@ def _difference_coefficients(beta, order):
     def is_real(v):
         if isinstance(v, Real):
             return True
-        elif isinstance(v, Complex):
-            return False
         elif isinstance(v, sp.core.expr.Expr):
             return v.is_real
         else:
