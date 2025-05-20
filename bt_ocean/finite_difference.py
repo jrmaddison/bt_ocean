@@ -1,4 +1,10 @@
 """Finite difference utilities.
+
+Finite difference coefficients are found as in equation (1.19) of
+
+    - Randall J. LeVeque, 'Finite difference methods for ordinary and partial
+      differential equations', Society for Industrial and Applied Mathematics,
+      2007
 """
 
 from functools import lru_cache, partial
@@ -19,6 +25,12 @@ __all__ = \
 
 def difference_coefficients(beta, order):
     """Compute 1D finite difference coefficients of maximal order of accuracy.
+
+     Finite difference coefficients are found as in equation (1.19) of
+
+        - Randall J. LeVeque, 'Finite difference methods for ordinary and
+          partial differential equations', Society for Industrial and Applied
+          Mathematics, 2007
 
     Parameters
     ----------
