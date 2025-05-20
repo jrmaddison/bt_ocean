@@ -1,8 +1,8 @@
 """Finite difference utilities.
 """
 
-from functools import partial
-from numbers import Real
+from functools import lru_cache, partial
+from numbers import Rational
 
 import jax
 import jax.numpy as jnp
@@ -21,7 +21,7 @@ def difference_coefficients(beta, order):
     Parameters
     ----------
 
-    beta : Sequence[Real, ...]
+    beta : Sequence
         Grid location displacements.
     order : Integral
         Derivative order.
@@ -29,26 +29,39 @@ def difference_coefficients(beta, order):
     Returns
     -------
 
-    tuple[:class:`sympy.Rational`, ...]
+    tuple[:class:`sympy.core.expr.Expr`, ...]
         Finite difference coefficients.
     """
 
-    beta = tuple(map(sp.Rational, beta))
-    if not all(isinstance(beta_i, Real) for beta_i in beta):
-        raise ValueError("Invalid type")
+    def displacement_cast(v):
+        if isinstance(v, Rational):
+            return sp.Rational(v)
+        elif isinstance(v, sp.core.expr.Expr):
+            return sp.Expr(v)
+        else:
+            return v
+
+    return _difference_coefficients(tuple(map(displacement_cast, beta)), order)
+
+
+@lru_cache(maxsize=32)
+def _difference_coefficients(beta, order):
     N = len(beta)
     if order >= N:
         raise ValueError("Invalid order")
 
-    a = tuple(sp.Symbol("a_{" + f"{i}" + "}", real=True)
+    assumptions = {}
+    if all(map(bool, (beta_i.is_real for beta_i in beta))):
+        assumptions["real"] = True
+    a = tuple(sp.Symbol("_bt_ocean__finite_difference_{" + f"{i}" + "}", **assumptions)
               for i in range(N))
-    eqs = [sum((a[i] * sp.Rational(beta[i] ** j, sp.factorial(j))
+    eqs = [sum((a[i] * ((beta[i] ** j) / sp.factorial(j))
                 for i in range(N)), start=sp.Integer(0))
            for j in range(N)]
     eqs[order] -= sp.Integer(1)
 
     soln, = sp.linsolve(eqs, a)
-    return tuple(map(sp.Rational, soln))
+    return soln
 
 
 @partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion"})
@@ -115,6 +128,7 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     dtype = u.dtype.type
     i0 = -(N // 2)
     i1 = i0 + N
+    assert i1 > 0  # Insufficient points
     parity = (-1) ** order
 
     for i in range(max(0, min(i0_b, u.shape[-1] - i1_b)), max(-i0, i1 - 1)):
@@ -165,6 +179,7 @@ def diff_periodic(u, dx, order, N, *, axis=-1):
     u = jnp.moveaxis(u, axis, -1)
     i0 = -(N // 2)
     i1 = i0 + N
+    assert i1 > 0  # Insufficient points
 
     # Periodic extension
     u_e = jnp.zeros_like(u, shape=u.shape[:-1] + (u.shape[-1] + N,))
