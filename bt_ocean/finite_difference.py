@@ -10,6 +10,7 @@ import sympy as sp
 
 __all__ = \
     [
+        "difference_coefficients",
         "diff_bounded",
         "diff_periodic"
     ]
@@ -47,7 +48,7 @@ def difference_coefficients(beta, order):
 @lru_cache(maxsize=32)
 def _difference_coefficients(beta, order):
     N = len(beta)
-    if order >= N:
+    if order < 0 or order >= N:
         raise ValueError("Invalid order")
 
     assumptions = {}
@@ -66,7 +67,7 @@ def _difference_coefficients(beta, order):
 
 @partial(jax.jit, static_argnames={"order", "N", "axis", "i0", "i1", "boundary_expansion"})
 def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None):
-    """Compute a centred finite difference approximation to a derivative for
+    """Compute a centred finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Transitions to one-sided differencing as
     the end-points are approached.
@@ -103,13 +104,11 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
         Finite difference approximation.
     """
 
-    if axis < 0:
-        axis = len(u.shape) + axis
-    if axis < 0 or axis >= len(u.shape):
-        raise ValueError("Invalid axis")
+    u = jnp.moveaxis(u, axis, -1)
+
     if boundary_expansion is None:
         boundary_expansion = (order % 2) == 0
-    if u.shape[axis] < N + int(bool(boundary_expansion)):
+    if u.shape[-1] < N + int(bool(boundary_expansion)):
         raise ValueError("Insufficient points")
 
     i0_b, i1_b = i0, i1
@@ -117,13 +116,12 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
     if i0_b is None:
         i0_b = 0
     elif i0_b < 0:
-        i0_b = u.shape[axis] + i0_b
+        i0_b = u.shape[-1] + i0_b
     if i1_b is None:
-        i1_b = u.shape[axis]
+        i1_b = u.shape[-1]
     elif i1_b < 0:
-        i1_b = u.shape[axis] + i1_b
+        i1_b = u.shape[-1] + i1_b
 
-    u = jnp.moveaxis(u, axis, -1)
     v = jnp.zeros_like(u)
     dtype = u.dtype.type
     i0 = -(N // 2)
@@ -162,21 +160,18 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
 
 @partial(jax.jit, static_argnames={"order", "N", "axis"})
 def diff_periodic(u, dx, order, N, *, axis=-1):
-    """Compute a centred finite difference approximation to a derivative for
+    """Compute a centred finite difference approximation for a derivative for
     data stored on a uniform grid. Result is defined on the same grid as the
     input (i.e. without staggering). Applies periodic boundary conditions.
 
     Arguments and return value are as for :func:`.diff_bounded`.
     """
 
-    if axis < 0:
-        axis = len(u.shape) + axis
-    if axis < 0 or axis >= len(u.shape):
-        raise ValueError("Invalid axis")
-    if u.shape[axis] < N:
+    u = jnp.moveaxis(u, axis, -1)
+
+    if u.shape[-1] < N:
         raise ValueError("Insufficient points")
 
-    u = jnp.moveaxis(u, axis, -1)
     i0 = -(N // 2)
     i1 = i0 + N
     assert i1 > 0  # Insufficient points
