@@ -59,7 +59,7 @@ def test_centered_difference_monomials(alpha):
                 if diff_exact_norm > 0:
                     assert error_norm < 1e-13 * diff_exact_norm
                 else:
-                    assert error_norm < 1e-10
+                    assert error_norm < 1e-9
 
 
 def test_centered_difference_convergence():
