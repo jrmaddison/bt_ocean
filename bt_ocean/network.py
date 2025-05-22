@@ -188,13 +188,13 @@ class Dynamics(keras.layers.Layer):
             dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=8)
             return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
-        def compute_outputs(zeta):
-            dynamics = self.__dynamics.new(copy_prescribed=True)
+        @jax.jit  # dynamics must be passed by value
+        def compute_outputs(zeta, dynamics):
             dynamics.initialize(zeta * self.__input_weight)
             _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs
 
-        outputs = jax.vmap(compute_outputs)(inputs)
+        outputs = jax.vmap(compute_outputs, in_axes=(0, None))(inputs, self.__dynamics)
         return outputs
 
     def get_config(self):
