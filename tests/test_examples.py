@@ -1,8 +1,13 @@
 import jax
-import json
 import keras
-import pathlib
+try:
+    import matplotlib
+except ModuleNotFoundError:
+    matplotlib = None
 import pytest
+
+import json
+import pathlib
 import runpy
 
 
@@ -25,6 +30,7 @@ def run_example_notebook(filename, tmp_path):
     runpy.run_path(str(tmp_filename))
 
 
+@pytest.mark.skipif(matplotlib is None, reason="matplotlib not available")
 def test_0_getting_started(tmp_path):
     if not jax.config.x64_enabled:
         pytest.skip("float64 not available")
@@ -33,6 +39,7 @@ def test_0_getting_started(tmp_path):
                          tmp_path)
 
 
+@pytest.mark.skipif(matplotlib is None, reason="matplotlib not available")
 @pytest.mark.skipif(
     keras.backend.backend() != "jax",
     reason="Require Keras with the JAX backend")
@@ -44,6 +51,7 @@ def test_1_keras_integration(tmp_path):
                          tmp_path)
 
 
+@pytest.mark.skipif(matplotlib is None, reason="matplotlib not available")
 def test_2_steady_state(tmp_path):
     if not jax.config.x64_enabled:
         pytest.skip("float64 not available")
