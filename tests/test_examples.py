@@ -1,13 +1,13 @@
 import jax
-import json
 import keras
 try:
     import matplotlib
 except ModuleNotFoundError:
     matplotlib = None
-import pathlib
 import pytest
 
+import json
+import pathlib
 import runpy
 
 
