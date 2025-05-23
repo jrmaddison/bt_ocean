@@ -101,9 +101,9 @@ def order_reversed(alpha, beta):
     Returns
     -------
 
-    Sequence
+    tuple
         Reordered coefficients.
-    Sequence
+    tuple
         Reordered displacements.
     """
 
@@ -203,7 +203,7 @@ def diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansi
                 v = v.at[..., u.shape[-1] - 1 - i].add(
                     parity * alpha_j * u[..., u.shape[-1] - 1 - i - beta_j])
 
-    # Center points
+    # Interior points
     beta = tuple(range(i0, i1))
     alpha = tuple(map(dtype, difference_coefficients(beta, order)))
     if interior_order is not None:
