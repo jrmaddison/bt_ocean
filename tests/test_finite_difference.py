@@ -13,8 +13,8 @@ import sympy as sp
 def test_difference_coefficients():
     f = sp.Rational
 
-    def verify(alpha, order, beta):
-        assert difference_coefficients(alpha, order) == tuple(map(f, beta))
+    def verify(beta, order, alpha):
+        assert difference_coefficients(beta, order) == tuple(map(f, alpha))
 
     # First order derivatives
     verify((0, 1), 1, (-1, 1))
