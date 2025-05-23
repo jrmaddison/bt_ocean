@@ -194,6 +194,8 @@ class Dynamics(keras.layers.Layer):
             _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs
 
+        if len(self.non_trainable_variables) > 0:
+            raise RuntimeError("Nested networks cannot be stateful")
         outputs = jax.vmap(compute_outputs, in_axes=(0, None))(inputs, self.__dynamics)
         return outputs
 
