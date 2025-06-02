@@ -37,12 +37,8 @@ __all__ = \
         "CNAB2Solver"
     ]
 
-
-class Required:
-    pass
-
-
-required = Required()
+optional = object()
+required = object()
 
 
 class IOInterface:
@@ -85,19 +81,24 @@ class Parameters(Mapping):
     parameters : Mapping
         Model parameters.
     defaults : Mapping
-        Defines default values. The sentinel value `required` indicates that
-        a non-default value is required.
+        Defines valid keys and default values. The sentinel value `required`
+        indicates that a non-default value is required. The sentinel value
+        `optional' can be used to indicate that the parameter is optional, but
+        that no default value is required. If not supplied then all parameters
+        are assumed to be optional.
     """
 
     def __init__(self, parameters, *, defaults=None):
-        if defaults is None:
-            defaults = {}
-
         parameters = dict(parameters)
-        for key, value in defaults.items():
-            if key not in parameters and value is required:
-                raise KeyError(f"Missing parameter: '{key}'")
-            parameters.setdefault(key, value)
+        if defaults is not None:
+            for key, value in defaults.items():
+                if key not in parameters and value is required:
+                    raise KeyError(f"Missing parameter: '{key}'")
+                if value is not optional:
+                    parameters.setdefault(key, value)
+            for key in parameters:
+                if key not in defaults:
+                    raise KeyError(f"Extra parameter: '{key}'")
         self._parameters = parameters
 
     def __getitem__(self, key):
