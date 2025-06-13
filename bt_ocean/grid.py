@@ -9,6 +9,7 @@ from numbers import Real
 
 from .finite_difference import diff_bounded, order_reversed
 from .precision import default_idtype, default_fdtype
+from .pytree import PytreeNode
 
 __all__ = \
     [
@@ -19,7 +20,7 @@ __all__ = \
 diff = partial(diff_bounded, interior_order=order_reversed)
 
 
-class Grid:
+class Grid(PytreeNode):
     r"""2D grid.
 
     Parameters
@@ -346,3 +347,12 @@ class Grid:
         """
 
         return self._J(self.dx, self.dy, q, psi)
+
+    def flatten(self):
+        return ((), (self.L_x, self.L_y, self.N_x, self.N_y, self.idtype, self.fdtype))
+
+    @classmethod
+    def unflatten(cls, aux_data, children):
+        L_x, L_y, N_x, N_y, idtype, fdtype = aux_data
+        assert len(children) == 0
+        return cls(L_x, L_y, N_x, N_y, idtype=idtype, fdtype=fdtype)
