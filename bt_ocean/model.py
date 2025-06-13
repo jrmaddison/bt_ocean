@@ -23,6 +23,7 @@ from .fft import dst
 from .grid import Grid
 from .inversion import ModifiedHelmholtzSolver, PoissonSolver
 from .precision import default_idtype, default_fdtype
+from .pytree import PytreeNode
 
 __all__ = \
     [
@@ -352,7 +353,7 @@ class NanEncounteredError(Exception):
     """
 
 
-class Solver(ABC):
+class Solver(PytreeNode, ABC):
     r"""Finite difference solver for the 2D barotropic vorticity equation on a
     beta-plane,
 
@@ -450,14 +451,7 @@ class Solver(ABC):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        def flatten(model):
-            return model.flatten()
-
-        def unflatten(aux_data, children):
-            return cls.unflatten(aux_data, children)
-
         cls._registry[cls.__name__] = cls
-        jax.tree_util.register_pytree_node(cls, flatten, unflatten)
         keras.saving.register_keras_serializable(package=f"_bt_ocean__{cls.__name__}")(cls)
 
     @cached_property
