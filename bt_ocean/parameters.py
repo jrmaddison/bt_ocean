@@ -80,5 +80,5 @@ def Q(grid):
         The wind forcing term in the barotropic vorticity equation.
     """
 
-    return ((tau_0 * jnp.pi / (D * rho_0 * grid.L_y))
+    return (grid.fdtype(tau_0 * jnp.pi / (D * rho_0 * grid.L_y))
             * jnp.sin(jnp.pi * grid.Y / grid.L_y))
