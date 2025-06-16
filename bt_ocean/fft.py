@@ -36,7 +36,7 @@ def dst(u, *, axis=-1):
 
     N = u.shape[-1] - 1
     u_e = jnp.zeros_like(u, shape=u.shape[:-1] + (2 * N,))
-    u_e = u_e.at[..., :N + 1].set(-u)
+    u_e = u_e.at[..., 1:N].set(-u[..., 1:-1])
     u_e = u_e.at[..., N + 1:].set(jnp.flip(u[..., 1:-1], axis=-1))
     u_s = jnp.fft.rfft(u_e, axis=-1).imag
     u_s = u_s.at[..., 0].set(0)
