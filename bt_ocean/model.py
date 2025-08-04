@@ -266,14 +266,22 @@ class Fields(Mapping):
             Group storing the fields.
         """
 
+        if not np.can_cast(self.grid.L_x, float):
+            raise ValueError("Serialization not supported")
+        if not np.can_cast(self.grid.L_y, float):
+            raise ValueError("Serialization not supported")
+        if not np.can_cast(self.grid.N_x, int):
+            raise ValueError("Serialization not supported")
+        if not np.can_cast(self.grid.N_y, int):
+            raise ValueError("Serialization not supported")
+
         h = IOInterface(h)
         g = h.create_group(path)
         del h
-
-        g.attrs["L_x"] = self.grid.L_x
-        g.attrs["L_y"] = self.grid.L_y
-        g.attrs["N_x"] = self.grid.N_x
-        g.attrs["N_y"] = self.grid.N_y
+        g.attrs["L_x"] = float(self.grid.L_x)
+        g.attrs["L_y"] = float(self.grid.L_y)
+        g.attrs["N_x"] = int(self.grid.N_x)
+        g.attrs["N_y"] = int(self.grid.N_y)
         g.attrs["idtype"] = jnp.dtype(self.grid.idtype).name
         g.attrs["fdtype"] = jnp.dtype(self.grid.fdtype).name
 
