@@ -263,7 +263,7 @@ def gaussian_filter(input, sigma, *,
         axes = tuple(range(len(input.shape)))
     elif not isinstance(axes, Sequence):
         axes = (axes,)
-    axes = tuple(sorted(map(partial(map_axis, input), axes)))
+    axes = tuple(map(partial(map_axis, input), axes))
     if len(set(axes)) != len(axes):
         raise ValueError("Duplicated axis")
     if not isinstance(sigma, Sequence):
