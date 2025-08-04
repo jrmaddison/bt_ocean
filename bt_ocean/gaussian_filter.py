@@ -33,7 +33,7 @@ def pad(input, pad_width, *, mode="constant", cval=0):
     mode : str
         Padding type. As for :func:`scipy.ndimage.gaussian_filter1d` (SciPy
         1.16.1).
-    cval : Real
+    cval : Complex
         Value to use with `'constant'` mode.
 
     :class:`jax.Array`
@@ -80,7 +80,7 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     ----------
 
     input : :class:`jax.Array`
-        Data to filter.
+        Data to filter. Must have real dtype.
     kernel : :class:`jax.Array`
         1D convolution kernel. Must have odd length.
     mode : str
@@ -190,7 +190,7 @@ def gaussian_filter_1d(input, sigma, *,
     ----------
 
     input : :class:`jax.Array`
-        Data to filter.
+        Data to filter. Must have real dtype.
     sigma : Real
         Filter standard deviation.
     mode : str
@@ -228,7 +228,7 @@ def gaussian_filter(input, sigma, *,
     ----------
 
     input : :class:`jax.Array`
-        Data to filter.
+        Data to filter. Must have real dtype.
     sigma : Real or Sequence[Real, ...]
         Filter standard deviations.
     mode : str
