@@ -21,7 +21,7 @@ def dst(u, *, axis=-1):
     ----------
 
     u : :class:`jax.Array`
-        Field to transform.
+        Field to transform. Must have real dtype.
     axis : Integral
         Axis over which to perform the transform.
 
@@ -55,7 +55,7 @@ def idst(u_s, *, axis=-1):
     ----------
 
     u : :class:`jax.Array`
-        Field to transform.
+        Field to transform. Must have real dtype.
     axis : Integral
         Axis over which to perform the transform.
 
