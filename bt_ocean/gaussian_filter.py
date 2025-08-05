@@ -107,15 +107,13 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     input_e = pad(input, ((0, 0),) * (len(input.shape) - 1) + ((K, K),),
                   mode=mode, cval=cval)
 
-    n = max(kernel.shape[0], input_e.shape[-1])
-    input_e = jnp.zeros_like(input_e, shape=input_e.shape[:-1] + (n,)).at[..., :input_e.shape[-1]].set(input_e)
-    kernel_e = jnp.zeros_like(kernel, shape=(n,)).at[:kernel.shape[0]].set(kernel)
-
+    n = max(input_e.shape[-1], kernel.shape[0])
     # Minimum size required, see section 1.4.2 in Proakis et al 1992 (full
     # reference in docstring)
     assert n >= N + kernel.shape[0] - 1
-    input_s = jnp.fft.rfft(input_e, axis=-1)
-    kernel_s = jnp.fft.rfft(kernel_e, axis=-1)
+
+    input_s = jnp.fft.rfft(input_e, n=n, axis=-1)
+    kernel_s = jnp.fft.rfft(kernel, n=n, axis=-1)
     # Using NumPy 'general broadcasting rules'
     #    https://numpy.org/doc/stable/user/basics.broadcasting.html
     #    [accessed 2025-06-02]
