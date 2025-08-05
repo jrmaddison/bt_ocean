@@ -69,12 +69,7 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
           Rader, Fuyun Ling, and Chrysostomos L. Nikias, Macmillan Publishing
           Company, 1992
 
-    Implementation details:
-
-        - Boundary conditions are applied by extending the input.
-        - Additional zero padding is then used so that FFTs are performed on
-          inputs with a size of an exact power of two. This avoids accuracy
-          loss on some systems.
+    Boundary conditions are applied by extending the input.
 
     Parameters
     ----------
@@ -112,10 +107,7 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     input_e = pad(input, ((0, 0),) * (len(input.shape) - 1) + ((K, K),),
                   mode=mode, cval=cval)
 
-    # Zero pad up to an exact power of two
-    n = 1
-    while n < max(kernel.shape[0], input_e.shape[-1]):
-        n *= 2
+    n = max(kernel.shape[0], input_e.shape[-1])
     input_e = jnp.zeros_like(input_e, shape=input_e.shape[:-1] + (n,)).at[..., :input_e.shape[-1]].set(input_e)
     kernel_e = jnp.zeros_like(kernel, shape=(n,)).at[:kernel.shape[0]].set(kernel)
 
@@ -128,7 +120,6 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     #    https://numpy.org/doc/stable/user/basics.broadcasting.html
     #    [accessed 2025-06-02]
     output_s = input_s * kernel_s
-    # Defensively provide n here, needed for n odd
     output_e = jnp.fft.irfft(output_s, n=n, axis=-1)
     assert output_e.shape == input_e.shape
 

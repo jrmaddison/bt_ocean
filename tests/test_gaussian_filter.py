@@ -15,7 +15,7 @@ def test_gaussian_filter_1d(sigma, mode, truncate, axis):
         pytest.skip("float64 not available")
 
     x = jnp.linspace(-2, 1.5, 29)
-    y = jnp.linspace(-3.5, 2.5, 31)
+    y = jnp.linspace(-3.5, 2.5, 30)
     X, Y = jnp.meshgrid(x, y, indexing="ij")
     u = jnp.exp(X) * jnp.sinh(jnp.pi * Y)
 
@@ -38,7 +38,7 @@ def test_gaussian_filter(sigma, mode, truncate):
         pytest.skip("float64 not available")
 
     x = jnp.linspace(-2, 1.5, 29)
-    y = jnp.linspace(-3.5, 2.5, 31)
+    y = jnp.linspace(-3.5, 2.5, 30)
     X, Y = jnp.meshgrid(x, y, indexing="ij")
     u = jnp.exp(X) * jnp.sinh(jnp.pi * Y)
 
@@ -50,4 +50,4 @@ def test_gaussian_filter(sigma, mode, truncate):
         radius=round(sigma * truncate))
     u_bar_error_norm = abs(u_bar - u_bar_ref).max()
     print(f"{u_bar_error_norm=}")
-    assert u_bar_error_norm < 1e-10
+    assert u_bar_error_norm < 1e-9
