@@ -20,6 +20,7 @@ optional-dependencies.test = [
     "h5py",
     "matplotlib",
     "pytest",
+    "scipy",
     "zarr"
 ]
 optional-dependencies.lint = [
