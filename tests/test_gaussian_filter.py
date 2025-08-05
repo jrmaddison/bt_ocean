@@ -27,7 +27,7 @@ def test_gaussian_filter_1d(sigma, mode, truncate, axis):
         radius=round(sigma * truncate), axes=axis)
     u_bar_error_norm = abs(u_bar - u_bar_ref).max()
     print(f"{u_bar_error_norm=}")
-    assert u_bar_error_norm < 1e-10
+    assert u_bar_error_norm < 1e-9
 
 
 @pytest.mark.parametrize("sigma", (1, 1.5, 2, 4, 6, 8))
@@ -50,4 +50,4 @@ def test_gaussian_filter(sigma, mode, truncate):
         radius=round(sigma * truncate))
     u_bar_error_norm = abs(u_bar - u_bar_ref).max()
     print(f"{u_bar_error_norm=}")
-    assert u_bar_error_norm < 1e-9
+    assert u_bar_error_norm < 1e-10

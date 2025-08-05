@@ -6,6 +6,7 @@ from functools import partial
 
 import jax
 import jax.numpy as jnp
+from jax.scipy.signal import fftconvolve
 
 __all__ = \
     [
@@ -62,13 +63,6 @@ def pad(input, pad_width, *, mode="constant", cval=0):
 def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     """1D FFT-based convolution.
 
-    Performs a linear convolution via a discrete Fourier transform approach.
-    See section 1.4 in
-
-        - 'Advanced Digital Signal Processing', John. G. Proakis, Charles M.
-          Rader, Fuyun Ling, and Chrysostomos L. Nikias, Macmillan Publishing
-          Company, 1992
-
     Boundary conditions are applied by extending the input.
 
     Parameters
@@ -107,22 +101,11 @@ def fftconvolve_1d(input, kernel, *, mode="constant", cval=0, axis=-1):
     input_e = pad(input, ((0, 0),) * (len(input.shape) - 1) + ((K, K),),
                   mode=mode, cval=cval)
 
-    n = max(input_e.shape[-1], kernel.shape[0])
-    # Minimum size required, see section 1.4.2 in Proakis et al 1992 (full
-    # reference in docstring)
-    assert n >= N + kernel.shape[0] - 1
-
-    input_s = jnp.fft.rfft(input_e, n=n, axis=-1)
-    kernel_s = jnp.fft.rfft(kernel, n=n, axis=-1)
-    # Using NumPy 'general broadcasting rules'
-    #    https://numpy.org/doc/stable/user/basics.broadcasting.html
-    #    [accessed 2025-06-02]
-    output_s = input_s * kernel_s
-    output_e = jnp.fft.irfft(output_s, n=n, axis=-1)
+    kernel_e = jnp.reshape(kernel, (1,) * (len(input.shape) - 1) + kernel.shape)
+    output_e = fftconvolve(input_e, kernel_e, mode="same")
     assert output_e.shape == input_e.shape
 
-    # Shift by K for the boundary conditions, and by K to center the kernel
-    output = output_e[..., 2 * K:2 * K + N]
+    output = output_e[..., K:K + N]
     assert output.shape == input.shape
 
     output = jnp.swapaxes(output, -1, axis)
