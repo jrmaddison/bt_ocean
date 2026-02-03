@@ -180,6 +180,7 @@ class Dynamics(keras.layers.Layer):
     def call(self, inputs):
         @jax.checkpoint
         def step(_, dynamics):
+            dynamics = dynamics.copy()
             self.__update(dynamics, *self.__args)
             dynamics.step()
             return dynamics
@@ -188,8 +189,9 @@ class Dynamics(keras.layers.Layer):
             dynamics = jax.lax.fori_loop(0, self.__N, step, dynamics, unroll=8)
             return dynamics, dynamics.fields["zeta"] * self.__output_weight
 
-        @jax.jit  # dynamics must be passed by value
+        @jax.jit
         def compute_outputs(zeta, dynamics):
+            dynamics = dynamics.copy()
             dynamics.initialize(zeta * self.__input_weight)
             _, outputs = jax.lax.scan(compute_step_outputs, dynamics, None, length=self.__n_output)
             return outputs

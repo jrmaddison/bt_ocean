@@ -567,6 +567,7 @@ class Solver(PytreeNode, ABC):
     @staticmethod
     @jax.jit
     def _step(_, model):
+        model = model.copy()
         model.step()
         return model
 
@@ -673,6 +674,7 @@ class Solver(PytreeNode, ABC):
         @jax.jit
         def forward_step(data, args):
             _, model, it = data
+            model = model.copy()
             zeta_0 = model.fields["zeta"]
             update(model, *args)
             model.step()
@@ -846,6 +848,20 @@ class Solver(PytreeNode, ABC):
 
         self.fields.update(model.fields)
         self.n = model.n
+
+    def copy(self):
+        """Return a copy of the model.
+
+        Returns
+        -------
+
+        :class:`.Solver`
+            A copy of the model.
+        """
+
+        model = self.new()
+        model.update(self)
+        return model
 
     def flatten(self):
         """Return a JAX flattened representation.

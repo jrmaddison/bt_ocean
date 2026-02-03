@@ -21,14 +21,14 @@ def test_cnab2_autodiff_jvp(N):
     if default_fdtype() != np.float64 or not jax.config.x64_enabled:
         pytest.skip("float64 not available")
 
-    model = CNAB2Solver(model_parameters())
-
     def forward(Q_1):
+        model = CNAB2Solver(model_parameters())
         model.initialize()
         model.fields["Q"] = Q(model.grid) + Q_1
         model.steps(N)
         return model.ke()
 
+    model = CNAB2Solver(model_parameters())
     J_0, jvp = jax.linearize(forward, jnp.zeros_like(model.fields["Q"]))
 
     zeta = ((tau_0 * jnp.pi / (D * rho_0 * model.grid.L_y))
@@ -53,13 +53,14 @@ def test_cnab2_autodiff_vjp(N):
     if default_fdtype() != np.float64 or not jax.config.x64_enabled:
         pytest.skip("float64 not available")
 
-    model = CNAB2Solver(model_parameters())
-
     def forward(Q_1):
+        model = CNAB2Solver(model_parameters())
         model.initialize()
         model.fields["Q"] = Q(model.grid) + Q_1
         model.steps(N)
         return model.ke()
+
+    model = CNAB2Solver(model_parameters())
 
     J_0, vjp = jax.vjp(forward, jnp.zeros_like(model.fields["Q"]))
 
