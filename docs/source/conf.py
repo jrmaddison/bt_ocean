@@ -9,7 +9,7 @@ autoapi_type = "python"
 autoapi_dirs = ["../../bt_ocean"]
 autoapi_ignore = []
 autoapi_add_toctree_entry = False
-autoapi_options = []
+autoapi_options = ["undoc-members"]
 
 numpydoc_validation_checks = {"all", "GL08"}
 
