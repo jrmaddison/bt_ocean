@@ -1,0 +1,897 @@
+bt_ocean.diagnostics
+====================
+
+.. py:module:: bt_ocean.diagnostics
+
+.. autoapi-nested-parse::
+
+   Diagnostics.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: AverageDefinition(key, field_keys, op)
+
+   
+   Defines a quantity to be averaged.
+
+
+   :Parameters:
+
+       **key** : str
+           The key which will be used to store the average.
+
+       **field_keys** : Sequence[str, ...]
+           :class:`.Fields` keys which define arguments to `op`.
+
+       **op** : callable
+           A callable accepting zero or more :class:`jnp.Array` positional
+           arguments and returning a :class:`jnp.Array` defining the quantity to
+           be averaged.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: key
+      :type: str
+
+
+      
+      The key which will be used to store the average.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: evaluate(fields)
+
+      
+      Compute a value of the quantity to be averaged.
+
+
+      :Parameters:
+
+          **fields** : :class:`.Fields`
+              Input data.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The value of the quantity to be averaged.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: FieldAverage(field_key, *, key=None)
+
+
+
+   
+   Defines a field to be averaged.
+
+
+   :Parameters:
+
+       **field_key** : str
+           :class:`.Fields` key defining the field to be averaged.
+
+       **key** : str
+           The key which will be used to store the average. Defaults to
+           `field_key`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:class:: FieldProductAverage(field_key_a, field_key_b, *, key=None)
+
+
+
+   
+   Defines a product to be averaged.
+
+
+   :Parameters:
+
+       **field_key_a** : str
+           :class:`.Fields` key defining the first argument of the multiply to be
+           averaged.
+
+       **field_key_b** : str
+           :class:`.Fields` key defining the second argument of the multiply to be
+           averaged.
+
+       **key** : str
+           The key which will be used to store the average. Defaults to
+           `f"{field_key_a}_{field_key_b}"`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:class:: Average(grid, definitions)
+
+   
+   Averaging utility class.
+
+
+   :Parameters:
+
+       **grid** : :class:`.Grid`
+           Defines the grid on which to store averaged fields.
+
+       **definitions** : Sequence[:class:`.AverageDefinition`, ...]
+           Defines the quantities to be averaged.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: grid
+      :type: bt_ocean.grid.Grid
+
+
+      
+      Grid.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: keys()
+
+      
+      Averaged data keys.
+
+
+
+
+
+      :Returns:
+
+          Iterable[str, ...]
+              The keys.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: w
+      :type: numbers.Real
+
+
+      
+      The current sum of weights.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: zero()
+
+      
+      Reset and zero all fields.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: add(fields, *, weight=1)
+
+      
+      Add to averaged fields.
+
+
+      :Parameters:
+
+          **fields** : :class:`.Fields`
+              Input data.
+
+          **weight** : Real
+              Multiplication weight.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: averaged_fields()
+
+      
+      Return averaged fields.
+
+
+
+
+
+      :Returns:
+
+          :class:`.Fields`
+              The averaged fields.
+
+
+
+
+
+
+
+
+      .. rubric:: Notes
+
+      Computes the average by dividing summed quantities by the sum of all
+      weights.
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: append_averaged_fields(h, path='')
+
+      
+      Append averaged field data to a :class:`zarr.hierarchy.Group`.
+
+
+      :Parameters:
+
+          **h** : :class:`zarr.hierarchy.Group`
+              Parent group.
+
+          **path** : str
+              Group path.
+
+
+
+      :Returns:
+
+          :class:`zarr.hierarchy.Group`
+              Group storing the data.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: Diagnostic
+
+
+
+   
+   Defines one or more diagnostics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: names
+      :type: tuple[str, Ellipsis]
+
+      :abstractmethod:
+
+
+      
+      Diagnostic names.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values(model)
+      :abstractmethod:
+
+
+      
+      Compute diagnostic values.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+      :Returns:
+
+          tuple[object, ...]
+              Diagnostic values.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: Timestep
+
+
+
+   
+   Computes the following diagnostic:
+
+   - `'n'` : The model timestep number.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: names
+
+      
+      Diagnostic names.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values(model)
+
+      
+      Compute diagnostic values.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+      :Returns:
+
+          tuple[object, ...]
+              Diagnostic values.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: Time
+
+
+
+   
+   Computes the following diagnostic:
+
+   - `'t'` : The model time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: names
+
+      
+      Diagnostic names.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values(model)
+
+      
+      Compute diagnostic values.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+      :Returns:
+
+          tuple[object, ...]
+              Diagnostic values.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: KineticEnergy
+
+
+
+   
+   Computes the following diagnostic:
+
+   - `'ke'` : The kinetic energy, divided by density.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: names
+
+      
+      Diagnostic names.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values(model)
+
+      
+      Compute diagnostic values.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+      :Returns:
+
+          tuple[object, ...]
+              Diagnostic values.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: SeparationPoint
+
+
+
+   
+   Computes the following diagnostic:
+
+       - `'y_sep'` : The jet separation :math:`y`-coordinate, computed as the
+         the location in the central half of the domain at which the northward
+         component of the velocity, on the western boundary, changes sign.
+
+   `'y_sep'` is computed via linear interpolation between grid point values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: names
+
+      
+      Diagnostic names.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: values(model)
+
+      
+      Compute diagnostic values.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+      :Returns:
+
+          tuple[object, ...]
+              Diagnostic values.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: DiagnosticsCsv(h, diagnostics, *args, **kwargs)
+
+   
+   Output diagnostics csv file.
+
+
+   :Parameters:
+
+       **h**
+           File handle.
+
+       **diagnostics** : tuple[Diagnostic, ...]
+           Diagnostics.
+
+       **args**
+           Passed to :func:`csv.writer`.
+
+       **kwargs**
+           Passed to :func:`csv.writer`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: write(model)
+
+      
+      Write diagnostics.
+
+
+      :Parameters:
+
+          **model** : :class:`.Solver`
+              Model.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+

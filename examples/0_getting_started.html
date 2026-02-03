@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started with bt_ocean &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Getting started with bt_ocean</a><ul>
+<li><a class="reference internal" href="#Configuring-and-running-the-model">Configuring and running the model</a></li>
+<li><a class="reference internal" href="#Autodiff">Autodiff</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting started with bt_ocean</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/0_getting_started.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Getting-started-with-bt_ocean">
+<h1>Getting started with bt_ocean<a class="headerlink" href="#Getting-started-with-bt_ocean" title="Link to this heading"></a></h1>
+<p>bt_ocean is a GPU capable differentiable solver for the barotropic vorticity equation, using a finite difference discretization, for classic wind-forced Munk-Stommel ocean gyre simulations. This notebook provides an example of configuring and running the model, computing a simple diagnostics, and then differentiating the diagnostic using reverse mode autodiff.</p>
+<section id="Configuring-and-running-the-model">
+<h2>Configuring and running the model<a class="headerlink" href="#Configuring-and-running-the-model" title="Link to this heading"></a></h2>
+<p>bt_ocean includes a base set of parameters, based on parameters in</p>
+<ul class="simple">
+<li><p>David P. Marshall and Alistair J. Adcroft, ‘Parameterization of ocean eddies: Potential vorticity mixing, energetics and Arnold’s first stability theorem’, Ocean Modelling 32(3-4), pp. 188–204, 2010, <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2010.02.001">https://doi.org/10.1016/j.ocemod.2010.02.001</a></p></li>
+</ul>
+<p>The default configuration uses a reasonably high resolution and small timestep, so we here modify the parameters to use a lower resolution grid, a timestep of <span class="math notranslate nohighlight">\(30\)</span> minutes, and a larger Laplacian viscosity. All parameters are in mks units.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span>
+
+<span class="n">n_hour</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;N_x&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+                   <span class="s2">&quot;N_y&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+                   <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mi">3600</span> <span class="o">/</span> <span class="n">n_hour</span><span class="p">,</span>
+                   <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="mi">2500</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<p>We can now instantiate a solver for the barotropic vorticity equation using a CNAB2 time discretization.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CNAB2Solver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">tau_0</span><span class="p">,</span> <span class="n">rho_0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Q</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax.scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CNAB2Solver</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Before timestepping the model we need to define a wind stress. Again we can use the wind stress parameters from the base configuration – being precise we define the wind stress curl, divided by the density and thickness, <span class="math notranslate nohighlight">\(Q\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We are now ready to timestep the model. Let’s run the model for <span class="math notranslate nohighlight">\(30\)</span> days and plot the resulting transport stream function.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_day</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">n_hour</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">model</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">n_day</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">steps</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">n_day</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">n_day</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">ke</span><span class="p">()</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">model</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">n_day</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;psi&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e6</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">D</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;psi&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1.0e6</span><span class="p">,</span>
+             <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="mi">64</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+model.n // n_day=Array(5, dtype=int64, weak_type=True) model.ke()=Array(1.73523662e+10, dtype=float64)
+model.n // n_day=Array(10, dtype=int64, weak_type=True) model.ke()=Array(4.97658887e+10, dtype=float64)
+model.n // n_day=Array(15, dtype=int64, weak_type=True) model.ke()=Array(7.5591916e+10, dtype=float64)
+model.n // n_day=Array(20, dtype=int64, weak_type=True) model.ke()=Array(9.17539227e+10, dtype=float64)
+model.n // n_day=Array(25, dtype=int64, weak_type=True) model.ke()=Array(9.94710366e+10, dtype=float64)
+model.n // n_day=Array(30, dtype=int64, weak_type=True) model.ke()=Array(1.01138464e+11, dtype=float64)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x75c0b4324f80&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_0_getting_started_8_2.png" src="../_images/examples_0_getting_started_8_2.png" />
+</div>
+</div>
+<p>We can see the start of the separating jet in this low resolution double gyre configuration.</p>
+<p>Let’s compute the eastward advective potential vorticity flux one Munk width from the western boundary in the northern half of the domain. To do this we compute the eastward velocity <span class="math notranslate nohighlight">\(u\)</span>, interpolate <span class="math notranslate nohighlight">\(u\)</span> and the potential vorticity <span class="math notranslate nohighlight">\(q\)</span>, compute their product, and then use the trapezoidal rule.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">pv_flux</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="o">-</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">D_y</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;psi&quot;</span><span class="p">])</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="o">-</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_x</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">cbrt</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="n">model</span><span class="o">.</span><span class="n">beta</span><span class="p">),))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">,</span> <span class="mi">1025</span><span class="p">)</span>
+    <span class="n">u_munk</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">q_munk</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;zeta&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">trapezoid</span><span class="p">(</span><span class="n">u_munk</span> <span class="o">*</span> <span class="n">q_munk</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_flux</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+pv_flux(model)=Array(-1.15568036, dtype=float64)
+</pre></div></div>
+</div>
+</section>
+<section id="Autodiff">
+<h2>Autodiff<a class="headerlink" href="#Autodiff" title="Link to this heading"></a></h2>
+<p>Let’s compute the reverse mode derivative of this PV flux with respect to the wind stress curl profile <span class="math notranslate nohighlight">\(Q\)</span>. Since JAX differentiates pure functions we first write a function which performs the entire calculation. Here we also apply a basic reverse mode checkpointing approach, checkpointing every time step.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">checkpoint</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">CNAB2Solver</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">n_day</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pv_flux</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can now apply reverse mode autodiff.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">flux</span><span class="p">,</span> <span class="n">vjp</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vjp</span><span class="p">(</span><span class="n">forward</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">flux</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">dflux_dual</span><span class="p">,</span> <span class="o">=</span> <span class="n">vjp</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+flux=Array(-1.15568036, dtype=float64)
+</pre></div></div>
+</div>
+<p>We need to be a little careful when we plot the result, as the result of a derivative of a functional is a dual space object – it is a linear functional which maps discrete functions to values. To plot the result we need to make use of a Riesz map, which uses an inner product to define a map from linear functionals to discrete functions. Specifically if <span class="math notranslate nohighlight">\(V\)</span> is a real finite dimensional primal function space, and <span class="math notranslate nohighlight">\(g \in V^*\)</span> is a dual space derivative, then we can define an associated
+primal space gradient <span class="math notranslate nohighlight">\(g^\sharp \in V\)</span> via</p>
+<div class="math notranslate nohighlight">
+\[\forall \phi \in V \qquad g ( \phi ) = \langle g^\sharp, \phi \rangle,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\langle \cdot, \cdot \rangle\)</span> is the inner product which defines the Riesz map.</p>
+<p>Here we use the Riesz map defined by the <span class="math notranslate nohighlight">\(L^2\)</span> inner product. Conceptually, this re-weights the derivative to take account of cell areas.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dflux_primal</span> <span class="o">=</span> <span class="n">dflux_dual</span> <span class="o">/</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">W</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dflux_primal</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">dflux_primal</span><span class="p">,</span>
+             <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="mi">64</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x75c07434bd10&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_0_getting_started_16_1.png" src="../_images/examples_0_getting_started_16_1.png" />
+</div>
+</div>
+<p>If <span class="math notranslate nohighlight">\(g \in V^*\)</span> is the derivative of a functional <span class="math notranslate nohighlight">\(J : V \rightarrow \mathbb{R}\)</span> evaluated at some <span class="math notranslate nohighlight">\(Q \in V\)</span> then we have, for some direction <span class="math notranslate nohighlight">\(\eta \in V\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\frac{d}{d \alpha} J ( Q + \alpha \eta ) = g ( \eta ) = \langle g^\sharp, \eta \rangle,\]</div>
+<p>where here <span class="math notranslate nohighlight">\(\alpha\)</span> is a scalar.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Q_0</span> <span class="o">=</span> <span class="n">tau_0</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">rho_0</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">)</span>
+<span class="n">eta</span> <span class="o">=</span> <span class="n">Q_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_x</span><span class="p">))</span>
+             <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">)))</span>
+<span class="n">dflux_primal_eta</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">dflux_dual</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dflux_primal_eta</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dflux_primal_eta=Array(-0.86734156, dtype=float64)
+</pre></div></div>
+</div>
+<p>We can compare with the result from finite differencing.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">eps</span> <span class="o">=</span> <span class="mf">1.0e-5</span>
+<span class="n">dflux_primal_eta_fd</span> <span class="o">=</span> <span class="p">(</span><span class="n">forward</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">eta</span><span class="p">)</span> <span class="o">-</span> <span class="n">forward</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">eta</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">eps</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dflux_primal_eta_fd</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dflux_primal_eta</span> <span class="o">-</span> <span class="n">dflux_primal_eta_fd</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0e-9</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dflux_primal_eta_fd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dflux_primal_eta_fd=Array(-0.86734156, dtype=float64)
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

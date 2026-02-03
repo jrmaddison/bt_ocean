@@ -1,0 +1,833 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bt_ocean.model &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">bt_ocean.model</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#bt_ocean.model.required"><code class="docutils literal notranslate"><span class="pre">required</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Parameters"><code class="docutils literal notranslate"><span class="pre">Parameters</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.model.Parameters.write"><code class="docutils literal notranslate"><span class="pre">Parameters.write()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Parameters.read"><code class="docutils literal notranslate"><span class="pre">Parameters.read()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields"><code class="docutils literal notranslate"><span class="pre">Fields</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.grid"><code class="docutils literal notranslate"><span class="pre">Fields.grid</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.zero"><code class="docutils literal notranslate"><span class="pre">Fields.zero()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.clear"><code class="docutils literal notranslate"><span class="pre">Fields.clear()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.write"><code class="docutils literal notranslate"><span class="pre">Fields.write()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.read"><code class="docutils literal notranslate"><span class="pre">Fields.read()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Fields.update"><code class="docutils literal notranslate"><span class="pre">Fields.update()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.model.SteadyStateMaximumIterationsError"><code class="docutils literal notranslate"><span class="pre">SteadyStateMaximumIterationsError</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.NanEncounteredError"><code class="docutils literal notranslate"><span class="pre">NanEncounteredError</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver"><code class="docutils literal notranslate"><span class="pre">Solver</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.beta"><code class="docutils literal notranslate"><span class="pre">Solver.beta</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.nu"><code class="docutils literal notranslate"><span class="pre">Solver.nu</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.r"><code class="docutils literal notranslate"><span class="pre">Solver.r</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.dt"><code class="docutils literal notranslate"><span class="pre">Solver.dt</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.n"><code class="docutils literal notranslate"><span class="pre">Solver.n</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.grid"><code class="docutils literal notranslate"><span class="pre">Solver.grid</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.parameters"><code class="docutils literal notranslate"><span class="pre">Solver.parameters</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.fields"><code class="docutils literal notranslate"><span class="pre">Solver.fields</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.prescribed_field_keys"><code class="docutils literal notranslate"><span class="pre">Solver.prescribed_field_keys</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.poisson_solver"><code class="docutils literal notranslate"><span class="pre">Solver.poisson_solver</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.zero_prescribed"><code class="docutils literal notranslate"><span class="pre">Solver.zero_prescribed()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.initialize"><code class="docutils literal notranslate"><span class="pre">Solver.initialize()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.step"><code class="docutils literal notranslate"><span class="pre">Solver.step()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.steps"><code class="docutils literal notranslate"><span class="pre">Solver.steps()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.ke"><code class="docutils literal notranslate"><span class="pre">Solver.ke()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.ke_spectrum"><code class="docutils literal notranslate"><span class="pre">Solver.ke_spectrum()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.steady_state_solve"><code class="docutils literal notranslate"><span class="pre">Solver.steady_state_solve()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.write"><code class="docutils literal notranslate"><span class="pre">Solver.write()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.read"><code class="docutils literal notranslate"><span class="pre">Solver.read()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.new"><code class="docutils literal notranslate"><span class="pre">Solver.new()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.update"><code class="docutils literal notranslate"><span class="pre">Solver.update()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.copy"><code class="docutils literal notranslate"><span class="pre">Solver.copy()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.flatten"><code class="docutils literal notranslate"><span class="pre">Solver.flatten()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.unflatten"><code class="docutils literal notranslate"><span class="pre">Solver.unflatten()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.get_config"><code class="docutils literal notranslate"><span class="pre">Solver.get_config()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.Solver.from_config"><code class="docutils literal notranslate"><span class="pre">Solver.from_config()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.model.CNAB2Solver"><code class="docutils literal notranslate"><span class="pre">CNAB2Solver</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.model.CNAB2Solver.modified_helmholtz_solver"><code class="docutils literal notranslate"><span class="pre">CNAB2Solver.modified_helmholtz_solver</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.CNAB2Solver.initialize"><code class="docutils literal notranslate"><span class="pre">CNAB2Solver.initialize()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.CNAB2Solver.step"><code class="docutils literal notranslate"><span class="pre">CNAB2Solver.step()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.model.CNAB2Solver.steady_state_solve"><code class="docutils literal notranslate"><span class="pre">CNAB2Solver.steady_state_solve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bt_ocean.model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bt_ocean/model/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bt_ocean.model">
+<span id="bt-ocean-model"></span><h1>bt_ocean.model<a class="headerlink" href="#module-bt_ocean.model" title="Link to this heading"></a></h1>
+<p>Finite difference solvers for the 2D barotropic vorticity equation on a
+beta-plane.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="bt_ocean.model.required">
+<span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">required</span></span><a class="headerlink" href="#bt_ocean.model.required" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.model.Parameters">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">Parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Parameters" title="Link to this definition"></a></dt>
+<dd><p>Model parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameters</strong><span class="classifier">Mapping</span></dt><dd><p>Model parameters.</p>
+</dd>
+<dt><strong>defaults</strong><span class="classifier">Mapping</span></dt><dd><p>Defines valid keys and default values. The sentinel value <cite>required</cite>
+indicates that a non-default value is required. The sentinel value
+<a href="#id1"><span class="problematic" id="id2">`</span></a>optional’ can be used to indicate that the parameter is optional, but
+that no default value is required. If not supplied then all parameters
+are assumed to be optional.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Parameters.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'parameters'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Parameters.write" title="Link to this definition"></a></dt>
+<dd><p>Write parameters.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></dt><dd><p>Group storing the parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Parameters.read">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'parameters'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Parameters.read" title="Link to this definition"></a></dt>
+<dd><p>Read parameters.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#bt_ocean.model.Parameters" title="bt_ocean.model.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameters</span></code></a></dt><dd><p>The parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">Fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields" title="Link to this definition"></a></dt>
+<dd><p>Fields defined on a 2D grid.</p>
+<p>Fields values can be set using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span>
+</pre></div>
+</div>
+<p>and must be set before they can be accessed.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>grid</strong><span class="classifier"><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a></span></dt><dd><p>The 2D grid.</p>
+</dd>
+<dt><strong>keys</strong><span class="classifier">Iterable</span></dt><dd><p>Field keys.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.grid">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><span class="pre">bt_ocean.grid.Grid</span></a></span><a class="headerlink" href="#bt_ocean.model.Fields.grid" title="Link to this definition"></a></dt>
+<dd><p>The 2D grid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.zero">
+<span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields.zero" title="Link to this definition"></a></dt>
+<dd><p>Set fields equal to a zero-valued field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>keys</strong><span class="classifier">tuple</span></dt><dd><p>The keys of fields to set equal to a zero-valued field.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields.clear" title="Link to this definition"></a></dt>
+<dd><p>Clear values for fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>keep_keys</strong><span class="classifier">Iterable</span></dt><dd><p>Keys for fields which should be retained.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fields'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields.write" title="Link to this definition"></a></dt>
+<dd><p>Write fields.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></dt><dd><p>Group storing the fields.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.read">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fields'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields.read" title="Link to this definition"></a></dt>
+<dd><p>Read fields.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+<dt><strong>grid</strong><span class="classifier"><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a></span></dt><dd><p>The 2D grid.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a></dt><dd><p>The fields.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Fields.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Fields.update" title="Link to this definition"></a></dt>
+<dd><p>Update field values from the supplied <code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>d</strong><span class="classifier">Mapping</span></dt><dd><p>Key-value pairs containing the field values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="bt_ocean.model.SteadyStateMaximumIterationsError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">SteadyStateMaximumIterationsError</span></span><a class="headerlink" href="#bt_ocean.model.SteadyStateMaximumIterationsError" title="Link to this definition"></a></dt>
+<dd><p>Raised when a steady-state solve exceeds the maximum permitted number of
+iterations.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="bt_ocean.model.NanEncounteredError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">NanEncounteredError</span></span><a class="headerlink" href="#bt_ocean.model.NanEncounteredError" title="Link to this definition"></a></dt>
+<dd><p>Raised when a NaN is encountered.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">Solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">idtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prescribed_field_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver" title="Link to this definition"></a></dt>
+<dd><p>Finite difference solver for the 2D barotropic vorticity equation on a
+beta-plane,</p>
+<div class="math notranslate nohighlight">
+\[\partial_t \zeta
+    + \nabla \cdot ( (\nabla^\perp \psi) \zeta )
+    + \beta \partial_x \psi
+    = \nu \nabla^2 \zeta
+    - r \zeta
+    + Q,\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\nabla^2 \psi = \zeta,\]</div>
+<p>subject to no-normal flow and free-slip boundary conditions.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>parameters</strong><span class="classifier"><a class="reference internal" href="#bt_ocean.model.Parameters" title="bt_ocean.model.Parameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameters</span></code></a></span></dt><dd><p>Model parameters.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>‘L_x’</cite> : Defines the <span class="math notranslate nohighlight">\(x\)</span>-dimension extents, <span class="math notranslate nohighlight">\(x \in
+[ -L_x, L_x ]\)</span>.</p></li>
+<li><p><cite>‘L_y’</cite> : Defines the <span class="math notranslate nohighlight">\(y\)</span>-dimension extents, <span class="math notranslate nohighlight">\(y \in
+[ -L_y, L_y ]\)</span>.</p></li>
+<li><p><cite>‘N_x’</cite> : Number of <span class="math notranslate nohighlight">\(x\)</span>-dimension divisions.</p></li>
+<li><p><cite>‘N_y’</cite> : Number of <span class="math notranslate nohighlight">\(y\)</span>-dimension divisions.</p></li>
+<li><p><cite>‘beta’</cite> : <span class="math notranslate nohighlight">\(y\)</span> derivative of the Coriolis parameter,
+<span class="math notranslate nohighlight">\(\beta\)</span>.</p></li>
+<li><p><cite>‘nu’</cite> : Laplacian viscosity coefficient, <span class="math notranslate nohighlight">\(\nu\)</span>.</p></li>
+<li><p><cite>‘r’</cite> : Linear drag coefficient, <span class="math notranslate nohighlight">\(r\)</span>.</p></li>
+<li><p><cite>dt</cite> : Time step size.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>idtype</strong><span class="classifier">type</span></dt><dd><p>Integer scalar data type. Defaults to <a class="reference internal" href="../precision/index.html#bt_ocean.precision.default_idtype" title="bt_ocean.precision.default_idtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_idtype()</span></code></a>.</p>
+</dd>
+<dt><strong>fdtype</strong><span class="classifier">type</span></dt><dd><p>Floating point scalar data type. Defaults to <a class="reference internal" href="../precision/index.html#bt_ocean.precision.default_fdtype" title="bt_ocean.precision.default_fdtype"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_fdtype()</span></code></a>.</p>
+</dd>
+<dt><strong>field_keys</strong><span class="classifier">Iterable</span></dt><dd><p>Keys for fields. The following keys are added by default</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>‘psi’</cite> : The current stream function field.</p></li>
+<li><p><cite>‘zeta’</cite> : The current relative vorticity field.</p></li>
+<li><p><cite>‘Q’</cite> : A field defining an extra term in the vorticity equation,
+<span class="math notranslate nohighlight">\(Q\)</span>. Defaults to a zero-valued field.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>prescribed_field_keys</strong><span class="classifier">Iterable</span></dt><dd><p>Keys for fields which are prescribed, and which are not updated within
+a timestep. Defaults to <cite>{‘Q’}</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.beta">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">beta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">jax.Array</span></span><a class="headerlink" href="#bt_ocean.model.Solver.beta" title="Link to this definition"></a></dt>
+<dd><p><span class="math notranslate nohighlight">\(y\)</span> derivative of the Coriolis parameter, <span class="math notranslate nohighlight">\(\beta\)</span>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.nu">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nu</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">jax.Array</span></span><a class="headerlink" href="#bt_ocean.model.Solver.nu" title="Link to this definition"></a></dt>
+<dd><p>Laplacian viscosity coefficient, <span class="math notranslate nohighlight">\(\nu\)</span>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.r">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">r</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">jax.Array</span></span><a class="headerlink" href="#bt_ocean.model.Solver.r" title="Link to this definition"></a></dt>
+<dd><p>Linear drag coefficient, <span class="math notranslate nohighlight">\(r\)</span>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.dt">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dt</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">jax.Array</span></span><a class="headerlink" href="#bt_ocean.model.Solver.dt" title="Link to this definition"></a></dt>
+<dd><p>Time step size.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.n">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n</span></span><a class="headerlink" href="#bt_ocean.model.Solver.n" title="Link to this definition"></a></dt>
+<dd><p>The number of timesteps which have been taken.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.grid">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><span class="pre">bt_ocean.grid.Grid</span></a></span><a class="headerlink" href="#bt_ocean.model.Solver.grid" title="Link to this definition"></a></dt>
+<dd><p>2D grid.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.parameters">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bt_ocean.model.Parameters" title="bt_ocean.model.Parameters"><span class="pre">Parameters</span></a></span><a class="headerlink" href="#bt_ocean.model.Solver.parameters" title="Link to this definition"></a></dt>
+<dd><p>Model parameters.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.fields">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><span class="pre">Fields</span></a></span><a class="headerlink" href="#bt_ocean.model.Solver.fields" title="Link to this definition"></a></dt>
+<dd><p>Fields.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.prescribed_field_keys">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">prescribed_field_keys</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></span><a class="headerlink" href="#bt_ocean.model.Solver.prescribed_field_keys" title="Link to this definition"></a></dt>
+<dd><p>Keys of prescribed fields.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.poisson_solver">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">poisson_solver</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../inversion/index.html#bt_ocean.inversion.PoissonSolver" title="bt_ocean.inversion.PoissonSolver"><span class="pre">bt_ocean.inversion.PoissonSolver</span></a></span><a class="headerlink" href="#bt_ocean.model.Solver.poisson_solver" title="Link to this definition"></a></dt>
+<dd><p>Solver for the Poisson equation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.zero_prescribed">
+<span class="sig-name descname"><span class="pre">zero_prescribed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.zero_prescribed" title="Link to this definition"></a></dt>
+<dd><p>Zero prescribed fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.initialize">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zeta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.initialize" title="Link to this definition"></a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>zeta</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Initial relative vorticity field. <cite>None</cite> indicates a zero-valued
+field.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.step">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.step" title="Link to this definition"></a></dt>
+<dd><p>Take a timestep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.steps">
+<span class="sig-name descname"><span class="pre">steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.steps" title="Link to this definition"></a></dt>
+<dd><p>Take multiple timesteps. Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">jax.lax.fori_loop()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n</strong><span class="classifier">Integral</span></dt><dd><p>The number of timesteps to take.</p>
+</dd>
+<dt><strong>unroll</strong><span class="classifier">Integral</span></dt><dd><p>Passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">jax.lax.fori_loop()</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.ke">
+<span class="sig-name descname"><span class="pre">ke</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.ke" title="Link to this definition"></a></dt>
+<dd><p>The current kinetic energy, divided by density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Real</dt><dd><p>The current kinetic energy.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.ke_spectrum">
+<span class="sig-name descname"><span class="pre">ke_spectrum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.ke_spectrum" title="Link to this definition"></a></dt>
+<dd><p>The current 2D kinetic energy spectrum.</p>
+<p>Computed using a type-I DST. The spectrum is defined so that the sum of
+the spectrum equals the current kinetic energy divided by the density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></dt><dd><p>The current 2D kinetic energy spectrum.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.steady_state_solve">
+<span class="sig-name descname"><span class="pre">steady_state_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">lambda</span> <span class="pre">model,</span> <span class="pre">*args:</span> <span class="pre">...</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_min_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.steady_state_solve" title="Link to this definition"></a></dt>
+<dd><p>Timestep to steady-state.</p>
+<p>Uses timestepping to define a fixed-point iteration, and applies
+reverse mode differentiation using a two-phase approach.</p>
+<p>References:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Andreas Griewank and Andrea Walther, ‘Evaluating derivatives’,
+second edition, Society for Industrial and Applied Mathematics,
+2008, ISBN: 978-0-898716-59-7, chapter 15</p></li>
+<li><p>Bruce Christianson, ‘Reverse accumulation and attractive fixed
+points’, Optimization Methods and Software 3(4), pp. 311–326
+1994, doi: <a class="reference external" href="https://doi.org/10.1080/10556789408805572">https://doi.org/10.1080/10556789408805572</a></p></li>
+<li><p>Zico Kolter, David Duvenaud, and Matt Johnson, ‘Deep implicit
+layers - neural ODEs, deep equilibirum models, and beyond’,
+<a class="reference external" href="https://implicit-layers-tutorial.org/">https://implicit-layers-tutorial.org/</a> [accessed 2024-08-26],
+chapter 2</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>update</strong><span class="classifier">callable</span></dt><dd><p>A callable accepting a <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a> as the zeroth argument and
+the elements of <cite>m</cite> as remaining positional arguments, and which
+updates the values of control variables.</p>
+</dd>
+<dt><strong>args</strong><span class="classifier">tuple</span></dt><dd><p>Passed to <cite>update</cite>.</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">Real</span></dt><dd><p>Tolerance. The system is timestepped until</p>
+<div class="math notranslate nohighlight">
+\[\left\| \zeta_{n + 1} - \zeta_n \right\|_\infty
+    \le \varepsilon \left\| \zeta_{n + 1} \right\|_\infty,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\zeta_n\)</span> is the degree-of-freedom vector on timestep
+<span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(\varepsilon\)</span> is the tolerance.</p>
+</dd>
+<dt><strong>max_it</strong><span class="classifier">Integral</span></dt><dd><p>Maximum number of iterations.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int</dt><dd><p>The number of iterations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'solver'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.write" title="Link to this definition"></a></dt>
+<dd><p>Write solver.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></dt><dd><p>Group storing the solver.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.read">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'solver'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.read" title="Link to this definition"></a></dt>
+<dd><p>Read solver.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">h5py.Group</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></dt><dd><p>The solver.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.new">
+<span class="sig-name descname"><span class="pre">new</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_prescribed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.new" title="Link to this definition"></a></dt>
+<dd><p>Return a new <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a> with the same configuration as this
+<a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>copy_prescribed</strong><span class="classifier">bool</span></dt><dd><p>Whether to copy values of prescribed fields to the new
+<a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></dt><dd><p>The new <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.update" title="Link to this definition"></a></dt>
+<dd><p>Update the state of this <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Defines the new state of this <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.copy" title="Link to this definition"></a></dt>
+<dd><p>Return a copy of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></dt><dd><p>A copy of the model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.flatten">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.flatten" title="Link to this definition"></a></dt>
+<dd><p>Return a JAX flattened representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Sequence[Sequence[object, …], Sequence[object, …]]</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.unflatten">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">unflatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.unflatten" title="Link to this definition"></a></dt>
+<dd><p>Unpack a JAX flattened representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.get_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.Solver.from_config">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.Solver.from_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.model.CNAB2Solver">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.model.</span></span><span class="sig-name descname"><span class="pre">CNAB2Solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">idtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.CNAB2Solver" title="Link to this definition"></a></dt>
+<dd><p>Finite difference solver for the 2D barotropic vorticity equation on a
+beta-plane, using a CNAB2 time discretization.</p>
+<p>CNAB2 reference:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Uri M. Ascher, Steven J. Ruuth, and Brian T. R. Wetton,
+‘Implicit-explicit methods for time-dependent partial differential
+equations’, SIAM Journal on Numerical Analysis 32(3), 797–823, 1995,
+<a class="reference external" href="https://doi.org/10.1137/0732037">https://doi.org/10.1137/0732037</a></p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>See :class:`.Solver`.</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.model.CNAB2Solver.modified_helmholtz_solver">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modified_helmholtz_solver</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../inversion/index.html#bt_ocean.inversion.ModifiedHelmholtzSolver" title="bt_ocean.inversion.ModifiedHelmholtzSolver"><span class="pre">bt_ocean.inversion.ModifiedHelmholtzSolver</span></a></span><a class="headerlink" href="#bt_ocean.model.CNAB2Solver.modified_helmholtz_solver" title="Link to this definition"></a></dt>
+<dd><p>Modified Helmholtz solver used for the implicit time discretization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.CNAB2Solver.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zeta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.CNAB2Solver.initialize" title="Link to this definition"></a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>zeta</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Initial relative vorticity field. <cite>None</cite> indicates a zero-valued
+field.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.CNAB2Solver.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.CNAB2Solver.step" title="Link to this definition"></a></dt>
+<dd><p>Take a timestep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.model.CNAB2Solver.steady_state_solve">
+<span class="sig-name descname"><span class="pre">steady_state_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">lambda</span> <span class="pre">model,</span> <span class="pre">*args:</span> <span class="pre">...</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.model.CNAB2Solver.steady_state_solve" title="Link to this definition"></a></dt>
+<dd><p>Timestep to steady-state.</p>
+<p>Uses timestepping to define a fixed-point iteration, and applies
+reverse mode differentiation using a two-phase approach.</p>
+<p>References:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Andreas Griewank and Andrea Walther, ‘Evaluating derivatives’,
+second edition, Society for Industrial and Applied Mathematics,
+2008, ISBN: 978-0-898716-59-7, chapter 15</p></li>
+<li><p>Bruce Christianson, ‘Reverse accumulation and attractive fixed
+points’, Optimization Methods and Software 3(4), pp. 311–326
+1994, doi: <a class="reference external" href="https://doi.org/10.1080/10556789408805572">https://doi.org/10.1080/10556789408805572</a></p></li>
+<li><p>Zico Kolter, David Duvenaud, and Matt Johnson, ‘Deep implicit
+layers - neural ODEs, deep equilibirum models, and beyond’,
+<a class="reference external" href="https://implicit-layers-tutorial.org/">https://implicit-layers-tutorial.org/</a> [accessed 2024-08-26],
+chapter 2</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>update</strong><span class="classifier">callable</span></dt><dd><p>A callable accepting a <a class="reference internal" href="#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a> as the zeroth argument and
+the elements of <cite>m</cite> as remaining positional arguments, and which
+updates the values of control variables.</p>
+</dd>
+<dt><strong>args</strong><span class="classifier">tuple</span></dt><dd><p>Passed to <cite>update</cite>.</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">Real</span></dt><dd><p>Tolerance. The system is timestepped until</p>
+<div class="math notranslate nohighlight">
+\[\left\| \zeta_{n + 1} - \zeta_n \right\|_\infty
+    \le \varepsilon \left\| \zeta_{n + 1} \right\|_\infty,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\zeta_n\)</span> is the degree-of-freedom vector on timestep
+<span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(\varepsilon\)</span> is the tolerance.</p>
+</dd>
+<dt><strong>max_it</strong><span class="classifier">Integral</span></dt><dd><p>Maximum number of iterations.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int</dt><dd><p>The number of iterations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

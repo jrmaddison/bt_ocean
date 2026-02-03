@@ -1,0 +1,392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keras integration &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Keras integration</a><ul>
+<li><a class="reference internal" href="#Training-data">Training data</a></li>
+<li><a class="reference internal" href="#A-simple-Keras-model">A simple Keras model</a></li>
+<li><a class="reference internal" href="#Training">Training</a></li>
+<li><a class="reference internal" href="#Increasing-the-complexity">Increasing the complexity</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Keras integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/1_keras_integration.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Keras-integration">
+<h1>Keras integration<a class="headerlink" href="#Keras-integration" title="Link to this heading"></a></h1>
+<p>This notebook describes the combination of bt_ocean with Keras.</p>
+<p>bt_ocean allows a neural network to be used to define a right-hand-side forcing term, which can then be trained using time-dependent data. Here, to demonstrate the principles, we will consider an extremely simple case of a Keras model consisting of a single layer which simply outputs the degrees of freedom for a function – so that training reduces to the problem of finding this function. Specifically we will try to find the wind forcing term <span class="math notranslate nohighlight">\(Q\)</span> used on the right-hand-side of the
+barotropic vorticity equation. This toy problem demonstrates the key ideas – while remaining small enough to run quickly!</p>
+<section id="Training-data">
+<h2>Training data<a class="headerlink" href="#Training-data" title="Link to this heading"></a></h2>
+<p>For this simple toy problem we will run a low resolution model for a short amount of time.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CNAB2Solver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dynamics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bt_ocean.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">tau_0</span><span class="p">,</span> <span class="n">rho_0</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Q</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_floatx</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+
+<span class="n">n_hour</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;N_x&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+                   <span class="s2">&quot;N_y&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+                   <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mi">3600</span> <span class="o">/</span> <span class="n">n_hour</span><span class="p">,</span>
+                   <span class="s2">&quot;nu&quot;</span><span class="p">:</span> <span class="mi">2500</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">CNAB2Solver</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+
+<span class="n">n_day</span> <span class="o">=</span> <span class="mi">24</span> <span class="o">*</span> <span class="n">n_hour</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">n_day</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;zeta&quot;</span><span class="p">]]</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;zeta&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">n</span> <span class="o">%</span> <span class="n">n_day</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">n_day</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">ke</span><span class="p">()</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+model.n // n_day=1 model.ke()=Array(8.04060177e+08, dtype=float64)
+model.n // n_day=2 model.ke()=Array(3.14111617e+09, dtype=float64)
+model.n // n_day=3 model.ke()=Array(6.83963961e+09, dtype=float64)
+model.n // n_day=4 model.ke()=Array(1.16664391e+10, dtype=float64)
+model.n // n_day=5 model.ke()=Array(1.73523662e+10, dtype=float64)
+</pre></div></div>
+</div>
+</section>
+<section id="A-simple-Keras-model">
+<h2>A simple Keras model<a class="headerlink" href="#A-simple-Keras-model" title="Link to this heading"></a></h2>
+<p>We now set up our Keras model. To do this we first define a <code class="docutils literal notranslate"><span class="pre">keras.models.Model</span></code> which defines a map from our state to a forcing term which we add on the right-hand-side of the barotropic vorticity equation, and a callable which uses this map.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Term</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">N_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">N_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">fdtype</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">input_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__b</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__b</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<span class="n">Q_input_layer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="mi">0</span><span class="p">,))</span>
+<span class="n">Q_network</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">Q_input_layer</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">Term</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">)(</span><span class="n">Q_input_layer</span><span class="p">))</span>
+<span class="n">Q_weight</span> <span class="o">=</span> <span class="n">tau_0</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">rho_0</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">dynamics</span><span class="p">,</span> <span class="n">Q_network</span><span class="p">):</span>
+    <span class="n">dynamics</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q_weight</span> <span class="o">*</span> <span class="n">Q_network</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<p>We now set up a <code class="docutils literal notranslate"><span class="pre">Dynamics</span></code> layer. This is a custom Keras layer which represents the mapping from an initial condition, in terms of the initial vorticity fields, to dynamical trajectories, in terms of the vorticity fields evaluated at later times. The trajectories are computed by solving the barotropic vorticity equation, while being forced with an extra right-hand-side term defined by the given <code class="docutils literal notranslate"><span class="pre">keras.models.Model</span></code>.</p>
+<p>In the following we use the AdamW optimizer, but here we have only one batch of size one. In fact here we are solving a standard variational optimization problem, but without an explicit regularization term, and so for this problem it might be better to use a deterministic optimizer. We do, however, increase the learning rate.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_weight</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">N_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">N_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">W</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_x</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">beta</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">L_y</span><span class="p">)</span>
+<span class="n">dynamics_input_layer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">N_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">N_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">dynamics_layer</span> <span class="o">=</span> <span class="n">Dynamics</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">Q_network</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_output</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">output_weight</span><span class="o">=</span><span class="n">output_weight</span><span class="p">)</span>
+<span class="n">dynamics_network</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="n">dynamics_input_layer</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">dynamics_layer</span><span class="p">(</span><span class="n">dynamics_input_layer</span><span class="p">))</span>
+<span class="n">dynamics_network</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+                         <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mean_squared_error&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Training">
+<h2>Training<a class="headerlink" href="#Training" title="Link to this heading"></a></h2>
+<p>We are now ready to train. In this simple problem we simply use the full trajectory as a single input-output pair, and since we know the answer we supply no validation data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="n">output_data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">dynamics_network</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">output_data</span> <span class="o">*</span> <span class="n">output_weight</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Epoch 1/40
+1/1 - 2s - 2s/step - loss: 0.0127
+Epoch 2/40
+1/1 - 0s - 230ms/step - loss: 0.0104
+Epoch 3/40
+1/1 - 0s - 339ms/step - loss: 0.0082
+Epoch 4/40
+1/1 - 0s - 274ms/step - loss: 0.0063
+Epoch 5/40
+1/1 - 0s - 235ms/step - loss: 0.0046
+Epoch 6/40
+1/1 - 0s - 232ms/step - loss: 0.0032
+Epoch 7/40
+1/1 - 0s - 208ms/step - loss: 0.0022
+Epoch 8/40
+1/1 - 0s - 206ms/step - loss: 0.0014
+Epoch 9/40
+1/1 - 0s - 199ms/step - loss: 8.2696e-04
+Epoch 10/40
+1/1 - 0s - 215ms/step - loss: 4.9747e-04
+Epoch 11/40
+1/1 - 0s - 287ms/step - loss: 3.4275e-04
+Epoch 12/40
+1/1 - 0s - 360ms/step - loss: 3.1915e-04
+Epoch 13/40
+1/1 - 0s - 206ms/step - loss: 3.8344e-04
+Epoch 14/40
+1/1 - 0s - 270ms/step - loss: 4.9586e-04
+Epoch 15/40
+1/1 - 0s - 215ms/step - loss: 6.2267e-04
+Epoch 16/40
+1/1 - 0s - 206ms/step - loss: 7.3773e-04
+Epoch 17/40
+1/1 - 0s - 216ms/step - loss: 8.2326e-04
+Epoch 18/40
+1/1 - 0s - 302ms/step - loss: 8.6954e-04
+Epoch 19/40
+1/1 - 0s - 223ms/step - loss: 8.7397e-04
+Epoch 20/40
+1/1 - 0s - 208ms/step - loss: 8.3959e-04
+Epoch 21/40
+1/1 - 0s - 219ms/step - loss: 7.7340e-04
+Epoch 22/40
+1/1 - 0s - 226ms/step - loss: 6.8469e-04
+Epoch 23/40
+1/1 - 0s - 250ms/step - loss: 5.8354e-04
+Epoch 24/40
+1/1 - 0s - 252ms/step - loss: 4.7961e-04
+Epoch 25/40
+1/1 - 0s - 219ms/step - loss: 3.8121e-04
+Epoch 26/40
+1/1 - 0s - 228ms/step - loss: 2.9468e-04
+Epoch 27/40
+1/1 - 0s - 214ms/step - loss: 2.2413e-04
+Epoch 28/40
+1/1 - 0s - 217ms/step - loss: 1.7138e-04
+Epoch 29/40
+1/1 - 0s - 209ms/step - loss: 1.3617e-04
+Epoch 30/40
+1/1 - 0s - 226ms/step - loss: 1.1656e-04
+Epoch 31/40
+1/1 - 0s - 214ms/step - loss: 1.0943e-04
+Epoch 32/40
+1/1 - 0s - 226ms/step - loss: 1.1098e-04
+Epoch 33/40
+1/1 - 0s - 224ms/step - loss: 1.1733e-04
+Epoch 34/40
+1/1 - 0s - 214ms/step - loss: 1.2494e-04
+Epoch 35/40
+1/1 - 0s - 205ms/step - loss: 1.3095e-04
+Epoch 36/40
+1/1 - 0s - 222ms/step - loss: 1.3341e-04
+Epoch 37/40
+1/1 - 0s - 217ms/step - loss: 1.3133e-04
+Epoch 38/40
+1/1 - 0s - 220ms/step - loss: 1.2460e-04
+Epoch 39/40
+1/1 - 0s - 220ms/step - loss: 1.1387e-04
+Epoch 40/40
+1/1 - 0s - 214ms/step - loss: 1.0025e-04
+</pre></div></div>
+</div>
+<p>Let’s see how well we’ve done.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">Q_weight</span> <span class="o">*</span> <span class="n">dynamics_network</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">ref</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span>
+            <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="mi">64</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Result&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span>
+            <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="mi">64</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Reference&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">result</span> <span class="o">-</span> <span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">result</span> <span class="o">-</span> <span class="n">ref</span><span class="p">,</span>
+            <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="n">m</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-10</span><span class="p">),</span> <span class="mi">64</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;bwr&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="nb">abs</span><span class="p">((</span><span class="n">result</span> <span class="o">-</span> <span class="n">ref</span><span class="p">)[</span><span class="mi">8</span><span class="p">:</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span><span class="o">-</span><span class="mi">8</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span><span class="o">-</span><span class="mi">8</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_1_keras_integration_10_0.png" src="../_images/examples_1_keras_integration_10_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_1_keras_integration_10_1.png" src="../_images/examples_1_keras_integration_10_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_1_keras_integration_10_2.png" src="../_images/examples_1_keras_integration_10_2.png" />
+</div>
+</div>
+<p>We have a reasonable result, except at the east and west boundaries.</p>
+<p>While we might expect to do much better for this problem if we applied a deterministic optimizer, there is also a more fundamental problem here. bt_ocean applies free slip boundary conditions, meaning that the vorticity satisfies homogeneous Dirichlet boundary conditions. This means that there are perturbations we can apply to the right-hand-side (contributions to <span class="math notranslate nohighlight">\(Q\)</span>) which do not affect the dynamics – and consequently derivatives of the loss with respect to the right-hand-side forcing,
+evaluated in directions associated with these perturbations, are zero. This non-regularized inverse problem is ill-posed, and we see this here by finding that, given only the trajectory of the numerical model, we cannot recover the wind stress curl term on the boundary.</p>
+</section>
+<section id="Increasing-the-complexity">
+<h2>Increasing the complexity<a class="headerlink" href="#Increasing-the-complexity" title="Link to this heading"></a></h2>
+<p>Here we have used Keras to solve a standard variational optimization problem, by defining a very simple Keras model. However we can make the Keras model <code class="docutils literal notranslate"><span class="pre">Q_network</span></code> much more complex, and can also use the <code class="docutils literal notranslate"><span class="pre">Dynamics</span></code> layer itself as part of a more complicated ‘outer’ Keras model. That is, we can embed neural networks within bt_ocean, and can also embed bt_ocean within neural networks. The main restriction is that use of the embedded neural network (by the <code class="docutils literal notranslate"><span class="pre">update</span></code> callable in this example)
+can only change the <code class="docutils literal notranslate"><span class="pre">dynamics</span></code> argument, but cannot change other arguments (here <code class="docutils literal notranslate"><span class="pre">Q_network</span></code>) or have other side effects. This means for example that evaluating the embedded neural network cannot change the neural network itself – as occurs e.g. with batch normalization.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

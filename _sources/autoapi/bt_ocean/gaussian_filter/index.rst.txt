@@ -1,0 +1,249 @@
+bt_ocean.gaussian_filter
+========================
+
+.. py:module:: bt_ocean.gaussian_filter
+
+.. autoapi-nested-parse::
+
+   Gaussian filtering.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: pad(input, pad_width, *, mode='constant', cval=0)
+
+   
+   Array padding.
+
+
+   :Parameters:
+
+       **input** : :class:`jax.Array`
+           Array to pad.
+
+       **pad_width**
+           As for :func:`jax.numpy.pad`.
+
+       **mode** : str
+           Padding type. As for :func:`scipy.ndimage.gaussian_filter1d` (SciPy
+           1.16.1).
+
+       **cval** : Complex
+           Value to use with `'constant'` mode.
+
+       **:class:`jax.Array`**
+           Padded array.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: fftconvolve_1d(input, kernel, *, mode='constant', cval=0, axis=-1)
+
+   
+   1D FFT-based convolution.
+
+   Boundary conditions are applied by extending the input.
+
+   :Parameters:
+
+       **input** : :class:`jax.Array`
+           Data to filter. Must have real dtype.
+
+       **kernel** : :class:`jax.Array`
+           1D convolution kernel. Must have odd length.
+
+       **mode** : str
+           Boundary conditions. As for :func:`scipy.ndimage.gaussian_filter1d`
+           (SciPy 1.16.1).
+
+       **cval** : Real
+           Value to use with `'constant'` mode.
+
+       **axis** : Integral
+           Axis along which to apply the filter.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           Result of the convolution.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: gaussian_filter_kernel_1d(sigma, *, truncate=4, radius=None)
+
+   
+   Construct a 1D Gaussian filter kernel. Normalized to have unit sum after
+   truncation.
+
+
+   :Parameters:
+
+       **sigma** : Real
+           Filter standard deviation.
+
+       **truncate** : Real
+           Defines the filter 'radius', `round(sigma * truncate)`. Ignored if
+           `radius` is supplied.
+
+       **radius** : Real
+           Defines the kernel filter size, `2 * round(radius) + 1`. `truncate`
+           is ignored if supplied.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           The filter kernel.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: gaussian_filter_1d(input, sigma, *, mode='reflect', cval=0, truncate=4, radius=None, axis=-1)
+
+   
+   Apply a 1D Gaussian convolutional filter. API intended to be similar to
+   :func:`scipy.ndimage.gaussian_filter1d` (SciPy 1.16.1).
+
+
+   :Parameters:
+
+       **input** : :class:`jax.Array`
+           Data to filter. Must have real dtype.
+
+       **sigma** : Real
+           Filter standard deviation.
+
+       **mode** : str
+           Boundary conditions. As for :func:`scipy.ndimage.gaussian_filter1d`
+           (SciPy 1.16.1).
+
+       **cval** : Real
+           Value to use with `'constant'` mode.
+
+       **truncate** : Real
+           Defines the filter 'radius', `round(sigma * truncate)`. Ignored if
+           `radius` is supplied.
+
+       **radius** : Real
+           Defines the kernel filter size, `2 * round(radius) + 1`. `truncate`
+           is ignored if supplied.
+
+       **axis** : Integral
+           Axis along which to apply the filter.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           Filtered data.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: gaussian_filter(input, sigma, *, mode='reflect', cval=0, truncate=4, radius=None, axes=None)
+
+   
+   Apply a Gaussian convolutional filter. API intended to be similar to
+   :func:`scipy.ndimage.gaussian_filter` (SciPy 1.16.1).
+
+
+   :Parameters:
+
+       **input** : :class:`jax.Array`
+           Data to filter. Must have real dtype.
+
+       **sigma** : Real or Sequence[Real, ...]
+           Filter standard deviations.
+
+       **mode** : str
+           Boundary conditions. As for :func:`scipy.ndimage.gaussian_filter`
+           (SciPy 1.16.1).
+
+       **cval** : Real
+           Value to use with `'constant'` mode.
+
+       **truncate** : Real
+           Defines the filter 'radius', `round(sigma * truncate)`. Can be
+           overridden by `radius`.
+
+       **radius** : Real or Sequence[None or Real, ...]
+           Defines the kernel filter size, `2 * round(radius) + 1`. Overrides
+           `truncate` if not `None`.
+
+       **axes** : Integral or Sequence[Integral, ...]
+           Axes along which to apply the filter.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           Filtered data.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

@@ -1,0 +1,26 @@
+bt_ocean
+========
+
+.. py:module:: bt_ocean
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/bt_ocean/diagnostics/index
+   /autoapi/bt_ocean/fft/index
+   /autoapi/bt_ocean/finite_difference/index
+   /autoapi/bt_ocean/gaussian_filter/index
+   /autoapi/bt_ocean/grid/index
+   /autoapi/bt_ocean/inversion/index
+   /autoapi/bt_ocean/model/index
+   /autoapi/bt_ocean/network/index
+   /autoapi/bt_ocean/parameters/index
+   /autoapi/bt_ocean/precision/index
+   /autoapi/bt_ocean/pytree/index
+   /autoapi/bt_ocean/timing/index
+
+
