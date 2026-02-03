@@ -21,7 +21,7 @@ jobs:
       KERAS_BACKEND: jax
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: bt_ocean
       - name: Install dependencies
