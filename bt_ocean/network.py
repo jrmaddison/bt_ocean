@@ -272,9 +272,9 @@ class OnlineDataset(keras.utils.PyDataset):
             raise ValueError("Invalid length")
         if i1 is None:
             i1 = n
-        if i1 - i0 - 1 - int(shuffle) * n_output <= 0:
+        if i1 - i0 - 1 - int(bool(shuffle)) * n_output <= 0:
             raise ValueError("Invalid length")
-        if (i1 - i0 - 1 - int(shuffle) * n_output) % (n_output * batch_size) != 0:
+        if (i1 - i0 - 1 - int(bool(shuffle)) * n_output) % (n_output * batch_size) != 0:
             raise ValueError("Invalid length")
 
         super().__init__()
