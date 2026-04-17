@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bt_ocean.diagnostics &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">bt_ocean.diagnostics</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.AverageDefinition"><code class="docutils literal notranslate"><span class="pre">AverageDefinition</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.AverageDefinition.key"><code class="docutils literal notranslate"><span class="pre">AverageDefinition.key</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.AverageDefinition.evaluate"><code class="docutils literal notranslate"><span class="pre">AverageDefinition.evaluate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.FieldAverage"><code class="docutils literal notranslate"><span class="pre">FieldAverage</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.FieldProductAverage"><code class="docutils literal notranslate"><span class="pre">FieldProductAverage</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average"><code class="docutils literal notranslate"><span class="pre">Average</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.grid"><code class="docutils literal notranslate"><span class="pre">Average.grid</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.keys"><code class="docutils literal notranslate"><span class="pre">Average.keys()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.w"><code class="docutils literal notranslate"><span class="pre">Average.w</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.zero"><code class="docutils literal notranslate"><span class="pre">Average.zero()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.add"><code class="docutils literal notranslate"><span class="pre">Average.add()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.averaged_fields"><code class="docutils literal notranslate"><span class="pre">Average.averaged_fields()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Average.append_averaged_fields"><code class="docutils literal notranslate"><span class="pre">Average.append_averaged_fields()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Diagnostic"><code class="docutils literal notranslate"><span class="pre">Diagnostic</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Diagnostic.names"><code class="docutils literal notranslate"><span class="pre">Diagnostic.names</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Diagnostic.values"><code class="docutils literal notranslate"><span class="pre">Diagnostic.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Timestep"><code class="docutils literal notranslate"><span class="pre">Timestep</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Timestep.names"><code class="docutils literal notranslate"><span class="pre">Timestep.names</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Timestep.values"><code class="docutils literal notranslate"><span class="pre">Timestep.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Time"><code class="docutils literal notranslate"><span class="pre">Time</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Time.names"><code class="docutils literal notranslate"><span class="pre">Time.names</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.Time.values"><code class="docutils literal notranslate"><span class="pre">Time.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.KineticEnergy"><code class="docutils literal notranslate"><span class="pre">KineticEnergy</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.KineticEnergy.names"><code class="docutils literal notranslate"><span class="pre">KineticEnergy.names</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.KineticEnergy.values"><code class="docutils literal notranslate"><span class="pre">KineticEnergy.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.SeparationPoint"><code class="docutils literal notranslate"><span class="pre">SeparationPoint</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.SeparationPoint.names"><code class="docutils literal notranslate"><span class="pre">SeparationPoint.names</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.SeparationPoint.values"><code class="docutils literal notranslate"><span class="pre">SeparationPoint.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.DiagnosticsCsv"><code class="docutils literal notranslate"><span class="pre">DiagnosticsCsv</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.diagnostics.DiagnosticsCsv.write"><code class="docutils literal notranslate"><span class="pre">DiagnosticsCsv.write()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bt_ocean.diagnostics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bt_ocean/diagnostics/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bt_ocean.diagnostics">
+<span id="bt-ocean-diagnostics"></span><h1>bt_ocean.diagnostics<a class="headerlink" href="#module-bt_ocean.diagnostics" title="Link to this heading"></a></h1>
+<p>Diagnostics.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.AverageDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">AverageDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.AverageDefinition" title="Link to this definition"></a></dt>
+<dd><p>Defines a quantity to be averaged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key</strong><span class="classifier">str</span></dt><dd><p>The key which will be used to store the average.</p>
+</dd>
+<dt><strong>field_keys</strong><span class="classifier">Sequence[str, …]</span></dt><dd><p><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a> keys which define arguments to <cite>op</cite>.</p>
+</dd>
+<dt><strong>op</strong><span class="classifier">callable</span></dt><dd><p>A callable accepting zero or more <code class="xref py py-class docutils literal notranslate"><span class="pre">jnp.Array</span></code> positional
+arguments and returning a <code class="xref py py-class docutils literal notranslate"><span class="pre">jnp.Array</span></code> defining the quantity to
+be averaged.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.AverageDefinition.key">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">key</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bt_ocean.diagnostics.AverageDefinition.key" title="Link to this definition"></a></dt>
+<dd><p>The key which will be used to store the average.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.AverageDefinition.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.AverageDefinition.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Compute a value of the quantity to be averaged.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>fields</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a></span></dt><dd><p>Input data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></dt><dd><p>The value of the quantity to be averaged.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.FieldAverage">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">FieldAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.FieldAverage" title="Link to this definition"></a></dt>
+<dd><p>Defines a field to be averaged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>field_key</strong><span class="classifier">str</span></dt><dd><p><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a> key defining the field to be averaged.</p>
+</dd>
+<dt><strong>key</strong><span class="classifier">str</span></dt><dd><p>The key which will be used to store the average. Defaults to
+<cite>field_key</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.FieldProductAverage">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">FieldProductAverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_key_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key_b</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.FieldProductAverage" title="Link to this definition"></a></dt>
+<dd><p>Defines a product to be averaged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>field_key_a</strong><span class="classifier">str</span></dt><dd><p><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a> key defining the first argument of the multiply to be
+averaged.</p>
+</dd>
+<dt><strong>field_key_b</strong><span class="classifier">str</span></dt><dd><p><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a> key defining the second argument of the multiply to be
+averaged.</p>
+</dd>
+<dt><strong>key</strong><span class="classifier">str</span></dt><dd><p>The key which will be used to store the average. Defaults to
+<cite>f”{field_key_a}_{field_key_b}”</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">definitions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average" title="Link to this definition"></a></dt>
+<dd><p>Averaging utility class.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>grid</strong><span class="classifier"><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a></span></dt><dd><p>Defines the grid on which to store averaged fields.</p>
+</dd>
+<dt><strong>definitions</strong><span class="classifier">Sequence[<a class="reference internal" href="#bt_ocean.diagnostics.AverageDefinition" title="bt_ocean.diagnostics.AverageDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageDefinition</span></code></a>, …]</span></dt><dd><p>Defines the quantities to be averaged.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.grid">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><span class="pre">bt_ocean.grid.Grid</span></a></span><a class="headerlink" href="#bt_ocean.diagnostics.Average.grid" title="Link to this definition"></a></dt>
+<dd><p>Grid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average.keys" title="Link to this definition"></a></dt>
+<dd><p>Averaged data keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Iterable[str, …]</dt><dd><p>The keys.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.w">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">w</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numbers.Real</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Average.w" title="Link to this definition"></a></dt>
+<dd><p>The current sum of weights.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.zero">
+<span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average.zero" title="Link to this definition"></a></dt>
+<dd><p>Reset and zero all fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average.add" title="Link to this definition"></a></dt>
+<dd><p>Add to averaged fields.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>fields</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a></span></dt><dd><p>Input data.</p>
+</dd>
+<dt><strong>weight</strong><span class="classifier">Real</span></dt><dd><p>Multiplication weight.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.averaged_fields">
+<span class="sig-name descname"><span class="pre">averaged_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average.averaged_fields" title="Link to this definition"></a></dt>
+<dd><p>Return averaged fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="../model/index.html#bt_ocean.model.Fields" title="bt_ocean.model.Fields"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fields</span></code></a></dt><dd><p>The averaged fields.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Computes the average by dividing summed quantities by the sum of all
+weights.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Average.append_averaged_fields">
+<span class="sig-name descname"><span class="pre">append_averaged_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Average.append_averaged_fields" title="Link to this definition"></a></dt>
+<dd><p>Append averaged field data to a <code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>h</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></span></dt><dd><p>Parent group.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>Group path.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">zarr.hierarchy.Group</span></code></dt><dd><p>Group storing the data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Diagnostic">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Diagnostic</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Diagnostic" title="Link to this definition"></a></dt>
+<dd><p>Defines one or more diagnostics.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Diagnostic.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bt_ocean.diagnostics.Diagnostic.names" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Abstractmethod<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Diagnostic names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Diagnostic.values">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Diagnostic.values" title="Link to this definition"></a></dt>
+<dd><p>Compute diagnostic values.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[object, …]</dt><dd><p>Diagnostic values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Timestep">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Timestep</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Timestep" title="Link to this definition"></a></dt>
+<dd><p>Computes the following diagnostic:</p>
+<ul class="simple">
+<li><p><cite>‘n’</cite> : The model timestep number.</p></li>
+</ul>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Timestep.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Timestep.names" title="Link to this definition"></a></dt>
+<dd><p>Diagnostic names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Timestep.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Timestep.values" title="Link to this definition"></a></dt>
+<dd><p>Compute diagnostic values.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[object, …]</dt><dd><p>Diagnostic values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Time">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Time</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Time" title="Link to this definition"></a></dt>
+<dd><p>Computes the following diagnostic:</p>
+<ul class="simple">
+<li><p><cite>‘t’</cite> : The model time.</p></li>
+</ul>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Time.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bt_ocean.diagnostics.Time.names" title="Link to this definition"></a></dt>
+<dd><p>Diagnostic names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.Time.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.Time.values" title="Link to this definition"></a></dt>
+<dd><p>Compute diagnostic values.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[object, …]</dt><dd><p>Diagnostic values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.KineticEnergy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">KineticEnergy</span></span><a class="headerlink" href="#bt_ocean.diagnostics.KineticEnergy" title="Link to this definition"></a></dt>
+<dd><p>Computes the following diagnostic:</p>
+<ul class="simple">
+<li><p><cite>‘ke’</cite> : The kinetic energy, divided by density.</p></li>
+</ul>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.KineticEnergy.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bt_ocean.diagnostics.KineticEnergy.names" title="Link to this definition"></a></dt>
+<dd><p>Diagnostic names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.KineticEnergy.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.KineticEnergy.values" title="Link to this definition"></a></dt>
+<dd><p>Compute diagnostic values.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[object, …]</dt><dd><p>Diagnostic values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.SeparationPoint">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">SeparationPoint</span></span><a class="headerlink" href="#bt_ocean.diagnostics.SeparationPoint" title="Link to this definition"></a></dt>
+<dd><p>Computes the following diagnostic:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>‘y_sep’</cite> : The jet separation <span class="math notranslate nohighlight">\(y\)</span>-coordinate, computed as the
+the location in the central half of the domain at which the northward
+component of the velocity, on the western boundary, changes sign.</p></li>
+</ul>
+</div></blockquote>
+<p><cite>‘y_sep’</cite> is computed via linear interpolation between grid point values.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.SeparationPoint.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bt_ocean.diagnostics.SeparationPoint.names" title="Link to this definition"></a></dt>
+<dd><p>Diagnostic names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.SeparationPoint.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.SeparationPoint.values" title="Link to this definition"></a></dt>
+<dd><p>Compute diagnostic values.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[object, …]</dt><dd><p>Diagnostic values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.DiagnosticsCsv">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.diagnostics.</span></span><span class="sig-name descname"><span class="pre">DiagnosticsCsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.DiagnosticsCsv" title="Link to this definition"></a></dt>
+<dd><p>Output diagnostics csv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>h</strong></dt><dd><p>File handle.</p>
+</dd>
+<dt><strong>diagnostics</strong><span class="classifier">tuple[Diagnostic, …]</span></dt><dd><p>Diagnostics.</p>
+</dd>
+<dt><strong>args</strong></dt><dd><p>Passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">csv.writer()</span></code>.</p>
+</dd>
+<dt><strong>kwargs</strong></dt><dd><p>Passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">csv.writer()</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.diagnostics.DiagnosticsCsv.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.diagnostics.DiagnosticsCsv.write" title="Link to this definition"></a></dt>
+<dd><p>Write diagnostics.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>model</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>Model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

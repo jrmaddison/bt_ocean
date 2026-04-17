@@ -1,0 +1,86 @@
+bt_ocean.fft
+============
+
+.. py:module:: bt_ocean.fft
+
+.. autoapi-nested-parse::
+
+   FFT utilities.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: dst(u, *, axis=-1)
+
+   
+   Type-I discrete sine transform.
+
+
+   :Parameters:
+
+       **u** : :class:`jax.Array`
+           Field to transform. Must have real dtype.
+
+       **axis** : Integral
+           Axis over which to perform the transform.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           The result of the transform. Has the same shape as `u`.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: idst(u_s, *, axis=-1)
+
+   
+   Type-I discrete sine transform inverse. Inverse of :func:`.dst`.
+
+
+   :Parameters:
+
+       **u** : :class:`jax.Array`
+           Field to transform. Must have real dtype.
+
+       **axis** : Integral
+           Axis over which to perform the transform.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           The result of the transform. Has the same shape as `u`.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

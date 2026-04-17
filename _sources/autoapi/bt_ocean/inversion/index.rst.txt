@@ -1,0 +1,151 @@
+bt_ocean.inversion
+==================
+
+.. py:module:: bt_ocean.inversion
+
+.. autoapi-nested-parse::
+
+   Linear solvers.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: ModifiedHelmholtzSolver(grid, alpha, beta=1)
+
+   
+   Solver for the 2D modified Helmholtz equation,
+
+   .. math::
+
+       ( \beta ( \partial_{xx} + \partial_{yy} ) - \alpha  ) u = b,
+
+   subject to homogeneous Dirichlet boundary conditions, using a finite
+   difference discretization.
+
+   :Parameters:
+
+       **grid** : :class:`.Grid`
+           The 2D grid.
+
+       **alpha** : Real
+           :math:`\alpha`.
+
+       **beta** : Real
+           :math:`\beta`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: grid
+      :type: bt_ocean.grid.Grid
+
+
+      
+      The 2D grid.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: solve(b)
+
+      
+      Solve the linear system.
+
+
+      :Parameters:
+
+          **b** : :class:`jax.Array`
+              Defines :math:`b` appearing on the right-hand-side. An ndim 2
+              array.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The solution :math:`u`. An ndim 2 array.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:class:: PoissonSolver(grid)
+
+
+
+   
+   Solver for the 2D Poisson equation,
+
+   .. math::
+
+       ( \partial_{xx} + \partial_{yy} ) u = b,
+
+   subject to homogeneous Dirichlet boundary conditions, using a finite
+   difference discretization.
+
+   :Parameters:
+
+       **grid** : :class:`.Grid`
+           The 2D grid.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

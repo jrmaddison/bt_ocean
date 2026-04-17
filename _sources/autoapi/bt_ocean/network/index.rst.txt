@@ -1,0 +1,244 @@
+bt_ocean.network
+================
+
+.. py:module:: bt_ocean.network
+
+.. autoapi-nested-parse::
+
+   Keras utilities.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Scale(**kwargs)
+
+
+
+   
+   A layer which multiplies by a constant trainable weight.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: call(inputs)
+
+
+   .. py:method:: build(input_shape)
+
+
+.. py:class:: KroneckerProduct(shape_a, shape_b, activation, *, symmetric=False, bias=True, **kwargs)
+
+
+
+   
+   A layer where the weights matrix has Kronecker product structure.
+
+
+   :Parameters:
+
+       **shape_a** : tuple[Integral, Integral]
+           Defines the input shape.
+
+       **shape_b** : tuple[Integral, Integral]
+           Defines the output shape.
+
+       **symmetric** : bool
+           Whether to enforce reflectional symmetry.
+
+       **bias** : bool
+           Whether to include a bias term.
+
+       **activation**
+           Defines the activation function.
+
+       **kwargs** : dict
+           Passed to the base class constructor.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: call(inputs)
+
+
+   .. py:method:: build(input_shape)
+
+
+.. py:class:: Dynamics(dynamics, update, *args, N=1, n_output=1, input_weight=1, output_weight=1, **kwargs)
+
+
+
+   
+   Defines a layer consisting of a dynamical solver.
+
+
+   :Parameters:
+
+       **dynamics** : :class:`.Solver`
+           The dynamical solver.
+
+       **update** : callable
+           Passed `dynamics` and any arguments defined by `args`, and should
+           update the state of `dynamics`. Evaluated before taking each timestep.
+           Must have no side effects other than to modify `dynamics`.
+
+       **args** : tuple
+           Passed as remaining arguments to `update`.
+
+       **N** : Integral
+           The number of timesteps to take using the dynamical solver between each
+           output.
+
+       **n_output** : Integral
+           The number of outputs.
+
+       **input_weight** : Real or :class:`jax.Array`
+           Weight by which to scale each input.
+
+       **output_weight** : Real or :class:`jax.Array`
+           Weight by which to scale each output.
+
+
+
+
+
+
+
+
+
+   .. warning::
+
+       The `update` callable can modify the `dynamics` argument, but must not
+       change any elements of `args`, and must have no other side effects. This
+       e.g. means that batch normalization cannot be used in a nested neural
+       network.
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:method:: register_update(key)
+      :classmethod:
+
+
+      
+      Decorator for registration of an `update` callable. Required for
+      :class:`.Dynamics` serialization.
+
+
+      :Parameters:
+
+          **key** : str
+              Key to associated with the `update` callable.
+
+
+
+      :Returns:
+
+          callable
+              ..
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: compute_output_shape(input_shape)
+
+
+   .. py:method:: call(inputs)
+
+
+   .. py:method:: get_config()
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: from_config(config)
+      :classmethod:
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+

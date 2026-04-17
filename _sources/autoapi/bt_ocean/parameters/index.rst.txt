@@ -1,0 +1,88 @@
+bt_ocean.parameters
+===================
+
+.. py:module:: bt_ocean.parameters
+
+.. autoapi-nested-parse::
+
+   A set of base model parameters. Physical parameters (excluding the viscous
+   parameter, bottom drag, and density) are from
+
+       - David P. Marshall and Alistair J. Adcroft, 'Parameterization of ocean
+         eddies: Potential vorticity mixing, energetics and Arnold's first
+         stability theorem', Ocean Modelling 32(3-4), pp. 188--204, 2010,
+         https://doi.org/10.1016/j.ocemod.2010.02.001
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:data:: n_hour
+   :value: 30
+
+
+.. py:data:: n_day
+   :value: 720
+
+
+.. py:data:: n_year
+   :value: 262800
+
+
+.. py:data:: parameters
+
+.. py:data:: rho_0
+   :value: 1000.0
+
+
+.. py:data:: D
+   :value: 500.0
+
+
+.. py:data:: tau_0
+   :value: 0.1
+
+
+.. py:function:: Q(grid)
+
+   
+   Wind forcing term in the barotropic vorticity equation. Follows from
+   the equation at the start of section 4.2 in
+
+       - David P. Marshall and Alistair J. Adcroft, 'Parameterization of ocean
+         eddies: Potential vorticity mixing, energetics and Arnold's first
+         stability theorem', Ocean Modelling 32(3-4), pp. 188--204, 2010,
+         https://doi.org/10.1016/j.ocemod.2010.02.001
+
+   :Parameters:
+
+       **grid** : :class:`.Grid`
+           The 2D grid.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           The wind forcing term in the barotropic vorticity equation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

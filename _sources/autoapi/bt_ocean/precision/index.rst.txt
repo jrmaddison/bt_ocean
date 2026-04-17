@@ -1,0 +1,72 @@
+bt_ocean.precision
+==================
+
+.. py:module:: bt_ocean.precision
+
+.. autoapi-nested-parse::
+
+   Precision utilities.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: default_idtype()
+
+   
+   Return the default integer scalar data type.
+
+
+
+
+
+   :Returns:
+
+       type
+           The default integer scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: default_fdtype()
+
+   
+   Return the default floating point scalar data type.
+
+
+
+
+
+   :Returns:
+
+       type
+           The default floating point scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

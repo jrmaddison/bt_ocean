@@ -1,0 +1,701 @@
+bt_ocean.grid
+=============
+
+.. py:module:: bt_ocean.grid
+
+.. autoapi-nested-parse::
+
+   2D grids.
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Grid(L_x, L_y, N_x, N_y, *, idtype=None, fdtype=None)
+
+
+
+   
+   2D grid.
+
+
+   :Parameters:
+
+       **L_x** : Real
+           Defines the :math:`x`-dimension extents, :math:`x \in [ -L_x, L_x ]`.
+
+       **L_y** : Real
+           Defines the :math:`y`-dimension extents, :math:`y \in [ -L_y, L_y ]`.
+
+       **N_x** : Integral
+           Number of :math:`x`-dimension divisions.
+
+       **N_y** : Integral
+           Number of :math:`y`-dimension divisions.
+
+       **idtype** : type
+           Integer scalar data type. Defaults to :func:`.default_idtype()`.
+
+       **fdtype** : type
+           Floating point scalar data type. Defaults to :func:`.default_fdtype()`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:property:: L_x
+      :type: numbers.Real
+
+
+      
+      Defines the :math:`x`-dimension extents, :math:`x \in
+      [ -L_x, L_x ]`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: L_y
+      :type: numbers.Real
+
+
+      
+      Defines the :math:`y`-dimension extents, :math:`y \in
+      [ -L_y, L_y ]`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: idtype
+      :type: type
+
+
+      
+      Integer scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: fdtype
+      :type: type
+
+
+      
+      Floating point scalar data type.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: N_x
+      :type: int
+
+
+      
+      Number of :math:`x`-dimension divisions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: N_y
+      :type: int
+
+
+      
+      Number of :math:`y`-dimension divisions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: x
+      :type: jax.Array
+
+
+      
+      :math:`x`-coordinates.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: y
+      :type: jax.Array
+
+
+      
+      :math:`y`-coordinates.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: X
+      :type: jax.Array
+
+
+      
+      Grid :math:`x`-coordinates.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: Y
+      :type: jax.Array
+
+
+      
+      Grid :math:`y`-coordinates.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: interpolate(u, x, y, *, extrapolate=False)
+
+      
+      Bilinearly interpolate onto a grid.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Array of grid point values.
+
+          **x** : :class:`jax.Array`
+              :math:`x`-coordinates.
+
+          **y** : :class:`jax.Array`
+              :math:`y`-coordinates.
+
+          **extrapolate** : bool
+              Whether to allow extrapolation.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              Array of values on the grid.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: dx
+      :type: numbers.Real
+
+
+      
+      :math:`x`-dimension grid spacing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: dy
+      :type: numbers.Real
+
+
+      
+      :math:`y`-dimension grid spacing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:property:: W
+      :type: jax.Array
+
+
+      
+      Integration matrix diagonal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: D_x(u, *, boundary=True)
+
+      
+      Compute an :math:`x`-direction first derivative.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Field to differentiate.
+
+          **boundary** : bool
+              Whether to compute the derivative on the left and right boundaries.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The derivative.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: D_y(u, boundary=True)
+
+      
+      Compute a :math:`y`-direction first derivative.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Field to differentiate.
+
+          **boundary** : bool
+              Whether to compute the derivative on the top and bottom boundaries.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The derivative.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: D_xx(u, boundary=True)
+
+      
+      Compute an :math:`x`-direction second derivative.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Field to differentiate.
+
+          **boundary** : bool
+              Whether to compute the derivative on the left and right boundaries.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The derivative.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: D_yy(u, boundary=True)
+
+      
+      Compute a :math:`y`-direction second derivative.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Field to differentiate.
+
+          **boundary** : bool
+              Whether to compute the derivative on the top and bottom boundaries.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The derivative.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: integrate(u)
+
+      
+      Compute the integral of a field.
+
+
+      :Parameters:
+
+          **u** : :class:`jax.Array`
+              Field to integrate.
+
+
+
+      :Returns:
+
+          :class:`jax.Array`
+              The integral.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: J(q, psi)
+
+      
+      Arakawa Jacobian, using equations (36)--(38), (40), and (44) in
+
+      - Akio Arakawa, 'Computational design for long-term numerical
+        integration of the equations of fluid motion: two-dimensional
+        incompressible flow. Part I', Journal of Computational Physics
+        1(1), 119--143, 1966
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: flatten()
+
+      
+      Return a JAX flattened representation.
+
+
+
+
+
+      :Returns:
+
+          Sequence[Sequence[object, ...], Sequence[object, ...]]
+              The JAX flattened representation.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: unflatten(aux_data, children)
+      :classmethod:
+
+
+      
+      Unpack a JAX flattened representation.
+
+
+
+
+
+      :Returns:
+
+          object
+              The unpacked object.
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+

@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bt_ocean.network &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">bt_ocean.network</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#bt_ocean.network.Scale"><code class="docutils literal notranslate"><span class="pre">Scale</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.network.Scale.call"><code class="docutils literal notranslate"><span class="pre">Scale.call()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.Scale.build"><code class="docutils literal notranslate"><span class="pre">Scale.build()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.network.KroneckerProduct"><code class="docutils literal notranslate"><span class="pre">KroneckerProduct</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.network.KroneckerProduct.call"><code class="docutils literal notranslate"><span class="pre">KroneckerProduct.call()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.KroneckerProduct.build"><code class="docutils literal notranslate"><span class="pre">KroneckerProduct.build()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics"><code class="docutils literal notranslate"><span class="pre">Dynamics</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics.register_update"><code class="docutils literal notranslate"><span class="pre">Dynamics.register_update()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics.compute_output_shape"><code class="docutils literal notranslate"><span class="pre">Dynamics.compute_output_shape()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics.call"><code class="docutils literal notranslate"><span class="pre">Dynamics.call()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics.get_config"><code class="docutils literal notranslate"><span class="pre">Dynamics.get_config()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.network.Dynamics.from_config"><code class="docutils literal notranslate"><span class="pre">Dynamics.from_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bt_ocean.network</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bt_ocean/network/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bt_ocean.network">
+<span id="bt-ocean-network"></span><h1>bt_ocean.network<a class="headerlink" href="#module-bt_ocean.network" title="Link to this heading"></a></h1>
+<p>Keras utilities.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.network.Scale">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.network.</span></span><span class="sig-name descname"><span class="pre">Scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Scale" title="Link to this definition"></a></dt>
+<dd><p>A layer which multiplies by a constant trainable weight.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Scale.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Scale.call" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Scale.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Scale.build" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.network.KroneckerProduct">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.network.</span></span><span class="sig-name descname"><span class="pre">KroneckerProduct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.KroneckerProduct" title="Link to this definition"></a></dt>
+<dd><p>A layer where the weights matrix has Kronecker product structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>shape_a</strong><span class="classifier">tuple[Integral, Integral]</span></dt><dd><p>Defines the input shape.</p>
+</dd>
+<dt><strong>shape_b</strong><span class="classifier">tuple[Integral, Integral]</span></dt><dd><p>Defines the output shape.</p>
+</dd>
+<dt><strong>symmetric</strong><span class="classifier">bool</span></dt><dd><p>Whether to enforce reflectional symmetry.</p>
+</dd>
+<dt><strong>bias</strong><span class="classifier">bool</span></dt><dd><p>Whether to include a bias term.</p>
+</dd>
+<dt><strong>activation</strong></dt><dd><p>Defines the activation function.</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>Passed to the base class constructor.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.KroneckerProduct.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.KroneckerProduct.call" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.KroneckerProduct.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.KroneckerProduct.build" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.network.</span></span><span class="sig-name descname"><span class="pre">Dynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics" title="Link to this definition"></a></dt>
+<dd><p>Defines a layer consisting of a dynamical solver.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>dynamics</strong><span class="classifier"><a class="reference internal" href="../model/index.html#bt_ocean.model.Solver" title="bt_ocean.model.Solver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solver</span></code></a></span></dt><dd><p>The dynamical solver.</p>
+</dd>
+<dt><strong>update</strong><span class="classifier">callable</span></dt><dd><p>Passed <cite>dynamics</cite> and any arguments defined by <cite>args</cite>, and should
+update the state of <cite>dynamics</cite>. Evaluated before taking each timestep.
+Must have no side effects other than to modify <cite>dynamics</cite>.</p>
+</dd>
+<dt><strong>args</strong><span class="classifier">tuple</span></dt><dd><p>Passed as remaining arguments to <cite>update</cite>.</p>
+</dd>
+<dt><strong>N</strong><span class="classifier">Integral</span></dt><dd><p>The number of timesteps to take using the dynamical solver between each
+output.</p>
+</dd>
+<dt><strong>n_output</strong><span class="classifier">Integral</span></dt><dd><p>The number of outputs.</p>
+</dd>
+<dt><strong>input_weight</strong><span class="classifier">Real or <code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Weight by which to scale each input.</p>
+</dd>
+<dt><strong>output_weight</strong><span class="classifier">Real or <code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Weight by which to scale each output.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <cite>update</cite> callable can modify the <cite>dynamics</cite> argument, but must not
+change any elements of <cite>args</cite>, and must have no other side effects. This
+e.g. means that batch normalization cannot be used in a nested neural
+network.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics.register_update">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">register_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics.register_update" title="Link to this definition"></a></dt>
+<dd><p>Decorator for registration of an <cite>update</cite> callable. Required for
+<a class="reference internal" href="#bt_ocean.network.Dynamics" title="bt_ocean.network.Dynamics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dynamics</span></code></a> serialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key</strong><span class="classifier">str</span></dt><dd><p>Key to associated with the <cite>update</cite> callable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>callable</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics.compute_output_shape">
+<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics.compute_output_shape" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics.call" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics.get_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.network.Dynamics.from_config">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.network.Dynamics.from_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

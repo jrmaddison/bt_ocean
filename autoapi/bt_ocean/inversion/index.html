@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bt_ocean.inversion &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">bt_ocean.inversion</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#bt_ocean.inversion.ModifiedHelmholtzSolver"><code class="docutils literal notranslate"><span class="pre">ModifiedHelmholtzSolver</span></code></a><ul>
+<li><a class="reference internal" href="#bt_ocean.inversion.ModifiedHelmholtzSolver.grid"><code class="docutils literal notranslate"><span class="pre">ModifiedHelmholtzSolver.grid</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.inversion.ModifiedHelmholtzSolver.solve"><code class="docutils literal notranslate"><span class="pre">ModifiedHelmholtzSolver.solve()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bt_ocean.inversion.PoissonSolver"><code class="docutils literal notranslate"><span class="pre">PoissonSolver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bt_ocean.inversion</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bt_ocean/inversion/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bt_ocean.inversion">
+<span id="bt-ocean-inversion"></span><h1>bt_ocean.inversion<a class="headerlink" href="#module-bt_ocean.inversion" title="Link to this heading"></a></h1>
+<p>Linear solvers.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.inversion.ModifiedHelmholtzSolver">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.inversion.</span></span><span class="sig-name descname"><span class="pre">ModifiedHelmholtzSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.inversion.ModifiedHelmholtzSolver" title="Link to this definition"></a></dt>
+<dd><p>Solver for the 2D modified Helmholtz equation,</p>
+<div class="math notranslate nohighlight">
+\[( \beta ( \partial_{xx} + \partial_{yy} ) - \alpha  ) u = b,\]</div>
+<p>subject to homogeneous Dirichlet boundary conditions, using a finite
+difference discretization.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>grid</strong><span class="classifier"><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a></span></dt><dd><p>The 2D grid.</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">Real</span></dt><dd><p><span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+</dd>
+<dt><strong>beta</strong><span class="classifier">Real</span></dt><dd><p><span class="math notranslate nohighlight">\(\beta\)</span>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bt_ocean.inversion.ModifiedHelmholtzSolver.grid">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><span class="pre">bt_ocean.grid.Grid</span></a></span><a class="headerlink" href="#bt_ocean.inversion.ModifiedHelmholtzSolver.grid" title="Link to this definition"></a></dt>
+<dd><p>The 2D grid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bt_ocean.inversion.ModifiedHelmholtzSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.inversion.ModifiedHelmholtzSolver.solve" title="Link to this definition"></a></dt>
+<dd><p>Solve the linear system.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>b</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Defines <span class="math notranslate nohighlight">\(b\)</span> appearing on the right-hand-side. An ndim 2
+array.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></dt><dd><p>The solution <span class="math notranslate nohighlight">\(u\)</span>. An ndim 2 array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bt_ocean.inversion.PoissonSolver">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bt_ocean.inversion.</span></span><span class="sig-name descname"><span class="pre">PoissonSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.inversion.PoissonSolver" title="Link to this definition"></a></dt>
+<dd><p>Solver for the 2D Poisson equation,</p>
+<div class="math notranslate nohighlight">
+\[( \partial_{xx} + \partial_{yy} ) u = b,\]</div>
+<p>subject to homogeneous Dirichlet boundary conditions, using a finite
+difference discretization.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>grid</strong><span class="classifier"><a class="reference internal" href="../grid/index.html#bt_ocean.grid.Grid" title="bt_ocean.grid.Grid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid</span></code></a></span></dt><dd><p>The 2D grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

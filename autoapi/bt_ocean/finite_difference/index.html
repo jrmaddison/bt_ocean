@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bt_ocean.finite_difference &mdash; bt_ocean  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=3b5de6fd" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bt_ocean
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">bt_ocean.finite_difference</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#bt_ocean.finite_difference.difference_coefficients"><code class="docutils literal notranslate"><span class="pre">difference_coefficients()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.finite_difference.order_reversed"><code class="docutils literal notranslate"><span class="pre">order_reversed()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.finite_difference.diff_bounded"><code class="docutils literal notranslate"><span class="pre">diff_bounded()</span></code></a></li>
+<li><a class="reference internal" href="#bt_ocean.finite_difference.diff_periodic"><code class="docutils literal notranslate"><span class="pre">diff_periodic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bt_ocean</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bt_ocean.finite_difference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bt_ocean/finite_difference/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bt_ocean.finite_difference">
+<span id="bt-ocean-finite-difference"></span><h1>bt_ocean.finite_difference<a class="headerlink" href="#module-bt_ocean.finite_difference" title="Link to this heading"></a></h1>
+<p>Finite difference utilities.</p>
+<p>Finite difference coefficients are found as in equation (1.19) in</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Randall J. LeVeque, ‘Finite difference methods for ordinary and partial
+differential equations’, Society for Industrial and Applied Mathematics,
+2007</p></li>
+</ul>
+</div></blockquote>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bt_ocean.finite_difference.difference_coefficients">
+<span class="sig-prename descclassname"><span class="pre">bt_ocean.finite_difference.</span></span><span class="sig-name descname"><span class="pre">difference_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.finite_difference.difference_coefficients" title="Link to this definition"></a></dt>
+<dd><p>Compute 1D finite difference coefficients of maximal order of accuracy.</p>
+<blockquote>
+<div><p>Finite difference coefficients are found as in equation (1.19) in</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Randall J. LeVeque, ‘Finite difference methods for ordinary and
+partial differential equations’, Society for Industrial and Applied
+Mathematics, 2007</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>beta</strong><span class="classifier">Sequence</span></dt><dd><p>Grid location displacements.</p>
+</dd>
+<dt><strong>order</strong><span class="classifier">Integral</span></dt><dd><p>Derivative order.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple</dt><dd><p>Finite difference coefficients.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bt_ocean.finite_difference.order_reversed">
+<span class="sig-prename descclassname"><span class="pre">bt_ocean.finite_difference.</span></span><span class="sig-name descname"><span class="pre">order_reversed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.finite_difference.order_reversed" title="Link to this definition"></a></dt>
+<dd><p>Defines a reversed grid point ordering. Can be used as the
+<cite>interior_order</cite> or <cite>boundary_order</cite> argument for <a class="reference internal" href="#bt_ocean.finite_difference.diff_bounded" title="bt_ocean.finite_difference.diff_bounded"><code class="xref py py-func docutils literal notranslate"><span class="pre">diff_bounded()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>alpha</strong><span class="classifier">Sequence</span></dt><dd><p>Coefficients.</p>
+</dd>
+<dt><strong>beta</strong><span class="classifier">Sequence</span></dt><dd><p>Displacements</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple</dt><dd><p>Reordered coefficients.</p>
+</dd>
+<dt>tuple</dt><dd><p>Reordered displacements.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bt_ocean.finite_difference.diff_bounded">
+<span class="sig-prename descclassname"><span class="pre">bt_ocean.finite_difference.</span></span><span class="sig-name descname"><span class="pre">diff_bounded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_expansion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interior_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.finite_difference.diff_bounded" title="Link to this definition"></a></dt>
+<dd><p>Compute a centered finite difference approximation for a derivative for
+data stored on a uniform grid. Result is defined on the same grid as the
+input (i.e. without staggering). Transitions to one-sided differencing as
+the end-points are approached.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>u</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></span></dt><dd><p>Field to difference.</p>
+</dd>
+<dt><strong>dx</strong><span class="classifier">Real</span></dt><dd><p>Grid spacing.</p>
+</dd>
+<dt><strong>order</strong><span class="classifier">Integral</span></dt><dd><p>Derivative order.</p>
+</dd>
+<dt><strong>N</strong><span class="classifier">Integral</span></dt><dd><p>Number of grid points in the difference approximation. Centered
+differencing uses an additional right-sided point if <cite>N</cite> is even.</p>
+</dd>
+<dt><strong>axis</strong><span class="classifier">Integral</span></dt><dd><p>Axis.</p>
+</dd>
+<dt><strong>i0</strong><span class="classifier">Integral</span></dt><dd><p>Index lower limit. Values with index less than the index defined by
+<cite>i0</cite> are set to zero.</p>
+</dd>
+<dt><strong>i1</strong><span class="classifier">Integral</span></dt><dd><p>Index upper limit. Values with index greater than or equal to the index
+defined by <cite>i1</cite> are set to zero.</p>
+</dd>
+<dt><strong>boundary_expansion</strong><span class="classifier">bool</span></dt><dd><p>Whether to use one additional grid point for one-sided differencing
+near the boundary. Defaults to <cite>True</cite> if <cite>order</cite> is even and <cite>False</cite>
+otherwise.</p>
+</dd>
+<dt><strong>interior_order</strong><span class="classifier">callable</span></dt><dd><p>Used to define an ordering for interior grid points. See
+<code class="xref py py-func docutils literal notranslate"><span class="pre">ordering_reversed()</span></code> for an example. Note that a positive
+displacement corresponds to an increasing index.</p>
+</dd>
+<dt><strong>boundary_order</strong><span class="classifier">callable</span></dt><dd><p>Used to define an ordering for boundary grid points. See
+<code class="xref py py-func docutils literal notranslate"><span class="pre">ordering_reversed()</span></code> for an example. Note that a positive
+displacement corresponds to a domain inward direction.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">jax.Array</span></code></dt><dd><p>Finite difference approximation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bt_ocean.finite_difference.diff_periodic">
+<span class="sig-prename descclassname"><span class="pre">bt_ocean.finite_difference.</span></span><span class="sig-name descname"><span class="pre">diff_periodic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interior_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bt_ocean.finite_difference.diff_periodic" title="Link to this definition"></a></dt>
+<dd><p>Compute a centered finite difference approximation for a derivative for
+data stored on a uniform grid. Result is defined on the same grid as the
+input (i.e. without staggering). Applies periodic boundary conditions.</p>
+<p>Arguments and return value are as for <a class="reference internal" href="#bt_ocean.finite_difference.diff_bounded" title="bt_ocean.finite_difference.diff_bounded"><code class="xref py py-func docutils literal notranslate"><span class="pre">diff_bounded()</span></code></a>.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

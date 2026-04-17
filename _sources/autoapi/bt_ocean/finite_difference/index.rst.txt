@@ -1,0 +1,197 @@
+bt_ocean.finite_difference
+==========================
+
+.. py:module:: bt_ocean.finite_difference
+
+.. autoapi-nested-parse::
+
+   Finite difference utilities.
+
+   Finite difference coefficients are found as in equation (1.19) in
+
+       - Randall J. LeVeque, 'Finite difference methods for ordinary and partial
+         differential equations', Society for Industrial and Applied Mathematics,
+         2007
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: difference_coefficients(beta, order)
+
+   
+   Compute 1D finite difference coefficients of maximal order of accuracy.
+
+    Finite difference coefficients are found as in equation (1.19) in
+
+       - Randall J. LeVeque, 'Finite difference methods for ordinary and
+         partial differential equations', Society for Industrial and Applied
+         Mathematics, 2007
+
+   :Parameters:
+
+       **beta** : Sequence
+           Grid location displacements.
+
+       **order** : Integral
+           Derivative order.
+
+
+
+   :Returns:
+
+       tuple
+           Finite difference coefficients.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: order_reversed(alpha, beta)
+
+   
+   Defines a reversed grid point ordering. Can be used as the
+   `interior_order` or `boundary_order` argument for :func:`.diff_bounded`.
+
+
+   :Parameters:
+
+       **alpha** : Sequence
+           Coefficients.
+
+       **beta** : Sequence
+           Displacements
+
+
+
+   :Returns:
+
+       tuple
+           Reordered coefficients.
+
+       tuple
+           Reordered displacements.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: diff_bounded(u, dx, order, N, *, axis=-1, i0=None, i1=None, boundary_expansion=None, interior_order=None, boundary_order=None)
+
+   
+   Compute a centered finite difference approximation for a derivative for
+   data stored on a uniform grid. Result is defined on the same grid as the
+   input (i.e. without staggering). Transitions to one-sided differencing as
+   the end-points are approached.
+
+
+   :Parameters:
+
+       **u** : :class:`jax.Array`
+           Field to difference.
+
+       **dx** : Real
+           Grid spacing.
+
+       **order** : Integral
+           Derivative order.
+
+       **N** : Integral
+           Number of grid points in the difference approximation. Centered
+           differencing uses an additional right-sided point if `N` is even.
+
+       **axis** : Integral
+           Axis.
+
+       **i0** : Integral
+           Index lower limit. Values with index less than the index defined by
+           `i0` are set to zero.
+
+       **i1** : Integral
+           Index upper limit. Values with index greater than or equal to the index
+           defined by `i1` are set to zero.
+
+       **boundary_expansion** : bool
+           Whether to use one additional grid point for one-sided differencing
+           near the boundary. Defaults to `True` if `order` is even and `False`
+           otherwise.
+
+       **interior_order** : callable
+           Used to define an ordering for interior grid points. See
+           :func:`.ordering_reversed` for an example. Note that a positive
+           displacement corresponds to an increasing index.
+
+       **boundary_order** : callable
+           Used to define an ordering for boundary grid points. See
+           :func:`.ordering_reversed` for an example. Note that a positive
+           displacement corresponds to a domain inward direction.
+
+
+
+   :Returns:
+
+       :class:`jax.Array`
+           Finite difference approximation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: diff_periodic(u, dx, order, N, *, axis=-1, interior_order=None)
+
+   
+   Compute a centered finite difference approximation for a derivative for
+   data stored on a uniform grid. Result is defined on the same grid as the
+   input (i.e. without staggering). Applies periodic boundary conditions.
+
+   Arguments and return value are as for :func:`.diff_bounded`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
